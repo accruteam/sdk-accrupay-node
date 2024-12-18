@@ -1,0 +1,129 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+
+    steps:
+      - name: Checkout to Branch
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn release
+        env:
+          HUSKY: 0
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Get release information
+        if: steps.changesets.outputs.published == 'true'
+        id: get-release
+        uses: actions/github-script@v6
+        with:
+          result-encoding: string
+          script: |
+            const release = await github.rest.repos.getReleaseByTag({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag: "v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}"
+            });
+            return release.data.body;
+
+      - name: Send a Slack notification if a publish happens
+        if: steps.changesets.outputs.published == 'true'
+        id: slack
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload-templated: true
+          payload: |
+            {
+              "text": "[AccruPay] A new version of ${{ github.repository }} was published! :tada:",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": ":package: *${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }} v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }} published* :rocket:\n Update frontend using `yarn add ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }}@${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}`"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                  "type": "mrkdwn",
+                  "text": "*Release Notes:*\n${{ steps.get-release.outputs.result }}"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": ":mag_right: See action run"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                      "type": "plain_text",
+                      "text": ":bookmark: View Release"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                      "type": "plain_text",
+                      "text": ":bookmark_tabs: Checkout to Git Tag"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/tree/v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": ":package: Open NPM package"
+                      },
+                      "url": "https://www.npmjs.com/package/${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }}/v/${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}"
+                    }
+                  ]
+                }
+              ]
+            }
