@@ -55,14 +55,15 @@ jobs:
         with:
           result-encoding: string
           script: |
+            const markdownParser = require('slackify-markdown');
             const release = await github.rest.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag: "v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}"
             });
-            return release.data.body;
+            return markdownParser(release.data.body);
 
-      - name: Send a Slack notification if a publish happens
+      - name: Send a Slack notification
         if: steps.changesets.outputs.published == 'true'
         id: slack
         uses: slackapi/slack-github-action@v2.0.0
@@ -78,14 +79,14 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": ":package: *${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }} v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }} published* :rocket:\n Update frontend using `yarn add ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }}@${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}`"
+                    "text": "[AccruPay] :package: *${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }} v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }} published* :rocket:\n Update the package using `yarn add ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }}@${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}` or `npm install ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }}@${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}`"
                   }
                 },
                 {
                   "type": "section",
                   "text": {
-                  "type": "mrkdwn",
-                  "text": "*Release Notes:*\n${{ steps.get-release.outputs.result }}"
+                    "type": "mrkdwn",
+                    "text": "*Release Notes:*\n\n${{ steps.get-release.outputs.result }}"
                   }
                 },
                 {
