@@ -73,13 +73,13 @@ jobs:
           payload-templated: true
           payload: |
             {
-              "text": "[AccruPay] A new version of ${{ github.repository }} was published! :tada:",
+              "text": "[AccruPay] A new version of ${{ github.repository }} was published! Version ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }} is now available! :tada:",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "[AccruPay] :package: *${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }} v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }} published* :rocket:\n Update the package using `yarn add ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }}@${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}` or `npm install ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }}@${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}`"
+                    "text": "*[AccruPay] :package: ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }} v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }} published* :rocket:\nUpdate the package using `npm install ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].name }}@${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}`"
                   }
                 },
                 {
@@ -135,7 +135,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin
-          git checkout develop || git checkout -b develop
+          git checkout develop || (git fetch origin develop && git checkout develop) || git checkout -b develop
+          git pull origin develop || echo "Pull failed"
           git merge main --no-ff --no-edit || echo "Merge failed, resolving manually required"
           git push origin develop || echo "Push failed"
         continue-on-error: true
