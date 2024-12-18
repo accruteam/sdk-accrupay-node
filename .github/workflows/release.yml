@@ -135,7 +135,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin
-          git checkout develop || (git fetch origin develop && git checkout develop) || git checkout -b develop
+          git fetch origin develop:develop
+          git checkout develop
           git pull origin develop || echo "Pull failed"
           git merge main --no-ff --no-edit || echo "Merge failed, resolving manually required"
           git push origin develop || echo "Push failed"
