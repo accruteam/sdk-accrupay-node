@@ -6,7 +6,7 @@ import { MERCHANTS_GET_CURRENT_QUERY } from './queries';
 class Merchants {
   constructor(private context: AccruPaySdkContext) {}
 
-  public async getOne(
+  public async getCurrent(
     variables: MerchantQueryVariables,
   ): Promise<Res<MerchantQuery>> {
     const { data } = await this.context.apolloClient.query({

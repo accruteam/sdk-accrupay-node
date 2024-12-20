@@ -4,22 +4,304 @@ input AdminMerchantCreateSchema {
   phone: String
 }
 
-input AdminMerchantPaymentProviderCreateSchema {
+input AdminMerchantTransactionProviderCreateSchema {
   credentials: JSON!
   merchantId: String!
-  provider: PAYMENT_PROVIDER!
-  status: MERCHANT_PAYMENT_PROVIDER_STATUS!
+  provider: TRANSACTION_PROVIDER!
+  status: MERCHANT_TRANSACTION_PROVIDER_STATUS!
 }
 
-input AdminMerchantPaymentProviderUpdateSchema {
+input AdminMerchantTransactionProviderUpdateSchema {
   credentials: JSON
-  status: MERCHANT_PAYMENT_PROVIDER_STATUS
+  status: MERCHANT_TRANSACTION_PROVIDER_STATUS
 }
 
 input AdminMerchantUpdateSchema {
   email: String
   name: String
   phone: String
+}
+
+"""
+The `BigInt` scalar type represents non-fractional signed whole numeric values.
+"""
+scalar BigInt
+
+input BillingDataSchema {
+  billingAddressCity: String!
+
+  """
+  Country using the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format (e.g. US, UK, etc.).
+  """
+  billingAddressCountry: COUNTRY_ISO_2!
+  billingAddressLine1: String!
+  billingAddressLine2: String
+  billingAddressPostalCode: String!
+
+  """
+  State using the [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) format for main country subdivisions, provinces, states (e.g. [for US] → NY, IN, CA, etc.). The [iso-3166-2](https://www.npmjs.com/package/iso-3166-2) package is suggested.
+  """
+  billingAddressState: String!
+  billingEmail: String!
+  billingFirstName: String!
+  billingLastName: String!
+  billingPhone: String
+}
+
+enum COUNTRY_ISO_2 {
+  AD
+  AE
+  AF
+  AG
+  AI
+  AL
+  AM
+  AO
+  AQ
+  AR
+  AS
+  AT
+  AU
+  AW
+  AX
+  AZ
+  BA
+  BB
+  BD
+  BE
+  BF
+  BG
+  BH
+  BI
+  BJ
+  BL
+  BM
+  BN
+  BO
+  BQ
+  BR
+  BS
+  BT
+  BV
+  BW
+  BY
+  BZ
+  CA
+  CC
+  CD
+  CF
+  CG
+  CH
+  CI
+  CK
+  CL
+  CM
+  CN
+  CO
+  CR
+  CU
+  CV
+  CW
+  CX
+  CY
+  CZ
+  DE
+  DJ
+  DK
+  DM
+  DO
+  DZ
+  EC
+  EE
+  EG
+  EH
+  ER
+  ES
+  ET
+  FI
+  FJ
+  FK
+  FM
+  FO
+  FR
+  GA
+  GB
+  GD
+  GE
+  GF
+  GG
+  GH
+  GI
+  GL
+  GM
+  GN
+  GP
+  GQ
+  GR
+  GS
+  GT
+  GU
+  GW
+  GY
+  HK
+  HM
+  HN
+  HR
+  HT
+  HU
+  ID
+  IE
+  IL
+  IM
+  IN
+  IO
+  IQ
+  IR
+  IS
+  IT
+  JE
+  JM
+  JO
+  JP
+  KE
+  KG
+  KH
+  KI
+  KM
+  KN
+  KP
+  KR
+  KW
+  KY
+  KZ
+  LA
+  LB
+  LC
+  LI
+  LK
+  LR
+  LS
+  LT
+  LU
+  LV
+  LY
+  MA
+  MC
+  MD
+  ME
+  MF
+  MG
+  MH
+  MK
+  ML
+  MM
+  MN
+  MO
+  MP
+  MQ
+  MR
+  MS
+  MT
+  MU
+  MV
+  MW
+  MX
+  MY
+  MZ
+  NA
+  NC
+  NE
+  NF
+  NG
+  NI
+  NL
+  NO
+  NP
+  NR
+  NU
+  NZ
+  OM
+  PA
+  PE
+  PF
+  PG
+  PH
+  PK
+  PL
+  PM
+  PN
+  PR
+  PS
+  PT
+  PW
+  PY
+  QA
+  RE
+  RO
+  RS
+  RU
+  RW
+  SA
+  SB
+  SC
+  SD
+  SE
+  SG
+  SH
+  SI
+  SJ
+  SK
+  SL
+  SM
+  SN
+  SO
+  SR
+  SS
+  ST
+  SV
+  SX
+  SY
+  SZ
+  TC
+  TD
+  TF
+  TG
+  TH
+  TJ
+  TK
+  TL
+  TM
+  TN
+  TO
+  TR
+  TT
+  TV
+  TW
+  TZ
+  UA
+  UG
+  UM
+  US
+  UY
+  UZ
+  VA
+  VC
+  VE
+  VG
+  VI
+  VN
+  VU
+  WF
+  WS
+  YE
+  YT
+  ZA
+  ZM
+  ZW
+}
+
+enum CURRENCY {
+  USD
 }
 
 """Cursor for pagination"""
@@ -35,25 +317,25 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 """
 scalar JSON
 
-enum MERCHANT_PAYMENT_PROVIDER_STATUS {
-  DISABLED
-  ENABLED
-}
-
 enum MERCHANT_STATUS {
   ACTIVE
   DISABLED
   PENDING
 }
 
+enum MERCHANT_TRANSACTION_PROVIDER_STATUS {
+  DISABLED
+  ENABLED
+}
+
 type Merchant {
-  apiSecret: String
-  apiSecretUpdatedAt: DateTimeISO
   createdAt: DateTimeISO!
   email: String!
   id: ID!
   name: String!
   phone: String
+  publicId: String
+  publicIdUpdatedAt: DateTimeISO
   status: MERCHANT_STATUS!
   updatedAt: DateTimeISO!
 }
@@ -64,24 +346,24 @@ type MerchantCustomerPaymentMethod {
   isDefault: Boolean!
   isEnabled: Boolean!
   merchantCustomerCode: String!
+  methodType: PAYMENT_METHOD!
   paymentMethodInfo: MerchantCustomerPaymentMethodInfo
-  paymentProviderId: String!
   providerCode: String!
   providerError: String
   providerLastVerifiedAt: DateTimeISO!
   providerStatus: PAYMENT_METHOD_STATUS!
-  type: PAYMENT_METHOD!
+  transactionProviderId: String!
   updatedAt: DateTimeISO!
 }
 
 type MerchantCustomerPaymentMethodCreditCardInfo {
   cardBrand: String
   cardNumberMasked: String
-  type: PAYMENT_METHOD!
+  methodType: PAYMENT_METHOD!
 }
 
 type MerchantCustomerPaymentMethodGenericInfo {
-  type: PAYMENT_METHOD!
+  methodType: PAYMENT_METHOD!
 }
 
 union MerchantCustomerPaymentMethodInfo = MerchantCustomerPaymentMethodCreditCardInfo | MerchantCustomerPaymentMethodGenericInfo
@@ -108,35 +390,91 @@ type MerchantPaginationEdge {
   node: Merchant!
 }
 
-type MerchantPaymentProvider {
+type MerchantTransaction {
+  amount: BigInt!
+  canceledAt: DateTimeISO
   createdAt: DateTimeISO!
-  credentials: JSON!
+  currency: CURRENCY!
+  disputedAt: DateTimeISO
+  failedAt: DateTimeISO
   id: ID!
-  merchantId: String!
-  provider: PAYMENT_PROVIDER!
-  status: MERCHANT_PAYMENT_PROVIDER_STATUS!
+  merchantCustomerCode: String!
+  merchantTransactionCode: String!
+  payload: JSON!
+  paymentMethod: MerchantCustomerPaymentMethod
+  paymentMethodId: String
+  paymentMethodType: PAYMENT_METHOD
+  providerCode: String!
+  providerError: String
+  providerLastVerifiedAt: DateTimeISO!
+  providerStatus: TRANSACTION_STATUS!
+  revertedAt: DateTimeISO
+  startedAt: DateTimeISO
+  status: TRANSACTION_STATUS!
+  storePaymentMethod: Boolean!
+  succeededAt: DateTimeISO
+  token: String
+  tokenExpiresAt: String
+  transactionDate: DateTimeISO!
+  transactionProvider: MerchantTransactionProvider!
+  transactionProviderId: String!
   updatedAt: DateTimeISO!
 }
 
-type MerchantPaymentProviderPaginationConnection {
-  edges: [MerchantPaymentProviderPaginationEdge!]!
+type MerchantTransactionPaginationConnection {
+  edges: [MerchantTransactionPaginationEdge!]!
   pageInfo: PageInfo!
   totalCount: Int!
 }
 
-type MerchantPaymentProviderPaginationEdge {
+type MerchantTransactionPaginationEdge {
   cursor: ConnectionCursor!
-  node: MerchantPaymentProvider!
+  node: MerchantTransaction!
+}
+
+type MerchantTransactionProvider {
+  createdAt: DateTimeISO!
+  credentials: JSON!
+  id: ID!
+  merchantId: String!
+  provider: TRANSACTION_PROVIDER!
+  status: MERCHANT_TRANSACTION_PROVIDER_STATUS!
+  updatedAt: DateTimeISO!
+}
+
+type MerchantTransactionProviderPaginationConnection {
+  edges: [MerchantTransactionProviderPaginationEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type MerchantTransactionProviderPaginationEdge {
+  cursor: ConnectionCursor!
+  node: MerchantTransactionProvider!
+}
+
+input MerchantTransactionStartSchema {
+  amount: BigInt!
+  billing: BillingDataSchema!
+  currency: CURRENCY!
+  merchantCustomerCode: String!
+  merchantTransactionCode: String!
+  storePaymentMethod: Boolean!
+  transactionProviderId: String!
 }
 
 type Mutation {
   adminMerchantCreate(data: AdminMerchantCreateSchema!): Merchant!
-  adminMerchantPaymentProviderCreate(data: AdminMerchantPaymentProviderCreateSchema!): MerchantPaymentProvider!
-  adminMerchantPaymentProviderUpdate(data: AdminMerchantPaymentProviderUpdateSchema!, merchantPaymentProviderId: String!): MerchantPaymentProvider!
   adminMerchantResetApiSecret(merchantId: String!): Merchant!
+  adminMerchantResetPublicId(merchantId: String!): Merchant!
+  adminMerchantTransactionProviderCreate(data: AdminMerchantTransactionProviderCreateSchema!): MerchantTransactionProvider!
+  adminMerchantTransactionProviderUpdate(data: AdminMerchantTransactionProviderUpdateSchema!, merchantTransactionProviderId: String!): MerchantTransactionProvider!
   adminMerchantUpdate(data: AdminMerchantUpdateSchema!, merchantId: String!): Merchant!
   adminMerchantUpdateStatus(merchantId: String!, status: MERCHANT_STATUS!): Merchant!
   merchantCustomerPaymentMethodDelete(merchantCustomerPaymentMethodId: String!): Void!
+  merchantTransactionVoid(merchantTransactionId: String!): MerchantTransaction!
+  merchantTransactionWebSdkSessionStart(data: MerchantTransactionStartSchema!): MerchantTransaction!
+  merchantTransactionWebSdkSessionVerify(merchantTransactionId: String!): MerchantTransaction!
 }
 
 enum PAYMENT_METHOD {
@@ -148,10 +486,6 @@ enum PAYMENT_METHOD_STATUS {
   ENABLED
 }
 
-enum PAYMENT_PROVIDER {
-  NUVEI
-}
-
 type PageInfo {
   endCursor: String
   hasNextPage: Boolean!
@@ -161,17 +495,19 @@ type PageInfo {
 
 type Query {
   adminMerchant(merchantId: String!): Merchant!
-  adminMerchantPaymentProvider(merchantPaymentProviderId: String!): MerchantPaymentProvider!
-  adminMerchantPaymentProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, merchantId: String, provider: PAYMENT_PROVIDER, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_PAYMENT_PROVIDER_STATUS, take: Int): MerchantPaymentProviderPaginationConnection!
-  adminMerchants(after: ConnectionCursor, apiSecret: String, before: ConnectionCursor, email: String, first: Int, id: String, last: Int, name: String, phone: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_STATUS, take: Int): MerchantPaginationConnection!
+  adminMerchantTransactionProvider(merchantTransactionProviderId: String!): MerchantTransactionProvider!
+  adminMerchantTransactionProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, merchantId: String, provider: TRANSACTION_PROVIDER, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_TRANSACTION_PROVIDER_STATUS, take: Int): MerchantTransactionProviderPaginationConnection!
+  adminMerchants(after: ConnectionCursor, apiSecret: String, before: ConnectionCursor, email: String, first: Int, id: String, last: Int, name: String, phone: String, publicId: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_STATUS, take: Int): MerchantPaginationConnection!
   healthCheck: DateTimeISO!
   healthLivenessCheck: DateTimeISO!
   healthReadinessCheck: DateTimeISO!
   merchant: Merchant!
   merchantCustomerPaymentMethod(merchantCustomerPaymentMethodId: String!): MerchantCustomerPaymentMethod!
-  merchantCustomerPaymentMethods(after: ConnectionCursor, before: ConnectionCursor, first: Int, hasProviderError: Boolean, id: String, isDefault: Boolean, last: Int, merchantCustomerCode: String, paymentProvider: PAYMENT_PROVIDER, paymentProviderId: String, providerCode: String, skip: Int, sorting: [SortingFieldSchema!], take: Int, type: PAYMENT_METHOD): MerchantCustomerPaymentMethodPaginationConnection!
-  merchantPaymentProvider(merchantPaymentProviderId: String!): MerchantPaymentProvider!
-  merchantPaymentProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, provider: PAYMENT_PROVIDER, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_PAYMENT_PROVIDER_STATUS, take: Int): MerchantPaymentProviderPaginationConnection!
+  merchantCustomerPaymentMethods(after: ConnectionCursor, before: ConnectionCursor, first: Int, hasProviderError: Boolean, id: String, isDefault: Boolean, last: Int, merchantCustomerCode: String, methodType: PAYMENT_METHOD, providerCode: String, skip: Int, sorting: [SortingFieldSchema!], take: Int, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantCustomerPaymentMethodPaginationConnection!
+  merchantTransaction(merchantTransactionId: String!): MerchantTransaction!
+  merchantTransactionProvider(merchantTransactionProviderId: String!): MerchantTransactionProvider!
+  merchantTransactionProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, provider: TRANSACTION_PROVIDER, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_TRANSACTION_PROVIDER_STATUS, take: Int): MerchantTransactionProviderPaginationConnection!
+  merchantTransactions(after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantCustomerCode: String, merchantTransactionCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, providerCode: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, succeeded: Boolean, take: Int, token: String, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
 }
 
 enum SORT_ORDER {
@@ -182,6 +518,21 @@ enum SORT_ORDER {
 input SortingFieldSchema {
   field: String!
   order: SORT_ORDER!
+}
+
+enum TRANSACTION_PROVIDER {
+  NUVEI
+}
+
+enum TRANSACTION_STATUS {
+  DISPUTED
+  EXPIRED
+  FAILED
+  PENDING
+  REVERTED
+  STARTED
+  SUCCEEDED
+  UNKNOWN
 }
 
 """Represents NULL values"""
