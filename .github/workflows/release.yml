@@ -27,6 +27,11 @@ jobs:
       - name: Checkout to Branch
         uses: actions/checkout@v3
 
+      - name: Extract branch name
+        id: extract-branch
+        shell: bash
+        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+
       - name: Setup Node.js 22
         uses: actions/setup-node@v3
         with:
@@ -138,6 +143,6 @@ jobs:
           git fetch origin develop:develop || echo "Fetch develop failed"
           git checkout develop || echo "Checkout failed"
           git pull origin develop || echo "Pull failed"
-          git merge main --no-ff --no-edit || echo "Merge failed, resolving manually required"
+          git merge ${{ steps.extract-branch.outputs.branch }} --no-ff --allow-unrelated-histories --no-edit || echo "Merge failed, resolving manually required"
           git push origin develop || echo "Push failed"
         continue-on-error: true

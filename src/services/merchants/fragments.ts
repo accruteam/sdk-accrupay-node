@@ -7,8 +7,8 @@ export const MERCHANT_FRAGMENT = gql(`
     name
     phone
     status
-    apiSecret
-    apiSecretUpdatedAt
+    publicId
+    publicIdUpdatedAt
     createdAt
     updatedAt
   }
