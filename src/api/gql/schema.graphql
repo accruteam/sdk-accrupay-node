@@ -391,8 +391,10 @@ type MerchantPaginationEdge {
 }
 
 type MerchantTransaction {
+  action: TRANSACTION_ACTION!
   amount: BigInt!
   canceledAt: DateTimeISO
+  code: String!
   createdAt: DateTimeISO!
   currency: CURRENCY!
   disputedAt: DateTimeISO
@@ -472,9 +474,9 @@ type Mutation {
   adminMerchantUpdate(data: AdminMerchantUpdateSchema!, merchantId: String!): Merchant!
   adminMerchantUpdateStatus(merchantId: String!, status: MERCHANT_STATUS!): Merchant!
   merchantCustomerPaymentMethodDelete(merchantCustomerPaymentMethodId: String!): Void!
+  merchantTransactionClientPaymentSessionStart(data: MerchantTransactionStartSchema!): MerchantTransaction!
+  merchantTransactionClientPaymentSessionVerify(merchantTransactionId: String!): MerchantTransaction!
   merchantTransactionVoid(merchantTransactionId: String!): MerchantTransaction!
-  merchantTransactionWebSdkSessionStart(data: MerchantTransactionStartSchema!): MerchantTransaction!
-  merchantTransactionWebSdkSessionVerify(merchantTransactionId: String!): MerchantTransaction!
 }
 
 enum PAYMENT_METHOD {
@@ -507,7 +509,7 @@ type Query {
   merchantTransaction(merchantTransactionId: String!): MerchantTransaction!
   merchantTransactionProvider(merchantTransactionProviderId: String!): MerchantTransactionProvider!
   merchantTransactionProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, provider: TRANSACTION_PROVIDER, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_TRANSACTION_PROVIDER_STATUS, take: Int): MerchantTransactionProviderPaginationConnection!
-  merchantTransactions(after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantCustomerCode: String, merchantTransactionCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, providerCode: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, succeeded: Boolean, take: Int, token: String, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
+  merchantTransactions(action: TRANSACTION_ACTION, after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, code: String, currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantCustomerCode: String, merchantTransactionCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, providerCode: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, succeeded: Boolean, take: Int, token: String, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
 }
 
 enum SORT_ORDER {
@@ -518,6 +520,13 @@ enum SORT_ORDER {
 input SortingFieldSchema {
   field: String!
   order: SORT_ORDER!
+}
+
+enum TRANSACTION_ACTION {
+  AUTHORIZATION
+  PAYMENT
+  REFUND
+  VOID
 }
 
 enum TRANSACTION_PROVIDER {
