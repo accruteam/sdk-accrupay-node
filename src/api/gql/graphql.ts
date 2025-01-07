@@ -50,6 +50,17 @@ export type AdminMerchantUpdateSchema = {
   phone?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type AdminMerchantUserCreateSchema = {
+  isEnabled: Scalars['Boolean']['input'];
+  role: MERCHANT_USER_ROLE;
+  userId: Scalars['String']['input'];
+};
+
+export type AdminMerchantUserUpdateSchema = {
+  isEnabled: Scalars['Boolean']['input'];
+  role: MERCHANT_USER_ROLE;
+};
+
 export type BillingDataSchema = {
   billingAddressCity: Scalars['String']['input'];
   /** Country using the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format (e.g. US, UK, etc.). */
@@ -332,13 +343,22 @@ export enum MERCHANT_TRANSACTION_PROVIDER_STATUS {
   ENABLED = 'ENABLED'
 }
 
+export enum MERCHANT_USER_ROLE {
+  ADMIN = 'ADMIN',
+  DEVELOPER = 'DEVELOPER',
+  OWNER = 'OWNER',
+  VIEWER = 'VIEWER'
+}
+
 export type Merchant = {
   __typename?: 'Merchant';
   createdAt: Scalars['DateTimeISO']['output'];
   email: Scalars['String']['output'];
+  emailVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   phone?: Maybe<Scalars['String']['output']>;
+  phoneVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   publicId?: Maybe<Scalars['String']['output']>;
   publicIdUpdatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   status: MERCHANT_STATUS;
@@ -404,8 +424,10 @@ export type MerchantPaginationEdge = {
 
 export type MerchantTransaction = {
   __typename?: 'MerchantTransaction';
+  action: TRANSACTION_ACTION;
   amount: Scalars['BigInt']['output'];
   canceledAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  code: Scalars['String']['output'];
   createdAt: Scalars['DateTimeISO']['output'];
   currency: CURRENCY;
   disputedAt?: Maybe<Scalars['DateTimeISO']['output']>;
@@ -415,6 +437,7 @@ export type MerchantTransaction = {
   merchantTransactionCode: Scalars['String']['output'];
   payload: Scalars['JSON']['output'];
   paymentMethod?: Maybe<MerchantCustomerPaymentMethod>;
+  paymentMethodCode?: Maybe<Scalars['String']['output']>;
   paymentMethodId?: Maybe<Scalars['String']['output']>;
   paymentMethodType?: Maybe<PAYMENT_METHOD>;
   providerCode: Scalars['String']['output'];
@@ -481,6 +504,32 @@ export type MerchantTransactionStartSchema = {
   transactionProviderId: Scalars['String']['input'];
 };
 
+export type MerchantUser = {
+  __typename?: 'MerchantUser';
+  createdAt: Scalars['DateTimeISO']['output'];
+  id: Scalars['ID']['output'];
+  isEnabled: Scalars['Boolean']['output'];
+  merchant: Merchant;
+  merchantId: Scalars['String']['output'];
+  role: MERCHANT_USER_ROLE;
+  updatedAt: Scalars['DateTimeISO']['output'];
+  user: User;
+  userId: Scalars['String']['output'];
+};
+
+export type MerchantUserPaginationConnection = {
+  __typename?: 'MerchantUserPaginationConnection';
+  edges: Array<MerchantUserPaginationEdge>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type MerchantUserPaginationEdge = {
+  __typename?: 'MerchantUserPaginationEdge';
+  cursor: Scalars['ConnectionCursor']['output'];
+  node: MerchantUser;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   adminMerchantCreate: Merchant;
@@ -490,10 +539,13 @@ export type Mutation = {
   adminMerchantTransactionProviderUpdate: MerchantTransactionProvider;
   adminMerchantUpdate: Merchant;
   adminMerchantUpdateStatus: Merchant;
+  adminMerchantUserCreate: MerchantUser;
+  adminMerchantUserUpdate: MerchantUser;
   merchantCustomerPaymentMethodDelete: Scalars['Void']['output'];
+  merchantTransactionClientPaymentSessionStart: MerchantTransaction;
+  merchantTransactionClientPaymentSessionVerify: MerchantTransaction;
   merchantTransactionVoid: MerchantTransaction;
-  merchantTransactionWebSdkSessionStart: MerchantTransaction;
-  merchantTransactionWebSdkSessionVerify: MerchantTransaction;
+  userSessionsClose: Scalars['Void']['output'];
 };
 
 
@@ -535,22 +587,34 @@ export type MutationadminMerchantUpdateStatusArgs = {
 };
 
 
+export type MutationadminMerchantUserCreateArgs = {
+  data: AdminMerchantUserCreateSchema;
+  merchantId: Scalars['String']['input'];
+};
+
+
+export type MutationadminMerchantUserUpdateArgs = {
+  data: AdminMerchantUserUpdateSchema;
+  merchantUserId: Scalars['String']['input'];
+};
+
+
 export type MutationmerchantCustomerPaymentMethodDeleteArgs = {
   merchantCustomerPaymentMethodId: Scalars['String']['input'];
 };
 
 
-export type MutationmerchantTransactionVoidArgs = {
-  merchantTransactionId: Scalars['String']['input'];
-};
-
-
-export type MutationmerchantTransactionWebSdkSessionStartArgs = {
+export type MutationmerchantTransactionClientPaymentSessionStartArgs = {
   data: MerchantTransactionStartSchema;
 };
 
 
-export type MutationmerchantTransactionWebSdkSessionVerifyArgs = {
+export type MutationmerchantTransactionClientPaymentSessionVerifyArgs = {
+  merchantTransactionId: Scalars['String']['input'];
+};
+
+
+export type MutationmerchantTransactionVoidArgs = {
   merchantTransactionId: Scalars['String']['input'];
 };
 
@@ -576,7 +640,10 @@ export type Query = {
   adminMerchant: Merchant;
   adminMerchantTransactionProvider: MerchantTransactionProvider;
   adminMerchantTransactionProviders: MerchantTransactionProviderPaginationConnection;
+  adminMerchantUser: MerchantUser;
+  adminMerchantUsers: MerchantUserPaginationConnection;
   adminMerchants: MerchantPaginationConnection;
+  adminUsers: UserPaginationConnection;
   healthCheck: Scalars['DateTimeISO']['output'];
   healthLivenessCheck: Scalars['DateTimeISO']['output'];
   healthReadinessCheck: Scalars['DateTimeISO']['output'];
@@ -587,6 +654,9 @@ export type Query = {
   merchantTransactionProvider: MerchantTransactionProvider;
   merchantTransactionProviders: MerchantTransactionProviderPaginationConnection;
   merchantTransactions: MerchantTransactionPaginationConnection;
+  user: User;
+  userMerchant: Merchant;
+  userMerchants: MerchantPaginationConnection;
 };
 
 
@@ -615,20 +685,63 @@ export type QueryadminMerchantTransactionProvidersArgs = {
 };
 
 
+export type QueryadminMerchantUserArgs = {
+  merchantUserId: Scalars['String']['input'];
+};
+
+
+export type QueryadminMerchantUsersArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  isEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  role?: InputMaybe<MERCHANT_USER_ROLE>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  userEmail?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  userName?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryadminMerchantsArgs = {
   after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   apiSecret?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
+  emailVerifiedAt?: InputMaybe<Scalars['Boolean']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
+  phoneVerifiedAt?: InputMaybe<Scalars['Boolean']['input']>;
   publicId?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
   sorting?: InputMaybe<Array<SortingFieldSchema>>;
   status?: InputMaybe<MERCHANT_STATUS>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryadminUsersArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  emailVerified?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  phoneVerified?: InputMaybe<Scalars['Boolean']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -682,9 +795,11 @@ export type QuerymerchantTransactionProvidersArgs = {
 
 
 export type QuerymerchantTransactionsArgs = {
+  action?: InputMaybe<TRANSACTION_ACTION>;
   after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   canceled?: InputMaybe<Scalars['Boolean']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<CURRENCY>;
   disputed?: InputMaybe<Scalars['Boolean']['input']>;
   failed?: InputMaybe<Scalars['Boolean']['input']>;
@@ -709,6 +824,31 @@ export type QuerymerchantTransactionsArgs = {
   transactionProviderId?: InputMaybe<Scalars['String']['input']>;
 };
 
+
+export type QueryuserMerchantArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantsArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  apiSecret?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  emailVerifiedAt?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  phoneVerifiedAt?: InputMaybe<Scalars['Boolean']['input']>;
+  publicId?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  status?: InputMaybe<MERCHANT_STATUS>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export enum SORT_ORDER {
   ASC = 'ASC',
   DESC = 'DESC'
@@ -718,6 +858,13 @@ export type SortingFieldSchema = {
   field: Scalars['String']['input'];
   order: SORT_ORDER;
 };
+
+export enum TRANSACTION_ACTION {
+  AUTHORIZATION = 'AUTHORIZATION',
+  PAYMENT = 'PAYMENT',
+  REFUND = 'REFUND',
+  VOID = 'VOID'
+}
 
 export enum TRANSACTION_PROVIDER {
   NUVEI = 'NUVEI'
@@ -733,6 +880,33 @@ export enum TRANSACTION_STATUS {
   SUCCEEDED = 'SUCCEEDED',
   UNKNOWN = 'UNKNOWN'
 }
+
+export type User = {
+  __typename?: 'User';
+  createdAt: Scalars['DateTimeISO']['output'];
+  email: Scalars['String']['output'];
+  emailVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  id: Scalars['ID']['output'];
+  isAdmin: Scalars['Boolean']['output'];
+  merchants: Array<MerchantUser>;
+  name: Scalars['String']['output'];
+  phone?: Maybe<Scalars['String']['output']>;
+  phoneVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  updatedAt: Scalars['DateTimeISO']['output'];
+};
+
+export type UserPaginationConnection = {
+  __typename?: 'UserPaginationConnection';
+  edges: Array<UserPaginationEdge>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type UserPaginationEdge = {
+  __typename?: 'UserPaginationEdge';
+  cursor: Scalars['ConnectionCursor']['output'];
+  node: User;
+};
 
 export type MerchantFragmentFragment = { __typename?: 'Merchant', id: string, email: string, name: string, phone?: string | null, status: MERCHANT_STATUS, publicId?: string | null, publicIdUpdatedAt?: any | null, createdAt: any, updatedAt: any };
 
@@ -843,19 +1017,19 @@ export type MerchantTransactionQueryVariables = Exact<{
 
 export type MerchantTransactionQuery = { __typename?: 'Query', merchantTransaction: { __typename?: 'MerchantTransaction', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: string | null, paymentMethodType?: PAYMENT_METHOD | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: any, startedAt?: any | null, succeededAt?: any | null, failedAt?: any | null, canceledAt?: any | null, revertedAt?: any | null, disputedAt?: any | null, storePaymentMethod: boolean, merchantCustomerCode: string, merchantTransactionCode: string, createdAt: any, updatedAt: any, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, credentials: any, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: any, updatedAt: any, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, merchantCustomerCode: string, createdAt: any, updatedAt: any, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null } };
 
-export type MerchantTransactionWebSdkSessionStartMutationVariables = Exact<{
+export type MerchantTransactionClientPaymentSessionStartMutationVariables = Exact<{
   data: MerchantTransactionStartSchema;
 }>;
 
 
-export type MerchantTransactionWebSdkSessionStartMutation = { __typename?: 'Mutation', merchantTransactionWebSdkSessionStart: { __typename?: 'MerchantTransaction', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: string | null, paymentMethodType?: PAYMENT_METHOD | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: any, startedAt?: any | null, succeededAt?: any | null, failedAt?: any | null, canceledAt?: any | null, revertedAt?: any | null, disputedAt?: any | null, storePaymentMethod: boolean, merchantCustomerCode: string, merchantTransactionCode: string, createdAt: any, updatedAt: any, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, credentials: any, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: any, updatedAt: any, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, merchantCustomerCode: string, createdAt: any, updatedAt: any, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null } };
+export type MerchantTransactionClientPaymentSessionStartMutation = { __typename?: 'Mutation', merchantTransactionClientPaymentSessionStart: { __typename?: 'MerchantTransaction', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: string | null, paymentMethodType?: PAYMENT_METHOD | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: any, startedAt?: any | null, succeededAt?: any | null, failedAt?: any | null, canceledAt?: any | null, revertedAt?: any | null, disputedAt?: any | null, storePaymentMethod: boolean, merchantCustomerCode: string, merchantTransactionCode: string, createdAt: any, updatedAt: any, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, credentials: any, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: any, updatedAt: any, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, merchantCustomerCode: string, createdAt: any, updatedAt: any, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null } };
 
-export type MerchantTransactionWebSdkSessionVerifyMutationVariables = Exact<{
+export type MerchantTransactionClientPaymentSessionVerifyMutationVariables = Exact<{
   merchantTransactionId: Scalars['String']['input'];
 }>;
 
 
-export type MerchantTransactionWebSdkSessionVerifyMutation = { __typename?: 'Mutation', merchantTransactionWebSdkSessionVerify: { __typename?: 'MerchantTransaction', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: string | null, paymentMethodType?: PAYMENT_METHOD | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: any, startedAt?: any | null, succeededAt?: any | null, failedAt?: any | null, canceledAt?: any | null, revertedAt?: any | null, disputedAt?: any | null, storePaymentMethod: boolean, merchantCustomerCode: string, merchantTransactionCode: string, createdAt: any, updatedAt: any, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, credentials: any, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: any, updatedAt: any, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, merchantCustomerCode: string, createdAt: any, updatedAt: any, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null } };
+export type MerchantTransactionClientPaymentSessionVerifyMutation = { __typename?: 'Mutation', merchantTransactionClientPaymentSessionVerify: { __typename?: 'MerchantTransaction', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: string | null, paymentMethodType?: PAYMENT_METHOD | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: any, startedAt?: any | null, succeededAt?: any | null, failedAt?: any | null, canceledAt?: any | null, revertedAt?: any | null, disputedAt?: any | null, storePaymentMethod: boolean, merchantCustomerCode: string, merchantTransactionCode: string, createdAt: any, updatedAt: any, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, credentials: any, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: any, updatedAt: any, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: any, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, merchantCustomerCode: string, createdAt: any, updatedAt: any, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null } };
 
 export type MerchantTransactionVoidMutationVariables = Exact<{
   merchantTransactionId: Scalars['String']['input'];
@@ -876,6 +1050,6 @@ export const MerchantTransactionProvidersDocument = {"kind":"Document","definiti
 export const MerchantTransactionProviderDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MerchantTransactionProvider"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionProviderId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionProvider"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"merchantTransactionProviderId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionProviderId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"credentials"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}}]} as unknown as DocumentNode<MerchantTransactionProviderQuery, MerchantTransactionProviderQueryVariables>;
 export const MerchantTransactionsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MerchantTransactions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paymentMethodId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"transactionProviderId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"status"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"TRANSACTION_STATUS"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"currency"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"CURRENCY"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"paymentMethodType"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"PAYMENT_METHOD"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"transactionProvider"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"TRANSACTION_PROVIDER"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"providerCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"hasProviderError"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"merchantCustomerCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionCode"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"token"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"failed"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"started"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"disputed"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"reverted"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"canceled"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"succeeded"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"skip"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"take"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"after"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ConnectionCursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"before"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"ConnectionCursor"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"last"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"sorting"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SortingFieldSchema"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"merchantTransactions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}}},{"kind":"Argument","name":{"kind":"Name","value":"paymentMethodId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paymentMethodId"}}},{"kind":"Argument","name":{"kind":"Name","value":"transactionProviderId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"transactionProviderId"}}},{"kind":"Argument","name":{"kind":"Name","value":"status"},"value":{"kind":"Variable","name":{"kind":"Name","value":"status"}}},{"kind":"Argument","name":{"kind":"Name","value":"currency"},"value":{"kind":"Variable","name":{"kind":"Name","value":"currency"}}},{"kind":"Argument","name":{"kind":"Name","value":"paymentMethodType"},"value":{"kind":"Variable","name":{"kind":"Name","value":"paymentMethodType"}}},{"kind":"Argument","name":{"kind":"Name","value":"transactionProvider"},"value":{"kind":"Variable","name":{"kind":"Name","value":"transactionProvider"}}},{"kind":"Argument","name":{"kind":"Name","value":"providerCode"},"value":{"kind":"Variable","name":{"kind":"Name","value":"providerCode"}}},{"kind":"Argument","name":{"kind":"Name","value":"hasProviderError"},"value":{"kind":"Variable","name":{"kind":"Name","value":"hasProviderError"}}},{"kind":"Argument","name":{"kind":"Name","value":"merchantCustomerCode"},"value":{"kind":"Variable","name":{"kind":"Name","value":"merchantCustomerCode"}}},{"kind":"Argument","name":{"kind":"Name","value":"merchantTransactionCode"},"value":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionCode"}}},{"kind":"Argument","name":{"kind":"Name","value":"token"},"value":{"kind":"Variable","name":{"kind":"Name","value":"token"}}},{"kind":"Argument","name":{"kind":"Name","value":"failed"},"value":{"kind":"Variable","name":{"kind":"Name","value":"failed"}}},{"kind":"Argument","name":{"kind":"Name","value":"started"},"value":{"kind":"Variable","name":{"kind":"Name","value":"started"}}},{"kind":"Argument","name":{"kind":"Name","value":"disputed"},"value":{"kind":"Variable","name":{"kind":"Name","value":"disputed"}}},{"kind":"Argument","name":{"kind":"Name","value":"reverted"},"value":{"kind":"Variable","name":{"kind":"Name","value":"reverted"}}},{"kind":"Argument","name":{"kind":"Name","value":"canceled"},"value":{"kind":"Variable","name":{"kind":"Name","value":"canceled"}}},{"kind":"Argument","name":{"kind":"Name","value":"succeeded"},"value":{"kind":"Variable","name":{"kind":"Name","value":"succeeded"}}},{"kind":"Argument","name":{"kind":"Name","value":"skip"},"value":{"kind":"Variable","name":{"kind":"Name","value":"skip"}}},{"kind":"Argument","name":{"kind":"Name","value":"take"},"value":{"kind":"Variable","name":{"kind":"Name","value":"take"}}},{"kind":"Argument","name":{"kind":"Name","value":"after"},"value":{"kind":"Variable","name":{"kind":"Name","value":"after"}}},{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"before"},"value":{"kind":"Variable","name":{"kind":"Name","value":"before"}}},{"kind":"Argument","name":{"kind":"Name","value":"last"},"value":{"kind":"Variable","name":{"kind":"Name","value":"last"}}},{"kind":"Argument","name":{"kind":"Name","value":"sorting"},"value":{"kind":"Variable","name":{"kind":"Name","value":"sorting"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"edges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"node"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"cursor"}}]}},{"kind":"Field","name":{"kind":"Name","value":"pageInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"hasNextPage"}},{"kind":"Field","name":{"kind":"Name","value":"hasPreviousPage"}},{"kind":"Field","name":{"kind":"Name","value":"startCursor"}},{"kind":"Field","name":{"kind":"Name","value":"endCursor"}}]}},{"kind":"Field","name":{"kind":"Name","value":"totalCount"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"credentials"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"isEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodCreditCardInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"cardNumberMasked"}},{"kind":"Field","name":{"kind":"Name","value":"cardBrand"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodGenericInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"tokenExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodType"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"transactionDate"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"succeededAt"}},{"kind":"Field","name":{"kind":"Name","value":"failedAt"}},{"kind":"Field","name":{"kind":"Name","value":"canceledAt"}},{"kind":"Field","name":{"kind":"Name","value":"revertedAt"}},{"kind":"Field","name":{"kind":"Name","value":"disputedAt"}},{"kind":"Field","name":{"kind":"Name","value":"storePaymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"}}]}}]}}]} as unknown as DocumentNode<MerchantTransactionsQuery, MerchantTransactionsQueryVariables>;
 export const MerchantTransactionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"MerchantTransaction"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"merchantTransaction"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"merchantTransactionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionFragment"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"credentials"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"isEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodCreditCardInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"cardNumberMasked"}},{"kind":"Field","name":{"kind":"Name","value":"cardBrand"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodGenericInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"tokenExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodType"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"transactionDate"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"succeededAt"}},{"kind":"Field","name":{"kind":"Name","value":"failedAt"}},{"kind":"Field","name":{"kind":"Name","value":"canceledAt"}},{"kind":"Field","name":{"kind":"Name","value":"revertedAt"}},{"kind":"Field","name":{"kind":"Name","value":"disputedAt"}},{"kind":"Field","name":{"kind":"Name","value":"storePaymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"}}]}}]}}]} as unknown as DocumentNode<MerchantTransactionQuery, MerchantTransactionQueryVariables>;
-export const MerchantTransactionWebSdkSessionStartDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MerchantTransactionWebSdkSessionStart"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionStartSchema"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionWebSdkSessionStart"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionFragment"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"credentials"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"isEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodCreditCardInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"cardNumberMasked"}},{"kind":"Field","name":{"kind":"Name","value":"cardBrand"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodGenericInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"tokenExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodType"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"transactionDate"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"succeededAt"}},{"kind":"Field","name":{"kind":"Name","value":"failedAt"}},{"kind":"Field","name":{"kind":"Name","value":"canceledAt"}},{"kind":"Field","name":{"kind":"Name","value":"revertedAt"}},{"kind":"Field","name":{"kind":"Name","value":"disputedAt"}},{"kind":"Field","name":{"kind":"Name","value":"storePaymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"}}]}}]}}]} as unknown as DocumentNode<MerchantTransactionWebSdkSessionStartMutation, MerchantTransactionWebSdkSessionStartMutationVariables>;
-export const MerchantTransactionWebSdkSessionVerifyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MerchantTransactionWebSdkSessionVerify"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionWebSdkSessionVerify"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"merchantTransactionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionFragment"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"credentials"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"isEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodCreditCardInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"cardNumberMasked"}},{"kind":"Field","name":{"kind":"Name","value":"cardBrand"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodGenericInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"tokenExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodType"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"transactionDate"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"succeededAt"}},{"kind":"Field","name":{"kind":"Name","value":"failedAt"}},{"kind":"Field","name":{"kind":"Name","value":"canceledAt"}},{"kind":"Field","name":{"kind":"Name","value":"revertedAt"}},{"kind":"Field","name":{"kind":"Name","value":"disputedAt"}},{"kind":"Field","name":{"kind":"Name","value":"storePaymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"}}]}}]}}]} as unknown as DocumentNode<MerchantTransactionWebSdkSessionVerifyMutation, MerchantTransactionWebSdkSessionVerifyMutationVariables>;
+export const MerchantTransactionClientPaymentSessionStartDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MerchantTransactionClientPaymentSessionStart"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"data"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionStartSchema"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionClientPaymentSessionStart"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"data"},"value":{"kind":"Variable","name":{"kind":"Name","value":"data"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionFragment"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"credentials"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"isEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodCreditCardInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"cardNumberMasked"}},{"kind":"Field","name":{"kind":"Name","value":"cardBrand"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodGenericInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"tokenExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodType"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"transactionDate"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"succeededAt"}},{"kind":"Field","name":{"kind":"Name","value":"failedAt"}},{"kind":"Field","name":{"kind":"Name","value":"canceledAt"}},{"kind":"Field","name":{"kind":"Name","value":"revertedAt"}},{"kind":"Field","name":{"kind":"Name","value":"disputedAt"}},{"kind":"Field","name":{"kind":"Name","value":"storePaymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"}}]}}]}}]} as unknown as DocumentNode<MerchantTransactionClientPaymentSessionStartMutation, MerchantTransactionClientPaymentSessionStartMutationVariables>;
+export const MerchantTransactionClientPaymentSessionVerifyDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MerchantTransactionClientPaymentSessionVerify"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionClientPaymentSessionVerify"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"merchantTransactionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionFragment"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"credentials"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"isEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodCreditCardInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"cardNumberMasked"}},{"kind":"Field","name":{"kind":"Name","value":"cardBrand"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodGenericInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"tokenExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodType"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"transactionDate"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"succeededAt"}},{"kind":"Field","name":{"kind":"Name","value":"failedAt"}},{"kind":"Field","name":{"kind":"Name","value":"canceledAt"}},{"kind":"Field","name":{"kind":"Name","value":"revertedAt"}},{"kind":"Field","name":{"kind":"Name","value":"disputedAt"}},{"kind":"Field","name":{"kind":"Name","value":"storePaymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"}}]}}]}}]} as unknown as DocumentNode<MerchantTransactionClientPaymentSessionVerifyMutation, MerchantTransactionClientPaymentSessionVerifyMutationVariables>;
 export const MerchantTransactionVoidDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MerchantTransactionVoid"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionVoid"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"merchantTransactionId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"merchantTransactionId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionFragment"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"credentials"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethod"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"isEnabled"}},{"kind":"Field","name":{"kind":"Name","value":"isDefault"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodCreditCardInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}},{"kind":"Field","name":{"kind":"Name","value":"cardNumberMasked"}},{"kind":"Field","name":{"kind":"Name","value":"cardBrand"}}]}},{"kind":"InlineFragment","typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodGenericInfo"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"methodType"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransaction"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"providerError"}},{"kind":"Field","name":{"kind":"Name","value":"providerLastVerifiedAt"}},{"kind":"Field","name":{"kind":"Name","value":"providerStatus"}},{"kind":"Field","name":{"kind":"Name","value":"token"}},{"kind":"Field","name":{"kind":"Name","value":"tokenExpiresAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodType"}},{"kind":"Field","name":{"kind":"Name","value":"payload"}},{"kind":"Field","name":{"kind":"Name","value":"amount"}},{"kind":"Field","name":{"kind":"Name","value":"currency"}},{"kind":"Field","name":{"kind":"Name","value":"transactionDate"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"succeededAt"}},{"kind":"Field","name":{"kind":"Name","value":"failedAt"}},{"kind":"Field","name":{"kind":"Name","value":"canceledAt"}},{"kind":"Field","name":{"kind":"Name","value":"revertedAt"}},{"kind":"Field","name":{"kind":"Name","value":"disputedAt"}},{"kind":"Field","name":{"kind":"Name","value":"storePaymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"merchantCustomerCode"}},{"kind":"Field","name":{"kind":"Name","value":"merchantTransactionCode"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProviderId"}},{"kind":"Field","name":{"kind":"Name","value":"transactionProvider"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethodId"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"MerchantCustomerPaymentMethodFragment"}}]}}]}}]} as unknown as DocumentNode<MerchantTransactionVoidMutation, MerchantTransactionVoidMutationVariables>;

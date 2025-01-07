@@ -98,17 +98,18 @@ export const MERCHANT_TRANSACTIONS_GET_ONE_QUERY = gql(`
   }
 `);
 
-export const MERCHANT_TRANSACTIONS_START_WEB_SDK_SESSION_MUTATION = gql(`
-  mutation MerchantTransactionWebSdkSessionStart($data: MerchantTransactionStartSchema!) {
-    merchantTransactionWebSdkSessionStart(data: $data) {
+export const MERCHANT_TRANSACTIONS_START_CLIENT_PAYMENT_SESSION_MUTATION = gql(`
+  mutation MerchantTransactionClientPaymentSessionStart($data: MerchantTransactionStartSchema!) {
+    merchantTransactionClientPaymentSessionStart(data: $data) {
       ...MerchantTransactionFragment
     }
   }
 `);
 
-export const MERCHANT_TRANSACTIONS_VERIFY_WEB_SDK_SESSION_MUTATION = gql(`
-  mutation MerchantTransactionWebSdkSessionVerify($merchantTransactionId: String!) {
-    merchantTransactionWebSdkSessionVerify(merchantTransactionId: $merchantTransactionId) {
+export const MERCHANT_TRANSACTIONS_VERIFY_CLIENT_PAYMENT_SESSION_MUTATION =
+  gql(`
+  mutation MerchantTransactionClientPaymentSessionVerify($merchantTransactionId: String!) {
+    merchantTransactionClientPaymentSessionVerify(merchantTransactionId: $merchantTransactionId) {
       ...MerchantTransactionFragment
     }
   }

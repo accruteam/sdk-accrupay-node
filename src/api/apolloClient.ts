@@ -20,8 +20,8 @@ import {
 import introspectionResult from './gql/schema.graphql.json' assert { type: 'json' };
 
 const AccruPayEnvironments = {
-  production: 'https://pay-api.accru.co/graphql',
-  qa: 'https://pay-api-qa.accru.co/graphql',
+  production: 'https://api.pay.accru.co/graphql',
+  qa: 'https://api.qa.pay.accru.co/graphql',
 };
 
 interface IAccruPaySdkParams {
