@@ -50,6 +50,17 @@ export type AdminMerchantUpdateSchema = {
   phone?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type AdminMerchantUserCreateSchema = {
+  isEnabled: Scalars['Boolean']['input'];
+  role: MERCHANT_USER_ROLE;
+  userId: Scalars['String']['input'];
+};
+
+export type AdminMerchantUserUpdateSchema = {
+  isEnabled: Scalars['Boolean']['input'];
+  role: MERCHANT_USER_ROLE;
+};
+
 export type BillingDataSchema = {
   billingAddressCity: Scalars['String']['input'];
   /** Country using the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format (e.g. US, UK, etc.). */
@@ -332,13 +343,22 @@ export enum MERCHANT_TRANSACTION_PROVIDER_STATUS {
   ENABLED = 'ENABLED'
 }
 
+export enum MERCHANT_USER_ROLE {
+  ADMIN = 'ADMIN',
+  DEVELOPER = 'DEVELOPER',
+  OWNER = 'OWNER',
+  VIEWER = 'VIEWER'
+}
+
 export type Merchant = {
   __typename?: 'Merchant';
   createdAt: Scalars['DateTimeISO']['output'];
   email: Scalars['String']['output'];
+  emailVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   phone?: Maybe<Scalars['String']['output']>;
+  phoneVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   publicId?: Maybe<Scalars['String']['output']>;
   publicIdUpdatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   status: MERCHANT_STATUS;
@@ -417,6 +437,7 @@ export type MerchantTransaction = {
   merchantTransactionCode: Scalars['String']['output'];
   payload: Scalars['JSON']['output'];
   paymentMethod?: Maybe<MerchantCustomerPaymentMethod>;
+  paymentMethodCode?: Maybe<Scalars['String']['output']>;
   paymentMethodId?: Maybe<Scalars['String']['output']>;
   paymentMethodType?: Maybe<PAYMENT_METHOD>;
   providerCode: Scalars['String']['output'];
@@ -483,6 +504,32 @@ export type MerchantTransactionStartSchema = {
   transactionProviderId: Scalars['String']['input'];
 };
 
+export type MerchantUser = {
+  __typename?: 'MerchantUser';
+  createdAt: Scalars['DateTimeISO']['output'];
+  id: Scalars['ID']['output'];
+  isEnabled: Scalars['Boolean']['output'];
+  merchant: Merchant;
+  merchantId: Scalars['String']['output'];
+  role: MERCHANT_USER_ROLE;
+  updatedAt: Scalars['DateTimeISO']['output'];
+  user: User;
+  userId: Scalars['String']['output'];
+};
+
+export type MerchantUserPaginationConnection = {
+  __typename?: 'MerchantUserPaginationConnection';
+  edges: Array<MerchantUserPaginationEdge>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type MerchantUserPaginationEdge = {
+  __typename?: 'MerchantUserPaginationEdge';
+  cursor: Scalars['ConnectionCursor']['output'];
+  node: MerchantUser;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   adminMerchantCreate: Merchant;
@@ -492,10 +539,13 @@ export type Mutation = {
   adminMerchantTransactionProviderUpdate: MerchantTransactionProvider;
   adminMerchantUpdate: Merchant;
   adminMerchantUpdateStatus: Merchant;
+  adminMerchantUserCreate: MerchantUser;
+  adminMerchantUserUpdate: MerchantUser;
   merchantCustomerPaymentMethodDelete: Scalars['Void']['output'];
   merchantTransactionClientPaymentSessionStart: MerchantTransaction;
   merchantTransactionClientPaymentSessionVerify: MerchantTransaction;
   merchantTransactionVoid: MerchantTransaction;
+  userSessionsClose: Scalars['Void']['output'];
 };
 
 
@@ -534,6 +584,18 @@ export type MutationadminMerchantUpdateArgs = {
 export type MutationadminMerchantUpdateStatusArgs = {
   merchantId: Scalars['String']['input'];
   status: MERCHANT_STATUS;
+};
+
+
+export type MutationadminMerchantUserCreateArgs = {
+  data: AdminMerchantUserCreateSchema;
+  merchantId: Scalars['String']['input'];
+};
+
+
+export type MutationadminMerchantUserUpdateArgs = {
+  data: AdminMerchantUserUpdateSchema;
+  merchantUserId: Scalars['String']['input'];
 };
 
 
@@ -578,7 +640,10 @@ export type Query = {
   adminMerchant: Merchant;
   adminMerchantTransactionProvider: MerchantTransactionProvider;
   adminMerchantTransactionProviders: MerchantTransactionProviderPaginationConnection;
+  adminMerchantUser: MerchantUser;
+  adminMerchantUsers: MerchantUserPaginationConnection;
   adminMerchants: MerchantPaginationConnection;
+  adminUsers: UserPaginationConnection;
   healthCheck: Scalars['DateTimeISO']['output'];
   healthLivenessCheck: Scalars['DateTimeISO']['output'];
   healthReadinessCheck: Scalars['DateTimeISO']['output'];
@@ -589,6 +654,9 @@ export type Query = {
   merchantTransactionProvider: MerchantTransactionProvider;
   merchantTransactionProviders: MerchantTransactionProviderPaginationConnection;
   merchantTransactions: MerchantTransactionPaginationConnection;
+  user: User;
+  userMerchant: Merchant;
+  userMerchants: MerchantPaginationConnection;
 };
 
 
@@ -617,20 +685,63 @@ export type QueryadminMerchantTransactionProvidersArgs = {
 };
 
 
+export type QueryadminMerchantUserArgs = {
+  merchantUserId: Scalars['String']['input'];
+};
+
+
+export type QueryadminMerchantUsersArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  isEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  role?: InputMaybe<MERCHANT_USER_ROLE>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  userEmail?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  userName?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryadminMerchantsArgs = {
   after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   apiSecret?: InputMaybe<Scalars['String']['input']>;
   before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
+  emailVerifiedAt?: InputMaybe<Scalars['Boolean']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   id?: InputMaybe<Scalars['String']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
+  phoneVerifiedAt?: InputMaybe<Scalars['Boolean']['input']>;
   publicId?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
   sorting?: InputMaybe<Array<SortingFieldSchema>>;
   status?: InputMaybe<MERCHANT_STATUS>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryadminUsersArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  emailVerified?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  phoneVerified?: InputMaybe<Scalars['Boolean']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -713,6 +824,31 @@ export type QuerymerchantTransactionsArgs = {
   transactionProviderId?: InputMaybe<Scalars['String']['input']>;
 };
 
+
+export type QueryuserMerchantArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantsArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  apiSecret?: InputMaybe<Scalars['String']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  emailVerifiedAt?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
+  phoneVerifiedAt?: InputMaybe<Scalars['Boolean']['input']>;
+  publicId?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  status?: InputMaybe<MERCHANT_STATUS>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export enum SORT_ORDER {
   ASC = 'ASC',
   DESC = 'DESC'
@@ -744,6 +880,33 @@ export enum TRANSACTION_STATUS {
   SUCCEEDED = 'SUCCEEDED',
   UNKNOWN = 'UNKNOWN'
 }
+
+export type User = {
+  __typename?: 'User';
+  createdAt: Scalars['DateTimeISO']['output'];
+  email: Scalars['String']['output'];
+  emailVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  id: Scalars['ID']['output'];
+  isAdmin: Scalars['Boolean']['output'];
+  merchants: Array<MerchantUser>;
+  name: Scalars['String']['output'];
+  phone?: Maybe<Scalars['String']['output']>;
+  phoneVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  updatedAt: Scalars['DateTimeISO']['output'];
+};
+
+export type UserPaginationConnection = {
+  __typename?: 'UserPaginationConnection';
+  edges: Array<UserPaginationEdge>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type UserPaginationEdge = {
+  __typename?: 'UserPaginationEdge';
+  cursor: Scalars['ConnectionCursor']['output'];
+  node: User;
+};
 
 export type MerchantFragmentFragment = { __typename?: 'Merchant', id: string, email: string, name: string, phone?: string | null, status: MERCHANT_STATUS, publicId?: string | null, publicIdUpdatedAt?: any | null, createdAt: any, updatedAt: any };
 
