@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.3.0
+
+### Minor Changes
+
+- 11666da: add get client payment pre session data
+
 ## 0.2.0
 
 ### Minor Changes
