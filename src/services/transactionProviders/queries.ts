@@ -3,7 +3,7 @@ import { gql } from '@api/gql';
 export const MERCHANT_TRANSACTION_PROVIDERS_GET_MANY_QUERY = gql(`
   query MerchantTransactionProviders(
     $merchantTransactionProviderId: String,
-    $provider: TRANSACTION_PROVIDER,
+    $transactionProvider: TRANSACTION_PROVIDER,
     $status: MERCHANT_TRANSACTION_PROVIDER_STATUS,
 
     $skip: Int,
@@ -19,7 +19,7 @@ export const MERCHANT_TRANSACTION_PROVIDERS_GET_MANY_QUERY = gql(`
   ) {
     merchantTransactionProviders(
       id: $merchantTransactionProviderId,
-      provider: $provider,
+      provider: $transactionProvider,
       status: $status,
 
       skip: $skip,

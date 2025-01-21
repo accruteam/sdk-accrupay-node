@@ -1,0 +1,143 @@
+import { gql } from '@api/gql';
+
+export const MERCHANT_PAYMENT_PLAN_FRAGMENT = gql(`
+  fragment MerchantPaymentPlanFragment on MerchantPaymentPlan {
+    id
+    providerCode
+    providerError
+    providerLastVerifiedAt
+    providerStatus
+    payload
+    initialAmount
+    amount
+    currency
+    timeAnchor
+    trialPeriodDays
+    trialPeriodMonths
+    trialPeriodYears
+    trialEndsAt
+    renewalIntervalMonths
+    renewalIntervalDays
+    renewalIntervalYears
+    periodCount
+    endsAfterMonths
+    endsAfterDays
+    endsAfterYears
+    endsAt
+    startedAt
+    canceledAt
+    currentPeriodStart
+    currentPeriodEnd
+    merchantCustomerCode
+    merchantPaymentPlanCode
+    merchantPaymentPlanDescription
+    createdAt
+    updatedAt
+    status
+    transactionProviderId
+    transactionProvider {
+      id
+      provider
+      providerCode
+      status
+      createdAt
+      updatedAt
+      merchantId
+    }
+    templateId
+    template {
+      id
+      name
+      description
+      providerCode
+      providerError
+      providerLastVerifiedAt
+      providerStatus
+      payload
+      initialAmount
+      amount
+      currency
+      trialPeriodDays
+      trialPeriodMonths
+      trialPeriodYears
+      renewalIntervalMonths
+      renewalIntervalDays
+      renewalIntervalYears
+      endsAfterDays
+      endsAfterMonths
+      endsAfterYears
+      createdAt
+      updatedAt
+      transactionProviderId
+    }
+    paymentMethodId
+    paymentMethod {
+      id
+      providerCode
+      providerError
+      providerLastVerifiedAt
+      providerStatus
+      methodType
+      isEnabled
+      isDefault
+      merchantCustomerCode
+      createdAt
+      updatedAt
+      paymentMethodInfo {
+        ... on MerchantCustomerPaymentMethodCreditCardInfo {
+          methodType
+          cardNumberMasked
+          cardBrand
+        }
+        ... on MerchantCustomerPaymentMethodGenericInfo {
+          methodType
+        }
+      }
+      transactionProviderId
+    }
+    transactions {
+      id
+      action
+      periodCount
+      periodStart
+      periodEnd
+      createdAt
+      updatedAt
+      paymentPlanId
+      transactionId
+      transaction {
+        id
+        code
+        action
+        providerCode
+        providerError
+        providerLastVerifiedAt
+        providerRelatedCode
+        providerStatus
+        token
+        tokenExpiresAt
+        paymentMethodType
+        paymentMethodCode
+        payload
+        amount
+        currency
+        transactionDate
+        startedAt
+        succeededAt
+        failedAt
+        canceledAt
+        revertedAt
+        disputedAt
+        storePaymentMethod
+        merchantCustomerCode
+        merchantTransactionCode
+        createdAt
+        updatedAt
+        status
+        transactionProviderId
+        paymentMethodId
+        relatedTransactionId
+      }
+    }
+  }
+`);

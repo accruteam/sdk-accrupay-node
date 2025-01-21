@@ -6,6 +6,8 @@ import { Merchants } from '@services/merchants';
 import { PaymentMethods } from '@services/paymentMethods';
 import { TransactionProviders } from '@services/transactionProviders';
 import { Transactions } from '@services/transactions';
+import { PaymentPlanTemplates } from '@services/paymentPlanTemplates';
+import { PaymentPlans } from '@services/paymentPlans';
 
 import { AccruPaySdkContext } from './types/context.types';
 
@@ -17,6 +19,8 @@ class AccruPaySdk {
   public readonly paymentMethods: PaymentMethods;
   public readonly transactionProviders: TransactionProviders;
   public readonly transactions: Transactions;
+  public readonly paymentPlanTemplates: PaymentPlanTemplates;
+  public readonly paymentPlans: PaymentPlans;
 
   constructor(params: IAccruPaySdkParams) {
     this.apolloClient = createApolloClient(params);
@@ -26,6 +30,8 @@ class AccruPaySdk {
     this.paymentMethods = new PaymentMethods(this.context);
     this.transactionProviders = new TransactionProviders(this.context);
     this.transactions = new Transactions(this.context);
+    this.paymentPlanTemplates = new PaymentPlanTemplates(this.context);
+    this.paymentPlans = new PaymentPlans(this.context);
   }
 }
 

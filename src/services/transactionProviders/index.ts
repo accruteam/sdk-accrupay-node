@@ -15,21 +15,21 @@ class TransactionProviders {
   constructor(private context: AccruPaySdkContext) {}
 
   public async getMany(
-    variable: MerchantTransactionProvidersQueryVariables,
+    variables: MerchantTransactionProvidersQueryVariables,
   ): Promise<Res<MerchantTransactionProvidersQuery>> {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_TRANSACTION_PROVIDERS_GET_MANY_QUERY,
-      variables: variable,
+      variables,
     });
     return data.merchantTransactionProviders;
   }
 
   public async getOne(
-    variable: MerchantTransactionProviderQueryVariables,
+    variables: MerchantTransactionProviderQueryVariables,
   ): Promise<Res<MerchantTransactionProviderQuery>> {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_TRANSACTION_PROVIDERS_GET_ONE_QUERY,
-      variables: variable,
+      variables,
     });
     return data.merchantTransactionProvider;
   }
