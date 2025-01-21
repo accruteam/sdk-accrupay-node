@@ -1,5 +1,12 @@
 # @accrupay/node
 
+## 0.0.6
+
+### Patch Changes
+
+- b1c0332: rename client methods
+- a800481: update server url
+
 ## 0.0.5
 
 ### Patch Changes
