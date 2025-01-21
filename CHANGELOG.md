@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.1.0
+
+### Minor Changes
+
+- 79edbbf: add payment plans and payment plan templates
+
 ## 0.0.6
 
 ### Patch Changes
