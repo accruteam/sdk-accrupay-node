@@ -1,6 +1,6 @@
 import { ApolloClient } from '@apollo/client';
 
-import { IAccruPaySdkParams, createApolloClient } from '@api/apolloClient';
+import { IAccruPayParams, createApolloClient } from '@api/apolloClient';
 
 import { Merchants } from '@services/merchants';
 import { PaymentMethods } from '@services/paymentMethods';
@@ -9,11 +9,11 @@ import { Transactions } from '@services/transactions';
 import { PaymentPlanTemplates } from '@services/paymentPlanTemplates';
 import { PaymentPlans } from '@services/paymentPlans';
 
-import { AccruPaySdkContext } from './types/context.types';
+import { AccruPayContext } from './types/context.types';
 
-class AccruPaySdk {
+class AccruPay {
   public readonly apolloClient: ApolloClient<unknown>;
-  private readonly context: AccruPaySdkContext;
+  private readonly context: AccruPayContext;
 
   public readonly merchants: Merchants;
   public readonly paymentMethods: PaymentMethods;
@@ -22,7 +22,7 @@ class AccruPaySdk {
   public readonly paymentPlanTemplates: PaymentPlanTemplates;
   public readonly paymentPlans: PaymentPlans;
 
-  constructor(params: IAccruPaySdkParams) {
+  constructor(params: IAccruPayParams) {
     this.apolloClient = createApolloClient(params);
     this.context = { apolloClient: this.apolloClient };
 
@@ -35,5 +35,10 @@ class AccruPaySdk {
   }
 }
 
-export { AccruPaySdkResponseType } from '@utils/response.type';
-export { AccruPaySdk };
+export type { AccruPayResponseType } from '@utils/response.type';
+
+export * from '@gql';
+export * from '@gql/graphql';
+
+export { AccruPay };
+export default AccruPay;

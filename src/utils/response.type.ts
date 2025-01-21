@@ -5,6 +5,6 @@ type WithoutTypename<T> = {
 export type Res<T> =
   WithoutTypename<T> extends Record<string, infer U> ? U : never;
 
-export type AccruPaySdkResponseType<T extends (...args: any) => any> = Awaited<
+export type AccruPayResponseType<T extends (...args: any) => any> = Awaited<
   ReturnType<T>
 >;
