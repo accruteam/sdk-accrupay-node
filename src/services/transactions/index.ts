@@ -10,6 +10,8 @@ import {
   MerchantClientTransactionPaymentSessionStartMutation,
   MerchantClientTransactionPaymentSessionVerifyMutation,
   MerchantClientTransactionPaymentSessionVerifyMutationVariables,
+  MerchantClientTransactionNuveiPreSessionDataQueryVariables,
+  MerchantClientTransactionNuveiPreSessionDataQuery,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
 import {
@@ -18,6 +20,7 @@ import {
   MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_START_MUTATION,
   MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION,
   MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION,
+  MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_QUERY,
 } from './queries';
 
 class Transactions {
@@ -41,6 +44,17 @@ class Transactions {
       variables,
     });
     return data.merchantTransaction;
+  }
+
+  public async getClientPaymentPreSessionData(
+    variables: MerchantClientTransactionNuveiPreSessionDataQueryVariables,
+  ): Promise<Res<MerchantClientTransactionNuveiPreSessionDataQuery>> {
+    const { data } = await this.context.apolloClient.query({
+      query:
+        MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_QUERY,
+      variables,
+    });
+    return data.merchantClientGetPreSessionData;
   }
 
   public async startClientPaymentSession(
