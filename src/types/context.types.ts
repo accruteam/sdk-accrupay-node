@@ -1,5 +1,5 @@
 import { ApolloClient } from '@apollo/client';
 
-export type AccruPaySdkContext = {
+export type AccruPayContext = {
   apolloClient: ApolloClient<unknown>;
 };

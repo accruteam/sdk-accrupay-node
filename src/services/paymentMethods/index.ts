@@ -1,4 +1,4 @@
-import { AccruPaySdkContext } from '@/types/context.types';
+import { AccruPayContext } from '@/types/context.types';
 import {
   MerchantCustomerPaymentMethodQuery,
   MerchantCustomerPaymentMethodQueryVariables,
@@ -12,7 +12,7 @@ import {
 } from './queries';
 
 class PaymentMethods {
-  constructor(private context: AccruPaySdkContext) {}
+  constructor(private context: AccruPayContext) {}
 
   public async getMany(
     variables: MerchantCustomerPaymentMethodsQueryVariables,
