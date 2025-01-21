@@ -3,13 +3,17 @@ import { gql } from '@api/gql';
 export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
   fragment MerchantTransactionFragment on MerchantTransaction {
     id
+    code
+    action
     providerCode
     providerError
     providerLastVerifiedAt
+    providerRelatedCode
     providerStatus
     token
     tokenExpiresAt
     paymentMethodType
+    paymentMethodCode
     payload
     amount
     currency
@@ -34,5 +38,6 @@ export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
     paymentMethod {
       ...MerchantCustomerPaymentMethodFragment
     }
+    relatedTransactionId
   }
 `);

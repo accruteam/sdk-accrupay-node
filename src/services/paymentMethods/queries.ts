@@ -75,9 +75,3 @@ export const MERCHANT_PAYMENT_METHODS_GET_ONE_QUERY = gql(`
     }
   }
 `);
-
-export const MERCHANT_CUSTOMER_PAYMENT_METHODS_DELETE_ONE_MUTATION = gql(`
-  mutation MerchantCustomerPaymentMethodDelete($merchantCustomerPaymentMethodId: String!) {
-    merchantCustomerPaymentMethodDelete(merchantCustomerPaymentMethodId: $merchantCustomerPaymentMethodId)
-  }
-`);
