@@ -98,6 +98,23 @@ export const MERCHANT_TRANSACTIONS_GET_ONE_QUERY = gql(`
   }
 `);
 
+export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_QUERY =
+  gql(`
+  query MerchantClientTransactionNuveiPreSessionData($transactionProvider: TRANSACTION_PROVIDER, $merchantTransactionProviderId: String) {
+    merchantClientGetPreSessionData(transactionProvider: $transactionProvider, merchantTransactionProviderId: $merchantTransactionProviderId) {
+      ... on MerchantClientTransactionNuveiPreSessionData {
+        provider
+        merchantId
+        merchantSiteId
+      }
+      ... on MerchantClientTransactionGenericPreSessionData {
+        provider
+        publicKey
+      }
+    }
+  }
+`);
+
 export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_START_MUTATION = gql(`
   mutation MerchantClientTransactionPaymentSessionStart(
     $merchantTransactionProviderId: String,
