@@ -6,9 +6,12 @@ import {
   MerchantPaymentPlanTemplateQueryVariables,
   MerchantPaymentPlanTemplateUpdateMutationVariables,
   MerchantPaymentPlanTemplateUpdateMutation,
+  MerchantPaymentPlanTemplateCreateMutation,
+  MerchantPaymentPlanTemplateCreateMutationVariables,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
 import {
+  MERCHANT_PAYMENT_PLAN_TEMPLATES_CREATE_ONE_MUTATION,
   MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY,
   MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_ONE_QUERY,
   MERCHANT_PAYMENT_PLAN_TEMPLATES_UPDATE_ONE_MUTATION,
@@ -35,6 +38,16 @@ class PaymentPlanTemplates {
       variables,
     });
     return data.merchantPaymentPlanTemplate;
+  }
+
+  public async createOne(
+    variables: MerchantPaymentPlanTemplateCreateMutationVariables,
+  ): Promise<Res<MerchantPaymentPlanTemplateCreateMutation>> {
+    const { data } = await this.context.apolloClient.mutate({
+      mutation: MERCHANT_PAYMENT_PLAN_TEMPLATES_CREATE_ONE_MUTATION,
+      variables,
+    });
+    return data!.merchantPaymentPlanTemplateCreate;
   }
 
   public async updateOne(
