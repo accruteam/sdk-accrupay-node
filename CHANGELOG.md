@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.4.0
+
+### Minor Changes
+
+- b487bfa: add create payment plans and templates
+
 ## 0.3.0
 
 ### Minor Changes
