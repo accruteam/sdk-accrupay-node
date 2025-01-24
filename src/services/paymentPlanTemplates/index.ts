@@ -10,6 +10,7 @@ import {
   MerchantApiPaymentPlanTemplateCreateMutationVariables,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
+import { parsePlainNodes } from '@utils/parsePlainNodes';
 import {
   MERCHANT_PAYMENT_PLAN_TEMPLATES_CREATE_ONE_MUTATION,
   MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY,
@@ -27,7 +28,8 @@ class PaymentPlanTemplates {
       query: MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY,
       variables,
     });
-    return data.merchantApiPaymentPlanTemplates;
+
+    return parsePlainNodes(data.merchantApiPaymentPlanTemplates);
   }
 
   public async getOne(
@@ -37,6 +39,7 @@ class PaymentPlanTemplates {
       query: MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_ONE_QUERY,
       variables,
     });
+
     return data.merchantApiPaymentPlanTemplate;
   }
 
@@ -47,6 +50,7 @@ class PaymentPlanTemplates {
       mutation: MERCHANT_PAYMENT_PLAN_TEMPLATES_CREATE_ONE_MUTATION,
       variables,
     });
+
     return data!.merchantApiPaymentPlanTemplateCreate;
   }
 
@@ -57,6 +61,7 @@ class PaymentPlanTemplates {
       mutation: MERCHANT_PAYMENT_PLAN_TEMPLATES_UPDATE_ONE_MUTATION,
       variables,
     });
+
     return data!.merchantApiPaymentPlanTemplateUpdate;
   }
 }

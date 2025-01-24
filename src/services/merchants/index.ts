@@ -13,6 +13,7 @@ class Merchants {
       query: MERCHANTS_GET_CURRENT_QUERY,
       variables,
     });
+
     return data.merchantApi;
   }
 }

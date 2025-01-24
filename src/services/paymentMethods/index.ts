@@ -6,6 +6,7 @@ import {
   MerchantApiCustomerPaymentMethodsQueryVariables,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
+import { parsePlainNodes } from '@utils/parsePlainNodes';
 import {
   MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY,
   MERCHANT_PAYMENT_METHODS_GET_ONE_QUERY,
@@ -21,7 +22,8 @@ class PaymentMethods {
       query: MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY,
       variables,
     });
-    return data.merchantApiCustomerPaymentMethods;
+
+    return parsePlainNodes(data.merchantApiCustomerPaymentMethods);
   }
 
   public async getOne(
@@ -31,6 +33,7 @@ class PaymentMethods {
       query: MERCHANT_PAYMENT_METHODS_GET_ONE_QUERY,
       variables,
     });
+
     return data.merchantApiCustomerPaymentMethod;
   }
 }
