@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.6.0
+
+### Minor Changes
+
+- 0f6c446: add transaction selector params
+
 ## 0.5.1
 
 ### Patch Changes
