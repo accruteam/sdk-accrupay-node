@@ -1,13 +1,13 @@
 import { AccruPayContext } from '@/types/context.types';
 import {
-  MerchantPaymentPlanTemplatesQueryVariables,
-  MerchantPaymentPlanTemplatesQuery,
-  MerchantPaymentPlanTemplateQuery,
-  MerchantPaymentPlanTemplateQueryVariables,
-  MerchantPaymentPlanTemplateUpdateMutationVariables,
-  MerchantPaymentPlanTemplateUpdateMutation,
-  MerchantPaymentPlanTemplateCreateMutation,
-  MerchantPaymentPlanTemplateCreateMutationVariables,
+  MerchantApiPaymentPlanTemplatesQueryVariables,
+  MerchantApiPaymentPlanTemplatesQuery,
+  MerchantApiPaymentPlanTemplateQuery,
+  MerchantApiPaymentPlanTemplateQueryVariables,
+  MerchantApiPaymentPlanTemplateUpdateMutationVariables,
+  MerchantApiPaymentPlanTemplateUpdateMutation,
+  MerchantApiPaymentPlanTemplateCreateMutation,
+  MerchantApiPaymentPlanTemplateCreateMutationVariables,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
 import {
@@ -21,43 +21,43 @@ class PaymentPlanTemplates {
   constructor(private context: AccruPayContext) {}
 
   public async getMany(
-    variables: MerchantPaymentPlanTemplatesQueryVariables,
-  ): Promise<Res<MerchantPaymentPlanTemplatesQuery>> {
+    variables: MerchantApiPaymentPlanTemplatesQueryVariables,
+  ): Promise<Res<MerchantApiPaymentPlanTemplatesQuery>> {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY,
       variables,
     });
-    return data.merchantPaymentPlanTemplates;
+    return data.merchantApiPaymentPlanTemplates;
   }
 
   public async getOne(
-    variables: MerchantPaymentPlanTemplateQueryVariables,
-  ): Promise<Res<MerchantPaymentPlanTemplateQuery>> {
+    variables: MerchantApiPaymentPlanTemplateQueryVariables,
+  ): Promise<Res<MerchantApiPaymentPlanTemplateQuery>> {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_ONE_QUERY,
       variables,
     });
-    return data.merchantPaymentPlanTemplate;
+    return data.merchantApiPaymentPlanTemplate;
   }
 
   public async createOne(
-    variables: MerchantPaymentPlanTemplateCreateMutationVariables,
-  ): Promise<Res<MerchantPaymentPlanTemplateCreateMutation>> {
+    variables: MerchantApiPaymentPlanTemplateCreateMutationVariables,
+  ): Promise<Res<MerchantApiPaymentPlanTemplateCreateMutation>> {
     const { data } = await this.context.apolloClient.mutate({
       mutation: MERCHANT_PAYMENT_PLAN_TEMPLATES_CREATE_ONE_MUTATION,
       variables,
     });
-    return data!.merchantPaymentPlanTemplateCreate;
+    return data!.merchantApiPaymentPlanTemplateCreate;
   }
 
   public async updateOne(
-    variables: MerchantPaymentPlanTemplateUpdateMutationVariables,
-  ): Promise<Res<MerchantPaymentPlanTemplateUpdateMutation>> {
+    variables: MerchantApiPaymentPlanTemplateUpdateMutationVariables,
+  ): Promise<Res<MerchantApiPaymentPlanTemplateUpdateMutation>> {
     const { data } = await this.context.apolloClient.mutate({
       mutation: MERCHANT_PAYMENT_PLAN_TEMPLATES_UPDATE_ONE_MUTATION,
       variables,
     });
-    return data!.merchantPaymentPlanTemplateUpdate;
+    return data!.merchantApiPaymentPlanTemplateUpdate;
   }
 }
 

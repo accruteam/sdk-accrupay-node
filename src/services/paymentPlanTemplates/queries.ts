@@ -1,7 +1,7 @@
 import { gql } from '@api/gql';
 
 export const MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY = gql(`
-  query MerchantPaymentPlanTemplates(
+  query MerchantApiPaymentPlanTemplates(
     $merchantPaymentPlanTemplateId: String,
 
     $transactionProvider: TRANSACTION_PROVIDER,
@@ -23,7 +23,7 @@ export const MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY = gql(`
 
     $sorting: [SortingFieldSchema!]
   ) {
-  merchantPaymentPlanTemplates(
+  merchantApiPaymentPlanTemplates(
     id: $merchantPaymentPlanTemplateId,
 
     transactionProvider: $transactionProvider,
@@ -63,24 +63,24 @@ export const MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY = gql(`
 `);
 
 export const MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_ONE_QUERY = gql(`
-  query MerchantPaymentPlanTemplate($merchantPaymentPlanTemplateId: String!) {
-    merchantPaymentPlanTemplate(merchantPaymentPlanTemplateId: $merchantPaymentPlanTemplateId) {
+  query MerchantApiPaymentPlanTemplate($merchantPaymentPlanTemplateId: String!) {
+    merchantApiPaymentPlanTemplate(merchantPaymentPlanTemplateId: $merchantPaymentPlanTemplateId) {
       ...MerchantPaymentPlanTemplateFragment
     }
   }
 `);
 
 export const MERCHANT_PAYMENT_PLAN_TEMPLATES_CREATE_ONE_MUTATION = gql(`
-  mutation MerchantPaymentPlanTemplateCreate($data: MerchantPaymentPlanTemplateCreateSchema!, $merchantTransactionProviderId: String!) {
-    merchantPaymentPlanTemplateCreate(data: $data, merchantTransactionProviderId: $merchantTransactionProviderId) {
+  mutation MerchantApiPaymentPlanTemplateCreate($data: MerchantPaymentPlanTemplateCreateSchema!, $merchantTransactionProviderId: String!) {
+    merchantApiPaymentPlanTemplateCreate(data: $data, merchantTransactionProviderId: $merchantTransactionProviderId) {
       ...MerchantPaymentPlanTemplateFragment
     }
   }
 `);
 
 export const MERCHANT_PAYMENT_PLAN_TEMPLATES_UPDATE_ONE_MUTATION = gql(`
-  mutation MerchantPaymentPlanTemplateUpdate($data: MerchantPaymentPlanTemplateUpdateSchema!, $merchantTransactionProviderId: String!) {
-    merchantPaymentPlanTemplateUpdate(data: $data, merchantTransactionProviderId: $merchantTransactionProviderId) {
+  mutation MerchantApiPaymentPlanTemplateUpdate($data: MerchantPaymentPlanTemplateUpdateSchema!, $merchantTransactionProviderId: String!) {
+    merchantApiPaymentPlanTemplateUpdate(data: $data, merchantTransactionProviderId: $merchantTransactionProviderId) {
       ...MerchantPaymentPlanTemplateFragment
     }
   }

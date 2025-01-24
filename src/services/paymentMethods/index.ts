@@ -1,9 +1,9 @@
 import { AccruPayContext } from '@/types/context.types';
 import {
-  MerchantCustomerPaymentMethodQuery,
-  MerchantCustomerPaymentMethodQueryVariables,
-  MerchantCustomerPaymentMethodsQuery,
-  MerchantCustomerPaymentMethodsQueryVariables,
+  MerchantApiCustomerPaymentMethodQuery,
+  MerchantApiCustomerPaymentMethodQueryVariables,
+  MerchantApiCustomerPaymentMethodsQuery,
+  MerchantApiCustomerPaymentMethodsQueryVariables,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
 import {
@@ -15,23 +15,23 @@ class PaymentMethods {
   constructor(private context: AccruPayContext) {}
 
   public async getMany(
-    variables: MerchantCustomerPaymentMethodsQueryVariables,
-  ): Promise<Res<MerchantCustomerPaymentMethodsQuery>> {
+    variables: MerchantApiCustomerPaymentMethodsQueryVariables,
+  ): Promise<Res<MerchantApiCustomerPaymentMethodsQuery>> {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY,
       variables,
     });
-    return data.merchantCustomerPaymentMethods;
+    return data.merchantApiCustomerPaymentMethods;
   }
 
   public async getOne(
-    variables: MerchantCustomerPaymentMethodQueryVariables,
-  ): Promise<Res<MerchantCustomerPaymentMethodQuery>> {
+    variables: MerchantApiCustomerPaymentMethodQueryVariables,
+  ): Promise<Res<MerchantApiCustomerPaymentMethodQuery>> {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_PAYMENT_METHODS_GET_ONE_QUERY,
       variables,
     });
-    return data.merchantCustomerPaymentMethod;
+    return data.merchantApiCustomerPaymentMethod;
   }
 }
 

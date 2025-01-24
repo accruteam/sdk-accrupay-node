@@ -1,17 +1,17 @@
 import { AccruPayContext } from '@/types/context.types';
 import {
-  MerchantTransactionVoidMutation,
-  MerchantTransactionVoidMutationVariables,
-  MerchantTransactionQuery,
-  MerchantTransactionQueryVariables,
-  MerchantTransactionsQuery,
-  MerchantTransactionsQueryVariables,
-  MerchantClientTransactionPaymentSessionStartMutationVariables,
-  MerchantClientTransactionPaymentSessionStartMutation,
-  MerchantClientTransactionPaymentSessionVerifyMutation,
-  MerchantClientTransactionPaymentSessionVerifyMutationVariables,
-  MerchantClientTransactionNuveiPreSessionDataQueryVariables,
-  MerchantClientTransactionNuveiPreSessionDataQuery,
+  MerchantApiTransactionVoidMutation,
+  MerchantApiTransactionVoidMutationVariables,
+  MerchantApiTransactionQuery,
+  MerchantApiTransactionQueryVariables,
+  MerchantApiTransactionsQuery,
+  MerchantApiTransactionsQueryVariables,
+  MerchantApiClientTransactionPaymentSessionStartMutationVariables,
+  MerchantApiClientTransactionPaymentSessionStartMutation,
+  MerchantApiClientTransactionPaymentSessionVerifyMutation,
+  MerchantApiClientTransactionPaymentSessionVerifyMutationVariables,
+  MerchantApiClientTransactionNuveiPreSessionDataQueryVariables,
+  MerchantApiClientTransactionNuveiPreSessionDataQuery,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
 import {
@@ -27,64 +27,64 @@ class Transactions {
   constructor(private context: AccruPayContext) {}
 
   public async getMany(
-    variables: MerchantTransactionsQueryVariables,
-  ): Promise<Res<MerchantTransactionsQuery>> {
+    variables: MerchantApiTransactionsQueryVariables,
+  ): Promise<Res<MerchantApiTransactionsQuery>> {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_TRANSACTIONS_GET_MANY_QUERY,
       variables,
     });
-    return data.merchantTransactions;
+    return data.merchantApiTransactions;
   }
 
   public async getOne(
-    variables: MerchantTransactionQueryVariables,
-  ): Promise<Res<MerchantTransactionQuery>> {
+    variables: MerchantApiTransactionQueryVariables,
+  ): Promise<Res<MerchantApiTransactionQuery>> {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_TRANSACTIONS_GET_ONE_QUERY,
       variables,
     });
-    return data.merchantTransaction;
+    return data.merchantApiTransaction;
   }
 
   public async getClientPaymentPreSessionData(
-    variables: MerchantClientTransactionNuveiPreSessionDataQueryVariables,
-  ): Promise<Res<MerchantClientTransactionNuveiPreSessionDataQuery>> {
+    variables: MerchantApiClientTransactionNuveiPreSessionDataQueryVariables,
+  ): Promise<Res<MerchantApiClientTransactionNuveiPreSessionDataQuery>> {
     const { data } = await this.context.apolloClient.query({
       query:
         MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_QUERY,
       variables,
     });
-    return data.merchantClientGetPreSessionData;
+    return data.merchantApiClientGetPreSessionData;
   }
 
   public async startClientPaymentSession(
-    variables: MerchantClientTransactionPaymentSessionStartMutationVariables,
-  ): Promise<Res<MerchantClientTransactionPaymentSessionStartMutation>> {
+    variables: MerchantApiClientTransactionPaymentSessionStartMutationVariables,
+  ): Promise<Res<MerchantApiClientTransactionPaymentSessionStartMutation>> {
     const { data } = await this.context.apolloClient.mutate({
       mutation: MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_START_MUTATION,
       variables,
     });
-    return data!.merchantClientTransactionPaymentSessionStart;
+    return data!.merchantApiClientTransactionPaymentSessionStart;
   }
 
   public async verifyClientPaymentSession(
-    variables: MerchantClientTransactionPaymentSessionVerifyMutationVariables,
-  ): Promise<Res<MerchantClientTransactionPaymentSessionVerifyMutation>> {
+    variables: MerchantApiClientTransactionPaymentSessionVerifyMutationVariables,
+  ): Promise<Res<MerchantApiClientTransactionPaymentSessionVerifyMutation>> {
     const { data } = await this.context.apolloClient.mutate({
       mutation: MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION,
       variables,
     });
-    return data!.merchantClientTransactionPaymentSessionVerify;
+    return data!.merchantApiClientTransactionPaymentSessionVerify;
   }
 
   public async voidOne(
-    variables: MerchantTransactionVoidMutationVariables,
-  ): Promise<Res<MerchantTransactionVoidMutation>> {
+    variables: MerchantApiTransactionVoidMutationVariables,
+  ): Promise<Res<MerchantApiTransactionVoidMutation>> {
     const { data } = await this.context.apolloClient.mutate({
       mutation: MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION,
       variables,
     });
-    return data!.merchantTransactionVoid;
+    return data!.merchantApiTransactionVoid;
   }
 }
 
