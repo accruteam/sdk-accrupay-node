@@ -80,14 +80,14 @@ export type AdminMerchantUserUpdateSchema = {
 };
 
 export type BillingDataSchema = {
-  billingAddressCity: Scalars['String']['input'];
+  billingAddressCity?: InputMaybe<Scalars['String']['input']>;
   /** Country using the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format (e.g. US, UK, etc.). */
   billingAddressCountry: COUNTRY_ISO_2;
-  billingAddressLine1: Scalars['String']['input'];
+  billingAddressLine1?: InputMaybe<Scalars['String']['input']>;
   billingAddressLine2?: InputMaybe<Scalars['String']['input']>;
-  billingAddressPostalCode: Scalars['String']['input'];
+  billingAddressPostalCode?: InputMaybe<Scalars['String']['input']>;
   /** State using the [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) format for main country subdivisions, provinces, states (e.g. [for US] → NY, IN, CA, etc.). The [iso-3166-2](https://www.npmjs.com/package/iso-3166-2) package is suggested. */
-  billingAddressState: Scalars['String']['input'];
+  billingAddressState?: InputMaybe<Scalars['String']['input']>;
   billingEmail: Scalars['String']['input'];
   billingFirstName: Scalars['String']['input'];
   billingLastName: Scalars['String']['input'];

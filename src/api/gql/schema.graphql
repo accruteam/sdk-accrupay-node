@@ -57,20 +57,20 @@ The `BigInt` scalar type represents non-fractional signed whole numeric values.
 scalar BigInt
 
 input BillingDataSchema {
-  billingAddressCity: String!
+  billingAddressCity: String
 
   """
   Country using the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format (e.g. US, UK, etc.).
   """
   billingAddressCountry: COUNTRY_ISO_2!
-  billingAddressLine1: String!
+  billingAddressLine1: String
   billingAddressLine2: String
-  billingAddressPostalCode: String!
+  billingAddressPostalCode: String
 
   """
   State using the [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) format for main country subdivisions, provinces, states (e.g. [for US] → NY, IN, CA, etc.). The [iso-3166-2](https://www.npmjs.com/package/iso-3166-2) package is suggested.
   """
-  billingAddressState: String!
+  billingAddressState: String
   billingEmail: String!
   billingFirstName: String!
   billingLastName: String!

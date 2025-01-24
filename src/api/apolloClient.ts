@@ -19,7 +19,7 @@ import {
 
 import introspectionResult from './gql/schema.graphql.json' assert { type: 'json' };
 
-const AccruPayEnvironments = {
+const AccruPayEnvironmentUrls = {
   production: 'https://api.pay.accru.co/graphql',
   qa: 'https://api.qa.pay.accru.co/graphql',
 };
@@ -27,7 +27,7 @@ const AccruPayEnvironments = {
 interface IAccruPayParams {
   apiSecret: string;
 
-  environment?: keyof typeof AccruPayEnvironments;
+  environment?: keyof typeof AccruPayEnvironmentUrls;
 
   /** Overrides the environment base URL */
   url?: string;
@@ -126,8 +126,12 @@ export const createApolloClient = ({
     };
   });
 
+  const selectedEnvironmentUrl =
+    AccruPayEnvironmentUrls[environment || 'production'];
+  if (!selectedEnvironmentUrl) throw new Error('Invalid environment.');
+
   const httpLink = createHttpLink({
-    uri: url || AccruPayEnvironments[environment || 'production'],
+    uri: url || selectedEnvironmentUrl,
   });
 
   return new ApolloClient({
