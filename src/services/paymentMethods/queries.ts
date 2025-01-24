@@ -2,7 +2,7 @@ import { gql } from '@api/gql';
 
 export const MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY = gql(`
   query MerchantApiCustomerPaymentMethods(
-    $merchantCustomerPaymentMethodId: String,
+    $id: String,
 
     $transactionProvider: TRANSACTION_PROVIDER,
     $transactionProviderId: String,
@@ -27,7 +27,7 @@ export const MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY = gql(`
     $sorting: [SortingFieldSchema!]
   ) {
     merchantApiCustomerPaymentMethods(
-      id: $merchantCustomerPaymentMethodId,
+      id: $id,
 
       transactionProvider: $transactionProvider,
       transactionProviderId: $transactionProviderId,

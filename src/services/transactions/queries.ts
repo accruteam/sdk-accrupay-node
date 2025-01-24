@@ -2,7 +2,8 @@ import { gql } from '@api/gql';
 
 export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
   query MerchantApiTransactions(
-    $merchantTransactionId: String,
+    $id: String,
+    $code: String,
     $paymentMethodId: String,
     $transactionProviderId: String,
 
@@ -38,7 +39,8 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
     $sorting: [SortingFieldSchema!]
   ) {
     merchantApiTransactions(
-      id: $merchantTransactionId
+      id: $id,
+      code: $code,
       paymentMethodId: $paymentMethodId,
       transactionProviderId: $transactionProviderId,
 
@@ -91,8 +93,18 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
 `);
 
 export const MERCHANT_TRANSACTIONS_GET_ONE_QUERY = gql(`
-  query MerchantApiTransaction($merchantTransactionId: String!) {
-    merchantApiTransaction(merchantTransactionId: $merchantTransactionId) {
+  query MerchantApiTransaction(
+    $id: String,
+    $code: String,
+    $token: String,
+    $merchantTransactionCode: String
+  ) {
+    merchantApiTransaction(
+      id: $id,
+      code: $code,
+      token: $token,
+      merchantTransactionCode: $merchantTransactionCode
+    ) {
       ...MerchantTransactionFragment
     }
   }
@@ -135,8 +147,18 @@ export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_START_MUTATION = gql(`
 
 export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION =
   gql(`
-  mutation MerchantApiClientTransactionPaymentSessionVerify($merchantTransactionId: String!) {
-    merchantApiClientTransactionPaymentSessionVerify(merchantTransactionId: $merchantTransactionId) {
+  mutation MerchantApiClientTransactionPaymentSessionVerify(
+    $id: String,
+    $code: String,
+    $token: String,
+    $merchantTransactionCode: String
+  ) {
+    merchantApiClientTransactionPaymentSessionVerify(
+      id: $id,
+      code: $code,
+      token: $token,
+      merchantTransactionCode: $merchantTransactionCode
+    ) {
       ...MerchantTransactionFragment
     }
   }
