@@ -14,6 +14,7 @@ import {
   MerchantApiClientTransactionNuveiPreSessionDataQuery,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
+import { parsePlainNodes } from '@utils/parsePlainNodes';
 import {
   MERCHANT_TRANSACTIONS_GET_MANY_QUERY,
   MERCHANT_TRANSACTIONS_GET_ONE_QUERY,
@@ -33,7 +34,8 @@ class Transactions {
       query: MERCHANT_TRANSACTIONS_GET_MANY_QUERY,
       variables,
     });
-    return data.merchantApiTransactions;
+
+    return parsePlainNodes(data.merchantApiTransactions);
   }
 
   public async getOne(
@@ -43,6 +45,7 @@ class Transactions {
       query: MERCHANT_TRANSACTIONS_GET_ONE_QUERY,
       variables,
     });
+
     return data.merchantApiTransaction;
   }
 
@@ -54,6 +57,7 @@ class Transactions {
         MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_QUERY,
       variables,
     });
+
     return data.merchantApiClientGetPreSessionData;
   }
 
@@ -64,6 +68,7 @@ class Transactions {
       mutation: MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_START_MUTATION,
       variables,
     });
+
     return data!.merchantApiClientTransactionPaymentSessionStart;
   }
 
@@ -74,6 +79,7 @@ class Transactions {
       mutation: MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION,
       variables,
     });
+
     return data!.merchantApiClientTransactionPaymentSessionVerify;
   }
 
@@ -84,6 +90,7 @@ class Transactions {
       mutation: MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION,
       variables,
     });
+
     return data!.merchantApiTransactionVoid;
   }
 }

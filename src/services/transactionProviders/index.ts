@@ -6,6 +6,7 @@ import {
   MerchantApiTransactionProvidersQueryVariables,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
+import { parsePlainNodes } from '@utils/parsePlainNodes';
 import {
   MERCHANT_TRANSACTION_PROVIDERS_GET_MANY_QUERY,
   MERCHANT_TRANSACTION_PROVIDERS_GET_ONE_QUERY,
@@ -21,7 +22,8 @@ class TransactionProviders {
       query: MERCHANT_TRANSACTION_PROVIDERS_GET_MANY_QUERY,
       variables,
     });
-    return data.merchantApiTransactionProviders;
+
+    return parsePlainNodes(data.merchantApiTransactionProviders);
   }
 
   public async getOne(
@@ -31,6 +33,7 @@ class TransactionProviders {
       query: MERCHANT_TRANSACTION_PROVIDERS_GET_ONE_QUERY,
       variables,
     });
+
     return data.merchantApiTransactionProvider;
   }
 }
