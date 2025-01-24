@@ -125,7 +125,7 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
-yarn --cwd "$DIR/" tsup --watch --onSuccess "yalc push && sleep 7 && yalc push" &
+yarn --cwd "$DIR/" tsup --watch --onSuccess "yalc push && sleep 10 && yalc push" &
 
 while [ ! -d "$DIR/dist" ]; do
   sleep 1
