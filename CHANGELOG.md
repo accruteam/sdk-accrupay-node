@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.5.0
+
+### Minor Changes
+
+- 8f78cd6: update schema to merchant api
+
 ## 0.4.0
 
 ### Minor Changes
