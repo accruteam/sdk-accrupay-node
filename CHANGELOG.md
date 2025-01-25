@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.7.0
+
+### Minor Changes
+
+- 68a6fc6: add parse node items and move to apollo core
+
 ## 0.6.0
 
 ### Minor Changes
