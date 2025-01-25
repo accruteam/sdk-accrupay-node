@@ -79,8 +79,16 @@ export const MERCHANT_PAYMENT_PLAN_TEMPLATES_CREATE_ONE_MUTATION = gql(`
 `);
 
 export const MERCHANT_PAYMENT_PLAN_TEMPLATES_UPDATE_ONE_MUTATION = gql(`
-  mutation MerchantApiPaymentPlanTemplateUpdate($data: MerchantPaymentPlanTemplateUpdateSchema!, $merchantTransactionProviderId: String!) {
-    merchantApiPaymentPlanTemplateUpdate(data: $data, merchantTransactionProviderId: $merchantTransactionProviderId) {
+  mutation MerchantApiPaymentPlanTemplateUpdate(
+      $data: MerchantPaymentPlanTemplateUpdateSchema!,
+      $merchantTransactionProviderId: String!,
+      $merchantPaymentPlanTemplateId: String!
+  ) {
+    merchantApiPaymentPlanTemplateUpdate(
+      data: $data,
+      merchantTransactionProviderId: $merchantTransactionProviderId,
+      merchantPaymentPlanTemplateId: $merchantPaymentPlanTemplateId
+    ) {
       ...MerchantPaymentPlanTemplateFragment
     }
   }
