@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.7.2
+
+### Patch Changes
+
+- 9e91fd5: update fragments and add environment for nuvei pre session data
+
 ## 0.7.1
 
 ### Patch Changes
