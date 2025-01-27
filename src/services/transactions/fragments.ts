@@ -1,7 +1,7 @@
 import { gql } from '@api/gql';
 
-export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
-  fragment MerchantTransactionFragment on MerchantTransaction {
+export const MERCHANT_TRANSACTION_BASE_FRAGMENT = gql(`
+  fragment MerchantTransactionBaseFragment on MerchantTransaction {
     id
     code
     action
@@ -30,14 +30,23 @@ export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
     createdAt
     updatedAt
     status
+
     transactionProviderId
+    paymentMethodId
+    relatedTransactionId
+  }
+`);
+
+export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
+  fragment MerchantTransactionFragment on MerchantTransaction {
+    ...MerchantTransactionBaseFragment,
+
     transactionProvider {
       ...MerchantTransactionProviderFragment
-    }
-    paymentMethodId
+    },
+
     paymentMethod {
       ...MerchantCustomerPaymentMethodFragment
-    }
-    relatedTransactionId
+    },
   }
 `);

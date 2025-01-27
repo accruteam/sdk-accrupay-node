@@ -118,6 +118,7 @@ export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_Q
         provider
         merchantId
         merchantSiteId
+        environment
       }
       ... on MerchantClientTransactionGenericPreSessionData {
         provider
