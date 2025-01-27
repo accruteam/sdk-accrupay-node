@@ -10,7 +10,7 @@ export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
     methodType
     isEnabled
     isDefault
-    merchantCustomerCode
+    merchantInternalCustomerCode
     createdAt
     updatedAt
     paymentMethodInfo {

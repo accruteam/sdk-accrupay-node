@@ -10,7 +10,7 @@ export const MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY = gql(`
     $providerCode: String,
     $methodType: PAYMENT_METHOD,
 
-    $merchantCustomerCode: String,
+    $merchantInternalCustomerCode: String,
 
     $isDefault: Boolean,
     $hasProviderError: Boolean,
@@ -35,7 +35,7 @@ export const MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY = gql(`
       providerCode: $providerCode,
       methodType: $methodType,
 
-      merchantCustomerCode: $merchantCustomerCode,
+      merchantInternalCustomerCode: $merchantInternalCustomerCode,
 
       isDefault: $isDefault,
       hasProviderError: $hasProviderError,

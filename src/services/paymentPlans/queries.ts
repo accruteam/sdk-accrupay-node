@@ -16,8 +16,8 @@ export const MERCHANT_PAYMENT_PLANS_GET_MANY_QUERY = gql(`
 
     $templateId: String,
 
-    $merchantCustomerCode: String,
-    $merchantPaymentPlanCode: String,
+    $merchantInternalCustomerCode: String,
+    $merchantInternalPaymentPlanCode: String,
 
     $hasProviderError: Boolean,
 
@@ -51,8 +51,8 @@ export const MERCHANT_PAYMENT_PLANS_GET_MANY_QUERY = gql(`
 
       templateId: $templateId,
 
-      merchantCustomerCode: $merchantCustomerCode,
-      merchantPaymentPlanCode: $merchantPaymentPlanCode,
+      merchantInternalCustomerCode: $merchantInternalCustomerCode,
+      merchantInternalPaymentPlanCode: $merchantInternalPaymentPlanCode,
 
       hasProviderError: $hasProviderError,
 

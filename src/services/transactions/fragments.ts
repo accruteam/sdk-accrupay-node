@@ -25,8 +25,8 @@ export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
     revertedAt
     disputedAt
     storePaymentMethod
-    merchantCustomerCode
-    merchantTransactionCode
+    merchantInternalCustomerCode
+    merchantInternalTransactionCode
     createdAt
     updatedAt
     status
