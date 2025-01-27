@@ -433,6 +433,7 @@ type MerchantClientTransactionGenericPreSessionData {
 }
 
 type MerchantClientTransactionNuveiPreSessionData {
+  environment: String!
   merchantId: String!
   merchantSiteId: String!
   provider: TRANSACTION_PROVIDER!
@@ -827,6 +828,7 @@ type Query {
   adminMerchantApiKey(merchantApiKeyId: String!): MerchantApiKey!
   adminMerchantApiKeys(after: ConnectionCursor, before: ConnectionCursor, first: Int, last: Int, merchantId: String!, skip: Int, sorting: [SortingFieldSchema!], take: Int): MerchantApiKeyPaginationConnection!
   adminMerchantTransactionProvider(merchantTransactionProviderId: String!): MerchantTransactionProvider!
+  adminMerchantTransactionProviderCredential(merchantTransactionProviderId: String!): JSON!
   adminMerchantTransactionProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, merchantId: String, provider: TRANSACTION_PROVIDER, providerCode: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_TRANSACTION_PROVIDER_STATUS, take: Int): MerchantTransactionProviderPaginationConnection!
   adminMerchantUser(merchantUserId: String!): MerchantUser!
   adminMerchantUsers(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, isEnabled: Boolean, last: Int, merchantId: String, role: MERCHANT_USER_ROLE, skip: Int, sorting: [SortingFieldSchema!], take: Int, userEmail: String, userId: String, userName: String): MerchantUserPaginationConnection!

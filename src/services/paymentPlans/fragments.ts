@@ -57,37 +57,7 @@ export const MERCHANT_PAYMENT_PLAN_FRAGMENT = gql(`
       paymentPlanId
       transactionId
       transaction {
-        id
-        code
-        action
-        providerCode
-        providerError
-        providerLastVerifiedAt
-        providerRelatedCode
-        providerStatus
-        token
-        tokenExpiresAt
-        paymentMethodType
-        paymentMethodCode
-        payload
-        amount
-        currency
-        transactionDate
-        startedAt
-        succeededAt
-        failedAt
-        canceledAt
-        revertedAt
-        disputedAt
-        storePaymentMethod
-        merchantInternalCustomerCode
-        merchantInternalTransactionCode
-        createdAt
-        updatedAt
-        status
-        transactionProviderId
-        paymentMethodId
-        relatedTransactionId
+        ...MerchantTransactionBaseFragment
       }
     }
   }
