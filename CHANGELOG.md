@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.7.1
+
+### Patch Changes
+
+- e81dd90: update naming convention
+
 ## 0.7.0
 
 ### Minor Changes
