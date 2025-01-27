@@ -28,72 +28,23 @@ export const MERCHANT_PAYMENT_PLAN_FRAGMENT = gql(`
     canceledAt
     currentPeriodStart
     currentPeriodEnd
-    merchantCustomerCode
-    merchantPaymentPlanCode
-    merchantPaymentPlanDescription
+    merchantInternalCustomerCode
+    merchantInternalPaymentPlanCode
+    merchantInternalPaymentPlanDescription
     createdAt
     updatedAt
     status
     transactionProviderId
     transactionProvider {
-      id
-      provider
-      providerCode
-      status
-      createdAt
-      updatedAt
-      merchantId
+      ...MerchantTransactionProviderFragment
     }
     templateId
     template {
-      id
-      name
-      description
-      providerCode
-      providerError
-      providerLastVerifiedAt
-      providerStatus
-      payload
-      initialAmount
-      amount
-      currency
-      trialPeriodDays
-      trialPeriodMonths
-      trialPeriodYears
-      renewalIntervalMonths
-      renewalIntervalDays
-      renewalIntervalYears
-      endsAfterDays
-      endsAfterMonths
-      endsAfterYears
-      createdAt
-      updatedAt
-      transactionProviderId
+      ...MerchantPaymentPlanTemplateFragment
     }
     paymentMethodId
     paymentMethod {
-      id
-      providerCode
-      providerError
-      providerLastVerifiedAt
-      providerStatus
-      methodType
-      isEnabled
-      isDefault
-      merchantCustomerCode
-      createdAt
-      updatedAt
-      paymentMethodInfo {
-        ... on MerchantCustomerPaymentMethodCreditCardInfo {
-          methodType
-          cardNumberMasked
-          cardBrand
-        }
-        ... on MerchantCustomerPaymentMethodGenericInfo {
-          methodType
-        }
-      }
-      transactionProviderId
+      ...MerchantCustomerPaymentMethodFragment
     }
     transactions {
       id
@@ -129,8 +80,8 @@ export const MERCHANT_PAYMENT_PLAN_FRAGMENT = gql(`
         revertedAt
         disputedAt
         storePaymentMethod
-        merchantCustomerCode
-        merchantTransactionCode
+        merchantInternalCustomerCode
+        merchantInternalTransactionCode
         createdAt
         updatedAt
         status

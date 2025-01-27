@@ -15,8 +15,8 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
     $providerCode: String,
     $hasProviderError: Boolean,
 
-    $merchantCustomerCode: String,
-    $merchantTransactionCode: String,
+    $merchantInternalCustomerCode: String,
+    $merchantInternalTransactionCode: String,
 
     $token: String,
 
@@ -52,8 +52,8 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
       providerCode: $providerCode,
       hasProviderError: $hasProviderError,
 
-      merchantCustomerCode: $merchantCustomerCode,
-      merchantTransactionCode: $merchantTransactionCode,
+      merchantInternalCustomerCode: $merchantInternalCustomerCode,
+      merchantInternalTransactionCode: $merchantInternalTransactionCode,
 
       token: $token,
 
@@ -97,13 +97,13 @@ export const MERCHANT_TRANSACTIONS_GET_ONE_QUERY = gql(`
     $id: String,
     $code: String,
     $token: String,
-    $merchantTransactionCode: String
+    $merchantInternalTransactionCode: String
   ) {
     merchantApiTransaction(
       id: $id,
       code: $code,
       token: $token,
-      merchantTransactionCode: $merchantTransactionCode
+      merchantInternalTransactionCode: $merchantInternalTransactionCode
     ) {
       ...MerchantTransactionFragment
     }
@@ -151,13 +151,13 @@ export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION =
     $id: String,
     $code: String,
     $token: String,
-    $merchantTransactionCode: String
+    $merchantInternalTransactionCode: String
   ) {
     merchantApiClientTransactionPaymentSessionVerify(
       id: $id,
       code: $code,
       token: $token,
-      merchantTransactionCode: $merchantTransactionCode
+      merchantInternalTransactionCode: $merchantInternalTransactionCode
     ) {
       ...MerchantTransactionFragment
     }
