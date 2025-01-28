@@ -39,14 +39,14 @@ export const MERCHANT_TRANSACTION_BASE_FRAGMENT = gql(`
 
 export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
   fragment MerchantTransactionFragment on MerchantTransaction {
-    ...MerchantTransactionBaseFragment,
-
     transactionProvider {
       ...MerchantTransactionProviderFragment
-    },
+    }
 
     paymentMethod {
       ...MerchantCustomerPaymentMethodFragment
-    },
+    }
+
+    ...MerchantTransactionBaseFragment
   }
 `);
