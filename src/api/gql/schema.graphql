@@ -609,10 +609,10 @@ input MerchantPaymentPlanTemplateCreateSchema {
   endsAfterYears: Int!
   initialAmount: BigInt!
   name: String!
+  providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS!
   renewalIntervalDays: Int!
   renewalIntervalMonths: Int!
   renewalIntervalYears: Int!
-  status: PAYMENT_PLAN_TEMPLATE_STATUS!
   trialPeriodDays: Int!
   trialPeriodMonths: Int!
   trialPeriodYears: Int!
@@ -638,10 +638,10 @@ input MerchantPaymentPlanTemplateUpdateSchema {
   endsAfterYears: Int
   initialAmount: BigInt
   name: String
+  providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS
   renewalIntervalDays: Int
   renewalIntervalMonths: Int
   renewalIntervalYears: Int
-  status: PAYMENT_PLAN_TEMPLATE_STATUS
   trialPeriodDays: Int
   trialPeriodMonths: Int
   trialPeriodYears: Int

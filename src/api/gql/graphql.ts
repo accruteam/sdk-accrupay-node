@@ -628,10 +628,10 @@ export type MerchantPaymentPlanTemplateCreateSchema = {
   endsAfterYears: Scalars['Int']['input'];
   initialAmount: Scalars['BigInt']['input'];
   name: Scalars['String']['input'];
+  providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS;
   renewalIntervalDays: Scalars['Int']['input'];
   renewalIntervalMonths: Scalars['Int']['input'];
   renewalIntervalYears: Scalars['Int']['input'];
-  status: PAYMENT_PLAN_TEMPLATE_STATUS;
   trialPeriodDays: Scalars['Int']['input'];
   trialPeriodMonths: Scalars['Int']['input'];
   trialPeriodYears: Scalars['Int']['input'];
@@ -659,10 +659,10 @@ export type MerchantPaymentPlanTemplateUpdateSchema = {
   endsAfterYears?: InputMaybe<Scalars['Int']['input']>;
   initialAmount?: InputMaybe<Scalars['BigInt']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  providerStatus?: InputMaybe<PAYMENT_PLAN_TEMPLATE_STATUS>;
   renewalIntervalDays?: InputMaybe<Scalars['Int']['input']>;
   renewalIntervalMonths?: InputMaybe<Scalars['Int']['input']>;
   renewalIntervalYears?: InputMaybe<Scalars['Int']['input']>;
-  status?: InputMaybe<PAYMENT_PLAN_TEMPLATE_STATUS>;
   trialPeriodDays?: InputMaybe<Scalars['Int']['input']>;
   trialPeriodMonths?: InputMaybe<Scalars['Int']['input']>;
   trialPeriodYears?: InputMaybe<Scalars['Int']['input']>;
