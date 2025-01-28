@@ -140,6 +140,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git fetch origin || echo "Fetch failed"
+          git pull || echo "Pull failed"
           git fetch origin develop:develop || echo "Fetch develop failed"
           git checkout develop || echo "Checkout failed"
           git pull origin develop || echo "Pull failed"
