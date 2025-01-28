@@ -5,7 +5,7 @@ dotenv.config();
 
 const config: CodegenConfig = {
   schema:
-    process.env.BACKEND_GRAPHQL_ENDPOINT || 'http://localhost:3333/graphql',
+    process.env.BACKEND_GRAPHQL_ENDPOINT || 'http://localhost:3334/graphql',
   documents: ['./src/**/*.{ts,tsx,js,jsx}'],
   generates: {
     './src/api/gql/schema.graphql': {
