@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.8.0
+
+### Minor Changes
+
+- 95aa6e4: add customer payment method fields
+
 ## 0.7.3
 
 ### Patch Changes
