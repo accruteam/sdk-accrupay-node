@@ -10,6 +10,16 @@ export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
     methodType
     isEnabled
     isDefault
+    billingFirstName
+    billingLastName
+    billingEmail
+    billingPhone
+    billingAddressCountry
+    billingAddressState
+    billingAddressCity
+    billingAddressLine1
+    billingAddressLine2
+    billingAddressPostalCode
     merchantInternalCustomerCode
     createdAt
     updatedAt
