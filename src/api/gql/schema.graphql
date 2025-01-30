@@ -785,7 +785,22 @@ type Mutation {
   merchantApiPaymentPlanTemplateSyncOne(merchantTransactionProviderId: String!, providerCode: String!): MerchantPaymentPlanTemplate!
   merchantApiPaymentPlanTemplateUpdate(data: MerchantPaymentPlanTemplateUpdateSchema!, merchantPaymentPlanTemplateId: String!, merchantTransactionProviderId: String!): MerchantPaymentPlanTemplate!
   merchantApiTransactionVoid(merchantTransactionId: String!): MerchantTransaction!
+  userEmailVerifyOrChangeFinish(data: UserEmailVerifyOrChangeFinishSchema!): User!
+  userEmailVerifyOrChangeStart(data: UserEmailVerifyOrChangeStartSchema!): DateTimeISO!
+  userHandleLoginAttempt(email: String!): DateTimeISO!
+  userPasswordChangeFinish(data: UserPasswordChangeFinishSchema!): String!
+  userPasswordChangeStart(data: UserPasswordChangeStartSchema!): DateTimeISO!
+  userPasswordResetFinish(data: UserPasswordResetFinishSchema!): String!
+  userPasswordResetStart(data: UserPasswordResetStartSchema!): String!
   userSessionsClose: DateTimeISO!
+
+  """
+  This method is used to finish the user sign up process. The string returned is the authentication provider custom token, use it to log in.
+  """
+  userSignUpWithEmailFinish(data: UserSignUpWithEmailFinishSchema!): String!
+  userSignUpWithEmailStart(data: UserSignUpWithEmailStartSchema!): DateTimeISO!
+  userSignUpWithEmailVerify(data: UserSignUpWithEmailVerifySchema!): DateTimeISO!
+  userUpdateData(data: UserUpdateDataSchema!): User!
 }
 
 enum PAYMENT_METHOD {
@@ -900,6 +915,15 @@ type User {
   updatedAt: DateTimeISO!
 }
 
+input UserEmailVerifyOrChangeFinishSchema {
+  email: String!
+  verificationCode: String!
+}
+
+input UserEmailVerifyOrChangeStartSchema {
+  email: String!
+}
+
 type UserPaginationConnection {
   edges: [UserPaginationEdge!]!
   pageInfo: PageInfo!
@@ -909,4 +933,44 @@ type UserPaginationConnection {
 type UserPaginationEdge {
   cursor: ConnectionCursor!
   node: User!
+}
+
+input UserPasswordChangeFinishSchema {
+  updatedPassword: String!
+  verificationCode: String!
+}
+
+input UserPasswordChangeStartSchema {
+  currentPassword: String
+}
+
+input UserPasswordResetFinishSchema {
+  email: String!
+  updatedPassword: String!
+  userId: String!
+  verificationCode: String!
+}
+
+input UserPasswordResetStartSchema {
+  email: String!
+}
+
+input UserSignUpWithEmailFinishSchema {
+  email: String!
+  password: String!
+  verificationCode: String!
+}
+
+input UserSignUpWithEmailStartSchema {
+  email: String!
+}
+
+input UserSignUpWithEmailVerifySchema {
+  email: String!
+  verificationCode: String!
+}
+
+input UserUpdateDataSchema {
+  name: String!
+  phone: String!
 }
