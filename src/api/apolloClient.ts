@@ -8,6 +8,7 @@ import { onError } from '@apollo/client/link/error';
 import { NetworkError } from '@apollo/client/errors';
 import { setContext } from '@apollo/client/link/context';
 import { withScalars } from 'apollo-link-scalars';
+import { DateTimeISOResolver } from 'graphql-scalars';
 import {
   GraphQLError,
   GraphQLFormattedError,
@@ -16,7 +17,6 @@ import {
   Kind,
   buildClientSchema,
 } from 'graphql';
-
 import introspectionResult from './gql/schema.graphql.json' assert { type: 'json' };
 
 const AccruPayEnvironmentUrls = {
@@ -42,7 +42,7 @@ interface IAccruPayParams {
   return this.toString();
 };
 
-const BigIntScalar = new GraphQLScalarType({
+const BigIntResolver = new GraphQLScalarType({
   name: 'BigInt',
   description:
     'The `BigInt` scalar type represents non-fractional signed whole numeric values.',
@@ -113,7 +113,8 @@ export const createApolloClient = ({
   const scalarLink = withScalars({
     schema,
     typesMap: {
-      BigInt: BigIntScalar,
+      BigInt: BigIntResolver,
+      DateTimeISO: DateTimeISOResolver,
     },
   });
 
