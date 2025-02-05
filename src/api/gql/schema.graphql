@@ -784,7 +784,7 @@ type Mutation {
   merchantApiPaymentPlanTemplateSyncAll(merchantTransactionProviderId: String!): [MerchantPaymentPlanTemplate!]!
   merchantApiPaymentPlanTemplateSyncOne(merchantTransactionProviderId: String!, providerCode: String!): MerchantPaymentPlanTemplate!
   merchantApiPaymentPlanTemplateUpdate(data: MerchantPaymentPlanTemplateUpdateSchema!, merchantPaymentPlanTemplateId: String!, merchantTransactionProviderId: String!): MerchantPaymentPlanTemplate!
-  merchantApiTransactionVoid(merchantTransactionId: String!): MerchantTransaction!
+  merchantApiTransactionVoid(code: String, id: String, merchantInternalTransactionCode: String, token: String): MerchantTransaction!
   userEmailVerifyOrChangeFinish(data: UserEmailVerifyOrChangeFinishSchema!): User!
   userEmailVerifyOrChangeStart(data: UserEmailVerifyOrChangeStartSchema!): DateTimeISO!
   userHandleLoginAttempt(email: String!): DateTimeISO!
