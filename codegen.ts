@@ -28,6 +28,7 @@ const config: CodegenConfig = {
         namingConvention: 'keep',
         scalars: {
           BigInt: 'bigint',
+          DateTimeISO: 'Date',
         },
       },
     },
