@@ -166,8 +166,18 @@ export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION =
 `);
 
 export const MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION = gql(`
-  mutation MerchantApiTransactionVoid($merchantTransactionId: String!) {
-    merchantApiTransactionVoid(merchantTransactionId: $merchantTransactionId) {
+  mutation MerchantApiTransactionVoid(
+    $id: String,
+    $code: String,
+    $token: String,
+    $merchantInternalTransactionCode: String
+  ) {
+    merchantApiTransactionVoid(
+      id: $id,
+      code: $code,
+      token: $token,
+      merchantInternalTransactionCode: $merchantInternalTransactionCode
+    ) {
       ...MerchantTransactionFragment
     }
   }
