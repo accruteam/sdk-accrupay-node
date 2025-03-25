@@ -347,6 +347,47 @@ enum ENTITY_TYPE {
   INDIVIDUAL
 }
 
+type ErrorLog {
+  code: String
+  createdAt: DateTimeISO!
+  debug: JSON
+  environment: String
+  handler: String
+  id: ID!
+  key: String
+  merchantId: String
+  message: String!
+  method: String
+  operation: String
+  path: String
+  payload: JSON
+  requestAgentInfo: JSON
+  requestContext: JSON
+  requestData: JSON
+  resolvedAt: DateTimeISO
+  resolvedByEmail: String
+  responseContext: JSON
+  responseData: JSON
+  source: String
+  stack: String
+  statusCode: Int
+  updatedAt: DateTimeISO!
+  userEmail: String
+  userId: String
+  version: String
+}
+
+type ErrorLogPaginationConnection {
+  edges: [ErrorLogPaginationEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type ErrorLogPaginationEdge {
+  cursor: ConnectionCursor!
+  node: ErrorLog!
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -752,6 +793,8 @@ type MerchantUserPaginationEdge {
 }
 
 type Mutation {
+  adminErrorLogMarkAllAsResolved: DateTimeISO!
+  adminErrorLogMarkAsResolved(errorLogId: String!): ErrorLog!
   adminMerchantApiKeyCreate(merchantId: String!): MerchantApiKey!
   adminMerchantApiKeyDelete(merchantApiKeyId: String!): DateTimeISO!
   adminMerchantCreate(data: AdminMerchantCreateSchema!): Merchant!
@@ -789,6 +832,22 @@ type Mutation {
   merchantApiPaymentPlanTemplateSyncAll(merchantTransactionProviderId: String!): [MerchantPaymentPlanTemplate!]!
   merchantApiPaymentPlanTemplateSyncOne(merchantTransactionProviderId: String!, providerCode: String!): MerchantPaymentPlanTemplate!
   merchantApiPaymentPlanTemplateUpdate(data: MerchantPaymentPlanTemplateUpdateSchema!, merchantPaymentPlanTemplateId: String!, merchantTransactionProviderId: String!): MerchantPaymentPlanTemplate!
+  merchantApiTransactionRefund(
+    """Transaction code on AccruPay API."""
+    code: String
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Transaction code on Transaction Provider."""
+    providerCode: String
+
+    """Transaction token, only when the transaction is not finished/expired."""
+    token: String
+  ): MerchantTransaction!
   merchantApiTransactionSyncOne(
     """Transaction code on AccruPay API."""
     code: String
@@ -871,6 +930,7 @@ type PageInfo {
 }
 
 type Query {
+  adminErrorLogs(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, message: String, path: String, resolved: Boolean, skip: Int, sorting: [SortingFieldSchema!], take: Int): ErrorLogPaginationConnection!
   adminMerchant(merchantId: String!): Merchant!
   adminMerchantApiKey(merchantApiKeyId: String!): MerchantApiKey!
   adminMerchantApiKeys(after: ConnectionCursor, before: ConnectionCursor, first: Int, last: Int, merchantId: String!, skip: Int, sorting: [SortingFieldSchema!], take: Int): MerchantApiKeyPaginationConnection!
