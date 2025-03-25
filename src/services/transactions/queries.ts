@@ -182,3 +182,21 @@ export const MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION = gql(`
     }
   }
 `);
+
+export const MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION = gql(`
+  mutation MerchantApiTransactionRefund(
+    $id: String,
+    $code: String,
+    $token: String,
+    $merchantInternalTransactionCode: String
+  ) {
+    merchantApiTransactionRefund(
+      id: $id,
+      code: $code,
+      token: $token,
+      merchantInternalTransactionCode: $merchantInternalTransactionCode
+    ) {
+      ...MerchantTransactionFragment
+    }
+  }
+`);

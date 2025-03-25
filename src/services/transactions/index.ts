@@ -12,6 +12,8 @@ import {
   MerchantApiClientTransactionPaymentSessionVerifyMutationVariables,
   MerchantApiClientTransactionNuveiPreSessionDataQueryVariables,
   MerchantApiClientTransactionNuveiPreSessionDataQuery,
+  MerchantApiTransactionRefundMutation,
+  MerchantApiTransactionRefundMutationVariables,
 } from '@api/gql/graphql';
 import { Res } from '@utils/response.type';
 import { parsePlainNodes } from '@utils/parsePlainNodes';
@@ -22,6 +24,7 @@ import {
   MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION,
   MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION,
   MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_QUERY,
+  MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION,
 } from './queries';
 
 class Transactions {
@@ -92,6 +95,17 @@ class Transactions {
     });
 
     return data!.merchantApiTransactionVoid;
+  }
+
+  public async refundOne(
+    variables: MerchantApiTransactionRefundMutationVariables,
+  ): Promise<Res<MerchantApiTransactionRefundMutation>> {
+    const { data } = await this.context.apolloClient.mutate({
+      mutation: MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION,
+      variables,
+    });
+
+    return data!.merchantApiTransactionRefund;
   }
 }
 
