@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.10.0
+
+### Minor Changes
+
+- 75f984a: update payment plan transactions
+
 ## 0.9.1
 
 ### Patch Changes
