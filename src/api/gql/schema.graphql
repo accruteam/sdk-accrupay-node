@@ -330,6 +330,7 @@ enum COUNTRY_ISO_2 {
 }
 
 enum CURRENCY {
+  EUR
   USD
 }
 
@@ -535,7 +536,7 @@ type MerchantPaymentPlan {
   timeAnchor: DateTimeISO!
   transactionProvider: MerchantTransactionProvider!
   transactionProviderId: String!
-  transactions: [MerchantPaymentPlanTransaction!]!
+  transactions: [MerchantTransaction!]!
   trialEndsAt: DateTimeISO!
   trialPeriodDays: Int!
   trialPeriodMonths: Int!
@@ -647,19 +648,6 @@ input MerchantPaymentPlanTemplateUpdateSchema {
   trialPeriodYears: Int
 }
 
-type MerchantPaymentPlanTransaction {
-  action: PAYMENT_PLAN_PAYMENT_ACTION!
-  createdAt: DateTimeISO!
-  id: ID!
-  paymentPlanId: String!
-  periodCount: Int!
-  periodEnd: DateTimeISO!
-  periodStart: DateTimeISO!
-  transaction: MerchantTransaction!
-  transactionId: String!
-  updatedAt: DateTimeISO!
-}
-
 type MerchantTransaction {
   action: TRANSACTION_ACTION!
   amount: BigInt!
@@ -680,13 +668,15 @@ type MerchantTransaction {
   disputedAt: DateTimeISO
   failedAt: DateTimeISO
   id: ID!
-  merchantInternalCustomerCode: String!
-  merchantInternalTransactionCode: String!
+  merchantInternalCustomerCode: String
+  merchantInternalTransactionCode: String
   payload: JSON!
   paymentMethod: MerchantCustomerPaymentMethod
   paymentMethodCode: String
   paymentMethodId: String
   paymentMethodType: PAYMENT_METHOD
+  paymentPlan: MerchantPaymentPlan
+  paymentPlanId: String
   providerCode: String!
   providerError: String
   providerLastVerifiedAt: DateTimeISO!
@@ -696,7 +686,7 @@ type MerchantTransaction {
   revertedAt: DateTimeISO
   startedAt: DateTimeISO
   status: TRANSACTION_STATUS!
-  storePaymentMethod: Boolean!
+  storePaymentMethod: Boolean
   succeededAt: DateTimeISO
   token: String
   tokenExpiresAt: DateTimeISO
@@ -773,7 +763,22 @@ type Mutation {
   adminMerchantUserCreate(data: AdminMerchantUserCreateSchema!, merchantId: String!): MerchantUser!
   adminMerchantUserUpdate(data: AdminMerchantUserUpdateSchema!, merchantUserId: String!): MerchantUser!
   merchantApiClientTransactionPaymentSessionStart(data: MerchantApiClientTransactionPaymentStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantTransaction!
-  merchantApiClientTransactionPaymentSessionVerify(code: String, id: String, merchantInternalTransactionCode: String, token: String): MerchantTransaction!
+  merchantApiClientTransactionPaymentSessionVerify(
+    """Transaction code on AccruPay API."""
+    code: String
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Transaction code on Transaction Provider."""
+    providerCode: String
+
+    """Transaction token, only when the transaction is not finished/expired."""
+    token: String
+  ): MerchantTransaction!
   merchantApiCustomerPaymentMethodSyncAll(merchantInternalCustomerCode: String!, merchantTransactionProviderId: String!): [MerchantCustomerPaymentMethod!]!
   merchantApiCustomerPaymentMethodSyncOne(merchantInternalCustomerCode: String!, merchantTransactionProviderId: String!, providerCode: String!): MerchantCustomerPaymentMethod!
   merchantApiPaymentPlanCancel(merchantPaymentPlanId: String!, merchantTransactionProviderId: String!): MerchantPaymentPlan!
@@ -784,7 +789,39 @@ type Mutation {
   merchantApiPaymentPlanTemplateSyncAll(merchantTransactionProviderId: String!): [MerchantPaymentPlanTemplate!]!
   merchantApiPaymentPlanTemplateSyncOne(merchantTransactionProviderId: String!, providerCode: String!): MerchantPaymentPlanTemplate!
   merchantApiPaymentPlanTemplateUpdate(data: MerchantPaymentPlanTemplateUpdateSchema!, merchantPaymentPlanTemplateId: String!, merchantTransactionProviderId: String!): MerchantPaymentPlanTemplate!
-  merchantApiTransactionVoid(code: String, id: String, merchantInternalTransactionCode: String, token: String): MerchantTransaction!
+  merchantApiTransactionSyncOne(
+    """Transaction code on AccruPay API."""
+    code: String
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+    merchantTransactionProviderId: String!
+
+    """Transaction code on Transaction Provider."""
+    providerCode: String
+
+    """Transaction token, only when the transaction is not finished/expired."""
+    token: String
+  ): MerchantTransaction!
+  merchantApiTransactionVoid(
+    """Transaction code on AccruPay API."""
+    code: String
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Transaction code on Transaction Provider."""
+    providerCode: String
+
+    """Transaction token, only when the transaction is not finished/expired."""
+    token: String
+  ): MerchantTransaction!
   userEmailVerifyOrChangeFinish(data: UserEmailVerifyOrChangeFinishSchema!): User!
   userEmailVerifyOrChangeStart(data: UserEmailVerifyOrChangeStartSchema!): DateTimeISO!
   userHandleLoginAttempt(email: String!): DateTimeISO!
@@ -810,11 +847,6 @@ enum PAYMENT_METHOD {
 enum PAYMENT_METHOD_STATUS {
   DISABLED
   ENABLED
-}
-
-enum PAYMENT_PLAN_PAYMENT_ACTION {
-  PURCHASE
-  RENEWAL
 }
 
 enum PAYMENT_PLAN_STATUS {
@@ -861,10 +893,25 @@ type Query {
   merchantApiPaymentPlanTemplate(merchantPaymentPlanTemplateId: String!): MerchantPaymentPlanTemplate!
   merchantApiPaymentPlanTemplates(after: ConnectionCursor, before: ConnectionCursor, currency: CURRENCY, first: Int, id: String, last: Int, name: String, providerCode: String, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, skip: Int, sorting: [SortingFieldSchema!], take: Int, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantPaymentPlanTemplatePaginationConnection!
   merchantApiPaymentPlans(after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, currency: CURRENCY, ended: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantInternalCustomerCode: String, merchantInternalPaymentPlanCode: String, paymentMethod: PAYMENT_METHOD, paymentMethodId: String, providerCode: String, providerStatus: PAYMENT_PLAN_STATUS, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, take: Int, templateId: String, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantPaymentPlanPaginationConnection!
-  merchantApiTransaction(code: String, id: String, merchantInternalTransactionCode: String, token: String): MerchantTransaction!
+  merchantApiTransaction(
+    """Transaction code on AccruPay API."""
+    code: String
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Transaction code on Transaction Provider."""
+    providerCode: String
+
+    """Transaction token, only when the transaction is not finished/expired."""
+    token: String
+  ): MerchantTransaction!
   merchantApiTransactionProvider(merchantTransactionProviderId: String!): MerchantTransactionProvider!
   merchantApiTransactionProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, provider: TRANSACTION_PROVIDER, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_TRANSACTION_PROVIDER_STATUS, take: Int): MerchantTransactionProviderPaginationConnection!
-  merchantApiTransactions(action: TRANSACTION_ACTION, after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, code: String, currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantInternalCustomerCode: String, merchantInternalTransactionCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, providerCode: String, providerRelatedCode: String, relatedTransactionId: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, succeeded: Boolean, take: Int, token: String, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
+  merchantApiTransactions(action: TRANSACTION_ACTION, after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, code: String, currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantInternalCustomerCode: String, merchantInternalTransactionCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, paymentPlanId: String, providerCode: String, providerRelatedCode: String, relatedTransactionId: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, succeeded: Boolean, take: Int, token: String, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
   user: User!
   userMerchant(merchantId: String): Merchant!
   userMerchants(addressCity: String, addressCountry: COUNTRY_ISO_2, addressPostalCode: String, addressState: String, after: ConnectionCursor, before: ConnectionCursor, email: String, entityType: ENTITY_TYPE, first: Int, id: String, last: Int, legalIdentifier: String, legalIdentifierType: LEGAL_IDENTIFIER_TYPE, name: String, phone: String, publicId: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_STATUS, take: Int): MerchantPaginationConnection!
@@ -882,8 +929,14 @@ input SortingFieldSchema {
 
 enum TRANSACTION_ACTION {
   AUTHORIZATION
+  CHARGEBACK
+  CREDIT
+  MODIFICATION
   PAYMENT
+  PAYOUT
   REFUND
+  SETTLE
+  UNKNOWN
   VOID
 }
 
@@ -892,11 +945,11 @@ enum TRANSACTION_PROVIDER {
 }
 
 enum TRANSACTION_STATUS {
-  DISPUTED
+  DECLINED
+  ERROR
   EXPIRED
   FAILED
   PENDING
-  REVERTED
   STARTED
   SUCCEEDED
   UNKNOWN

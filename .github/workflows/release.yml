@@ -137,13 +137,33 @@ jobs:
       - name: Push to develop branch
         if: steps.changesets.outputs.published == 'true'
         run: |
-          git config user.name "github-actions[bot]"
+         git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin || echo "Fetch failed"
-          git pull || echo "Pull failed"
-          git fetch origin develop:develop || echo "Fetch develop failed"
-          git checkout develop || echo "Checkout failed"
-          git pull origin develop || echo "Pull failed"
-          git merge ${{ steps.extract-branch.outputs.branch }} --no-ff --allow-unrelated-histories --no-edit || echo "Merge failed, resolving manually required"
-          git push origin develop || echo "Push failed"
+          git fetch origin develop:develop || git checkout -b develop
+          git checkout develop
+
+          # Try merging with theirs strategy (keep changes from current branch)
+          git merge ${{ steps.extract-branch.outputs.branch }} -X theirs --no-ff --no-edit --allow-unrelated-histories || {
+            # Check if files exist before trying to checkout
+            # Process all files in .changeset directory
+            if [ -d ".changeset" ]; then
+              for file in $(find .changeset -type f 2>/dev/null); do
+              if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+                git checkout --theirs "$file"
+                git add "$file"
+              fi
+              done
+            fi
+
+            # Process specific files
+            for file in "CHANGELOG.md" "package.json"; do
+              if git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+              git checkout --theirs "$file"
+              git add "$file"
+              fi
+            done
+            git -c core.editor=true merge --continue || git commit -m "Merge ${{ steps.extract-branch.outputs.branch }} into develop"
+          }
+
+          git push origin develop
         continue-on-error: true

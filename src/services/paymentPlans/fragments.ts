@@ -47,18 +47,7 @@ export const MERCHANT_PAYMENT_PLAN_FRAGMENT = gql(`
       ...MerchantCustomerPaymentMethodFragment
     }
     transactions {
-      id
-      action
-      periodCount
-      periodStart
-      periodEnd
-      createdAt
-      updatedAt
-      paymentPlanId
-      transactionId
-      transaction {
-        ...MerchantTransactionBaseFragment
-      }
+      ...MerchantTransactionBaseFragment
     }
   }
 `);

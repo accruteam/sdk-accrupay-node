@@ -34,6 +34,7 @@ export const MERCHANT_TRANSACTION_BASE_FRAGMENT = gql(`
     transactionProviderId
     paymentMethodId
     relatedTransactionId
+    paymentPlanId
   }
 `);
 
