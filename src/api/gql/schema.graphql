@@ -503,6 +503,7 @@ type MerchantCustomerPaymentMethod {
   paymentMethodInfo: MerchantCustomerPaymentMethodInfo
   providerCode: String!
   providerError: String
+  providerLastSyncedAt: DateTimeISO
   providerLastVerifiedAt: DateTimeISO!
   providerStatus: PAYMENT_METHOD_STATUS!
   transactionProviderId: String!
@@ -565,6 +566,7 @@ type MerchantPaymentPlan {
   periodCount: Int!
   providerCode: String!
   providerError: String
+  providerLastSyncedAt: DateTimeISO
   providerLastVerifiedAt: DateTimeISO!
   providerStatus: PAYMENT_PLAN_STATUS!
   renewalIntervalDays: Int!
@@ -630,6 +632,7 @@ type MerchantPaymentPlanTemplate {
   payload: JSON!
   providerCode: String!
   providerError: String
+  providerLastSyncedAt: DateTimeISO
   providerLastVerifiedAt: DateTimeISO!
   providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS!
   renewalIntervalDays: Int!
@@ -720,9 +723,11 @@ type MerchantTransaction {
   paymentPlanId: String
   providerCode: String!
   providerError: String
+  providerLastSyncedAt: DateTimeISO
   providerLastVerifiedAt: DateTimeISO!
   providerRelatedCode: String
   providerStatus: TRANSACTION_STATUS!
+  relatedTransaction: MerchantTransaction
   relatedTransactionId: String
   revertedAt: DateTimeISO
   startedAt: DateTimeISO
@@ -732,6 +737,7 @@ type MerchantTransaction {
   token: String
   tokenExpiresAt: DateTimeISO
   transactionDate: DateTimeISO!
+  transactionError: String
   transactionProvider: MerchantTransactionProvider!
   transactionProviderId: String!
   updatedAt: DateTimeISO!
