@@ -515,6 +515,7 @@ export type MerchantCustomerPaymentMethod = {
   paymentMethodInfo?: Maybe<MerchantCustomerPaymentMethodInfo>;
   providerCode: Scalars['String']['output'];
   providerError?: Maybe<Scalars['String']['output']>;
+  providerLastSyncedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   providerLastVerifiedAt: Scalars['DateTimeISO']['output'];
   providerStatus: PAYMENT_METHOD_STATUS;
   transactionProviderId: Scalars['String']['output'];
@@ -584,6 +585,7 @@ export type MerchantPaymentPlan = {
   periodCount: Scalars['Int']['output'];
   providerCode: Scalars['String']['output'];
   providerError?: Maybe<Scalars['String']['output']>;
+  providerLastSyncedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   providerLastVerifiedAt: Scalars['DateTimeISO']['output'];
   providerStatus: PAYMENT_PLAN_STATUS;
   renewalIntervalDays: Scalars['Int']['output'];
@@ -652,6 +654,7 @@ export type MerchantPaymentPlanTemplate = {
   payload: Scalars['JSON']['output'];
   providerCode: Scalars['String']['output'];
   providerError?: Maybe<Scalars['String']['output']>;
+  providerLastSyncedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   providerLastVerifiedAt: Scalars['DateTimeISO']['output'];
   providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS;
   renewalIntervalDays: Scalars['Int']['output'];
@@ -745,9 +748,11 @@ export type MerchantTransaction = {
   paymentPlanId?: Maybe<Scalars['String']['output']>;
   providerCode: Scalars['String']['output'];
   providerError?: Maybe<Scalars['String']['output']>;
+  providerLastSyncedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   providerLastVerifiedAt: Scalars['DateTimeISO']['output'];
   providerRelatedCode?: Maybe<Scalars['String']['output']>;
   providerStatus: TRANSACTION_STATUS;
+  relatedTransaction?: Maybe<MerchantTransaction>;
   relatedTransactionId?: Maybe<Scalars['String']['output']>;
   revertedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   startedAt?: Maybe<Scalars['DateTimeISO']['output']>;
@@ -757,6 +762,7 @@ export type MerchantTransaction = {
   token?: Maybe<Scalars['String']['output']>;
   tokenExpiresAt?: Maybe<Scalars['DateTimeISO']['output']>;
   transactionDate: Scalars['DateTimeISO']['output'];
+  transactionError?: Maybe<Scalars['String']['output']>;
   transactionProvider: MerchantTransactionProvider;
   transactionProviderId: Scalars['String']['output'];
   updatedAt: Scalars['DateTimeISO']['output'];
