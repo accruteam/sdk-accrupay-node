@@ -1,5 +1,12 @@
 # @accrupay/node
 
+## 0.13.0
+
+### Minor Changes
+
+- 6cbc31b: add refund amount (partial) and transactions related
+- 35adfe6: add refund api
+
 ## 0.12.0
 
 ### Minor Changes
