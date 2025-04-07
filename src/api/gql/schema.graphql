@@ -727,9 +727,10 @@ type MerchantTransaction {
   providerLastVerifiedAt: DateTimeISO!
   providerRelatedCode: String
   providerStatus: TRANSACTION_STATUS!
+  refundedAmount: BigInt
+  refundedAt: DateTimeISO
   relatedTransaction: MerchantTransaction
   relatedTransactionId: String
-  revertedAt: DateTimeISO
   startedAt: DateTimeISO
   status: TRANSACTION_STATUS!
   storePaymentMethod: Boolean
@@ -740,7 +741,9 @@ type MerchantTransaction {
   transactionError: String
   transactionProvider: MerchantTransactionProvider!
   transactionProviderId: String!
+  transactionsRelated: [MerchantTransaction!]
   updatedAt: DateTimeISO!
+  voidedAt: DateTimeISO
 }
 
 type MerchantTransactionPaginationConnection {
@@ -839,6 +842,8 @@ type Mutation {
   merchantApiPaymentPlanTemplateSyncOne(merchantTransactionProviderId: String!, providerCode: String!): MerchantPaymentPlanTemplate!
   merchantApiPaymentPlanTemplateUpdate(data: MerchantPaymentPlanTemplateUpdateSchema!, merchantPaymentPlanTemplateId: String!, merchantTransactionProviderId: String!): MerchantPaymentPlanTemplate!
   merchantApiTransactionRefund(
+    amount: BigInt!
+
     """Transaction code on AccruPay API."""
     code: String
 
@@ -994,6 +999,7 @@ input SortingFieldSchema {
 }
 
 enum TRANSACTION_ACTION {
+  AUTHENTICATION
   AUTHORIZATION
   CHARGEBACK
   CREDIT
