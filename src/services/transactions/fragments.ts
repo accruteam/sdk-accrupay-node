@@ -22,8 +22,10 @@ export const MERCHANT_TRANSACTION_BASE_FRAGMENT = gql(`
     succeededAt
     failedAt
     canceledAt
-    revertedAt
+    voidedAt
+    refundedAt
     disputedAt
+    refundedAmount
     storePaymentMethod
     merchantInternalCustomerCode
     merchantInternalTransactionCode
@@ -46,6 +48,26 @@ export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
 
     paymentMethod {
       ...MerchantCustomerPaymentMethodFragment
+    }
+
+    relatedTransaction {
+      id
+      code
+      action
+      status
+      amount
+      providerCode
+      providerRelatedCode
+    }
+
+    transactionsRelated {
+      id
+      code
+      action
+      status
+      amount
+      providerCode
+      providerRelatedCode
     }
 
     ...MerchantTransactionBaseFragment

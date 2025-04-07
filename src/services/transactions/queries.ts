@@ -188,13 +188,15 @@ export const MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION = gql(`
     $id: String,
     $code: String,
     $token: String,
-    $merchantInternalTransactionCode: String
+    $merchantInternalTransactionCode: String,
+    $amount: BigInt!
   ) {
     merchantApiTransactionRefund(
       id: $id,
       code: $code,
       token: $token,
-      merchantInternalTransactionCode: $merchantInternalTransactionCode
+      merchantInternalTransactionCode: $merchantInternalTransactionCode,
+      amount: $amount
     ) {
       ...MerchantTransactionFragment
     }
