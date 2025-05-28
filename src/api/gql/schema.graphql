@@ -1,16 +1,29 @@
 input AdminMerchantCreateSchema {
-  addressCity: String
-  addressCountry: COUNTRY_ISO_2
-  addressLine1: String
-  addressLine2: String
-  addressPostalCode: String
-  addressState: String
+  addressCity: String!
+  addressCountry: COUNTRY_ISO_2!
+  addressLine1: String!
+  addressLine2: String!
+  addressPostalCode: String!
+  addressState: String!
   email: String!
-  entityType: ENTITY_TYPE
-  legalIdentifier: String
-  legalIdentifierType: LEGAL_IDENTIFIER_TYPE
+  entityType: ENTITY_TYPE!
+  industry: String!
+  legalAddressCity: String!
+  legalAddressCountry: COUNTRY_ISO_2!
+  legalAddressLine1: String!
+  legalAddressLine2: String!
+  legalAddressPostalCode: String!
+  legalAddressState: String!
+  legalIdentifier: String!
+  legalIdentifierType: LEGAL_IDENTIFIER_TYPE!
+  locale: String
   name: String!
-  phone: String
+  phone: String!
+  primaryContactEmail: String!
+  primaryContactName: String!
+  primaryContactPhone: String!
+  timezone: String
+  websiteUrl: String
 }
 
 input AdminMerchantTransactionProviderCreateSchema {
@@ -32,12 +45,25 @@ input AdminMerchantUpdateSchema {
   addressLine2: String
   addressPostalCode: String
   addressState: String
-  email: String!
+  email: String
   entityType: ENTITY_TYPE
+  industry: String
+  legalAddressCity: String
+  legalAddressCountry: COUNTRY_ISO_2
+  legalAddressLine1: String
+  legalAddressLine2: String
+  legalAddressPostalCode: String
+  legalAddressState: String
   legalIdentifier: String
   legalIdentifierType: LEGAL_IDENTIFIER_TYPE
-  name: String!
+  locale: String
+  name: String
   phone: String
+  primaryContactEmail: String
+  primaryContactName: String
+  primaryContactPhone: String
+  timezone: String
+  websiteUrl: String
 }
 
 input AdminMerchantUserCreateSchema {
@@ -424,20 +450,34 @@ type Merchant {
   addressLine2: String
   addressPostalCode: String
   addressState: String
+  archivedAt: DateTimeISO
   createdAt: DateTimeISO!
   email: String!
   emailVerificationId: String
   entityType: ENTITY_TYPE!
   id: ID!
+  industry: String
+  legalAddressCity: String
+  legalAddressCountry: COUNTRY_ISO_2
+  legalAddressLine1: String
+  legalAddressLine2: String
+  legalAddressPostalCode: String
+  legalAddressState: String
   legalIdentifier: String
   legalIdentifierType: LEGAL_IDENTIFIER_TYPE
+  locale: String
   name: String!
   phone: String
   phoneVerificationId: String
+  primaryContactEmail: String
+  primaryContactName: String
+  primaryContactPhone: String
   publicId: String
   publicIdUpdatedAt: DateTimeISO
   status: MERCHANT_STATUS!
+  timezone: String
   updatedAt: DateTimeISO!
+  websiteUrl: String
 }
 
 input MerchantApiClientTransactionPaymentStartSchema {
@@ -482,6 +522,34 @@ type MerchantClientTransactionNuveiPreSessionData {
 }
 
 union MerchantClientTransactionPreSessionData = MerchantClientTransactionGenericPreSessionData | MerchantClientTransactionNuveiPreSessionData
+
+input MerchantCreateSchema {
+  addressCity: String!
+  addressCountry: COUNTRY_ISO_2!
+  addressLine1: String!
+  addressLine2: String!
+  addressPostalCode: String!
+  addressState: String!
+  email: String!
+  entityType: ENTITY_TYPE!
+  industry: String!
+  legalAddressCity: String!
+  legalAddressCountry: COUNTRY_ISO_2!
+  legalAddressLine1: String!
+  legalAddressLine2: String!
+  legalAddressPostalCode: String!
+  legalAddressState: String!
+  legalIdentifier: String!
+  legalIdentifierType: LEGAL_IDENTIFIER_TYPE!
+  locale: String
+  name: String!
+  phone: String!
+  primaryContactEmail: String!
+  primaryContactName: String!
+  primaryContactPhone: String!
+  timezone: String
+  websiteUrl: String
+}
 
 type MerchantCustomerPaymentMethod {
   billingAddressCity: String
@@ -778,16 +846,72 @@ type MerchantTransactionProviderPaginationEdge {
   node: MerchantTransactionProvider!
 }
 
+input MerchantUpdateSchema {
+  addressCity: String
+  addressCountry: COUNTRY_ISO_2
+  addressLine1: String
+  addressLine2: String
+  addressPostalCode: String
+  addressState: String
+  industry: String
+  legalAddressCity: String
+  legalAddressCountry: COUNTRY_ISO_2
+  legalAddressLine1: String
+  legalAddressLine2: String
+  legalAddressPostalCode: String
+  legalAddressState: String
+  locale: String
+  name: String
+  primaryContactEmail: String
+  primaryContactName: String
+  primaryContactPhone: String
+  timezone: String
+  websiteUrl: String
+}
+
 type MerchantUser {
   createdAt: DateTimeISO!
   id: ID!
+  invitationId: String
   isEnabled: Boolean!
   merchant: Merchant!
   merchantId: String!
   role: MERCHANT_USER_ROLE!
   updatedAt: DateTimeISO!
-  user: User!
+  user: User
   userId: String!
+}
+
+type MerchantUserInvitation {
+  acceptedAt: DateTimeISO
+  canceledAt: DateTimeISO
+  createdAt: DateTimeISO!
+  createdByMerchantUserId: String!
+  email: String!
+  expiresAt: DateTimeISO!
+  id: ID!
+  merchant: Merchant!
+  merchantId: String!
+  rejectedAt: DateTimeISO
+  role: MERCHANT_USER_ROLE!
+  updatedAt: DateTimeISO!
+}
+
+input MerchantUserInvitationCreateSchema {
+  email: String!
+  expiresAt: DateTimeISO!
+  role: MERCHANT_USER_ROLE!
+}
+
+type MerchantUserInvitationPaginationConnection {
+  edges: [MerchantUserInvitationPaginationEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type MerchantUserInvitationPaginationEdge {
+  cursor: ConnectionCursor!
+  node: MerchantUserInvitation!
 }
 
 type MerchantUserPaginationConnection {
@@ -895,10 +1019,16 @@ type Mutation {
   userEmailVerifyOrChangeFinish(data: UserEmailVerifyOrChangeFinishSchema!): User!
   userEmailVerifyOrChangeStart(data: UserEmailVerifyOrChangeStartSchema!): DateTimeISO!
   userHandleLoginAttempt(email: String!): DateTimeISO!
+  userMerchantCreate(data: MerchantCreateSchema!): MerchantUser!
+  userMerchantSentInvitationCancel(invitationId: String!, merchantId: String): MerchantUserInvitation!
+  userMerchantSentInvitationCreate(data: MerchantUserInvitationCreateSchema!, merchantId: String): MerchantUserInvitation!
+  userMerchantUpdate(data: MerchantUpdateSchema!, merchantId: String): Merchant!
   userPasswordChangeFinish(data: UserPasswordChangeFinishSchema!): String!
   userPasswordChangeStart(data: UserPasswordChangeStartSchema!): DateTimeISO!
   userPasswordResetFinish(data: UserPasswordResetFinishSchema!): String!
   userPasswordResetStart(data: UserPasswordResetStartSchema!): String!
+  userReceivedMerchantInvitationAccept(invitationId: String!): MerchantUserInvitation!
+  userReceivedMerchantInvitationReject(invitationId: String!): MerchantUserInvitation!
   userSessionsClose: DateTimeISO!
 
   """
@@ -985,7 +1115,11 @@ type Query {
   merchantApiTransactions(action: TRANSACTION_ACTION, after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, code: String, currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantInternalCustomerCode: String, merchantInternalTransactionCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, paymentPlanId: String, providerCode: String, providerRelatedCode: String, relatedTransactionId: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, succeeded: Boolean, take: Int, token: String, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
   user: User!
   userMerchant(merchantId: String): Merchant!
+  userMerchantSentInvitation(invitationId: String!, merchantId: String): MerchantUserInvitation!
+  userMerchantSentInvitations(accepted: Boolean, after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, expired: Boolean, first: Int, last: Int, merchantId: String, rejected: Boolean, skip: Int, sorting: [SortingFieldSchema!], take: Int): MerchantUserInvitationPaginationConnection!
   userMerchants(addressCity: String, addressCountry: COUNTRY_ISO_2, addressPostalCode: String, addressState: String, after: ConnectionCursor, before: ConnectionCursor, email: String, entityType: ENTITY_TYPE, first: Int, id: String, last: Int, legalIdentifier: String, legalIdentifierType: LEGAL_IDENTIFIER_TYPE, name: String, phone: String, publicId: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_STATUS, take: Int): MerchantPaginationConnection!
+  userReceivedMerchantInvitation(invitationId: String!): MerchantUserInvitation!
+  userReceivedMerchantInvitations(after: ConnectionCursor, before: ConnectionCursor, first: Int, last: Int, skip: Int, sorting: [SortingFieldSchema!], take: Int): MerchantUserInvitationPaginationConnection!
 }
 
 enum SORT_ORDER {

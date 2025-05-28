@@ -25,18 +25,31 @@ export type Scalars = {
 };
 
 export type AdminMerchantCreateSchema = {
-  addressCity?: InputMaybe<Scalars['String']['input']>;
-  addressCountry?: InputMaybe<COUNTRY_ISO_2>;
-  addressLine1?: InputMaybe<Scalars['String']['input']>;
-  addressLine2?: InputMaybe<Scalars['String']['input']>;
-  addressPostalCode?: InputMaybe<Scalars['String']['input']>;
-  addressState?: InputMaybe<Scalars['String']['input']>;
+  addressCity: Scalars['String']['input'];
+  addressCountry: COUNTRY_ISO_2;
+  addressLine1: Scalars['String']['input'];
+  addressLine2: Scalars['String']['input'];
+  addressPostalCode: Scalars['String']['input'];
+  addressState: Scalars['String']['input'];
   email: Scalars['String']['input'];
-  entityType?: InputMaybe<ENTITY_TYPE>;
-  legalIdentifier?: InputMaybe<Scalars['String']['input']>;
-  legalIdentifierType?: InputMaybe<LEGAL_IDENTIFIER_TYPE>;
+  entityType: ENTITY_TYPE;
+  industry: Scalars['String']['input'];
+  legalAddressCity: Scalars['String']['input'];
+  legalAddressCountry: COUNTRY_ISO_2;
+  legalAddressLine1: Scalars['String']['input'];
+  legalAddressLine2: Scalars['String']['input'];
+  legalAddressPostalCode: Scalars['String']['input'];
+  legalAddressState: Scalars['String']['input'];
+  legalIdentifier: Scalars['String']['input'];
+  legalIdentifierType: LEGAL_IDENTIFIER_TYPE;
+  locale?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-  phone?: InputMaybe<Scalars['String']['input']>;
+  phone: Scalars['String']['input'];
+  primaryContactEmail: Scalars['String']['input'];
+  primaryContactName: Scalars['String']['input'];
+  primaryContactPhone: Scalars['String']['input'];
+  timezone?: InputMaybe<Scalars['String']['input']>;
+  websiteUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AdminMerchantTransactionProviderCreateSchema = {
@@ -58,12 +71,25 @@ export type AdminMerchantUpdateSchema = {
   addressLine2?: InputMaybe<Scalars['String']['input']>;
   addressPostalCode?: InputMaybe<Scalars['String']['input']>;
   addressState?: InputMaybe<Scalars['String']['input']>;
-  email: Scalars['String']['input'];
+  email?: InputMaybe<Scalars['String']['input']>;
   entityType?: InputMaybe<ENTITY_TYPE>;
+  industry?: InputMaybe<Scalars['String']['input']>;
+  legalAddressCity?: InputMaybe<Scalars['String']['input']>;
+  legalAddressCountry?: InputMaybe<COUNTRY_ISO_2>;
+  legalAddressLine1?: InputMaybe<Scalars['String']['input']>;
+  legalAddressLine2?: InputMaybe<Scalars['String']['input']>;
+  legalAddressPostalCode?: InputMaybe<Scalars['String']['input']>;
+  legalAddressState?: InputMaybe<Scalars['String']['input']>;
   legalIdentifier?: InputMaybe<Scalars['String']['input']>;
   legalIdentifierType?: InputMaybe<LEGAL_IDENTIFIER_TYPE>;
-  name: Scalars['String']['input'];
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
   phone?: InputMaybe<Scalars['String']['input']>;
+  primaryContactEmail?: InputMaybe<Scalars['String']['input']>;
+  primaryContactName?: InputMaybe<Scalars['String']['input']>;
+  primaryContactPhone?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
+  websiteUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type AdminMerchantUserCreateSchema = {
@@ -430,20 +456,34 @@ export type Merchant = {
   addressLine2?: Maybe<Scalars['String']['output']>;
   addressPostalCode?: Maybe<Scalars['String']['output']>;
   addressState?: Maybe<Scalars['String']['output']>;
+  archivedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   createdAt: Scalars['DateTimeISO']['output'];
   email: Scalars['String']['output'];
   emailVerificationId?: Maybe<Scalars['String']['output']>;
   entityType: ENTITY_TYPE;
   id: Scalars['ID']['output'];
+  industry?: Maybe<Scalars['String']['output']>;
+  legalAddressCity?: Maybe<Scalars['String']['output']>;
+  legalAddressCountry?: Maybe<COUNTRY_ISO_2>;
+  legalAddressLine1?: Maybe<Scalars['String']['output']>;
+  legalAddressLine2?: Maybe<Scalars['String']['output']>;
+  legalAddressPostalCode?: Maybe<Scalars['String']['output']>;
+  legalAddressState?: Maybe<Scalars['String']['output']>;
   legalIdentifier?: Maybe<Scalars['String']['output']>;
   legalIdentifierType?: Maybe<LEGAL_IDENTIFIER_TYPE>;
+  locale?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   phone?: Maybe<Scalars['String']['output']>;
   phoneVerificationId?: Maybe<Scalars['String']['output']>;
+  primaryContactEmail?: Maybe<Scalars['String']['output']>;
+  primaryContactName?: Maybe<Scalars['String']['output']>;
+  primaryContactPhone?: Maybe<Scalars['String']['output']>;
   publicId?: Maybe<Scalars['String']['output']>;
   publicIdUpdatedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   status: MERCHANT_STATUS;
+  timezone?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTimeISO']['output'];
+  websiteUrl?: Maybe<Scalars['String']['output']>;
 };
 
 export type MerchantApiClientTransactionPaymentStartSchema = {
@@ -493,6 +533,34 @@ export type MerchantClientTransactionNuveiPreSessionData = {
 };
 
 export type MerchantClientTransactionPreSessionData = MerchantClientTransactionGenericPreSessionData | MerchantClientTransactionNuveiPreSessionData;
+
+export type MerchantCreateSchema = {
+  addressCity: Scalars['String']['input'];
+  addressCountry: COUNTRY_ISO_2;
+  addressLine1: Scalars['String']['input'];
+  addressLine2: Scalars['String']['input'];
+  addressPostalCode: Scalars['String']['input'];
+  addressState: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+  entityType: ENTITY_TYPE;
+  industry: Scalars['String']['input'];
+  legalAddressCity: Scalars['String']['input'];
+  legalAddressCountry: COUNTRY_ISO_2;
+  legalAddressLine1: Scalars['String']['input'];
+  legalAddressLine2: Scalars['String']['input'];
+  legalAddressPostalCode: Scalars['String']['input'];
+  legalAddressState: Scalars['String']['input'];
+  legalIdentifier: Scalars['String']['input'];
+  legalIdentifierType: LEGAL_IDENTIFIER_TYPE;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  phone: Scalars['String']['input'];
+  primaryContactEmail: Scalars['String']['input'];
+  primaryContactName: Scalars['String']['input'];
+  primaryContactPhone: Scalars['String']['input'];
+  timezone?: InputMaybe<Scalars['String']['input']>;
+  websiteUrl?: InputMaybe<Scalars['String']['input']>;
+};
 
 export type MerchantCustomerPaymentMethod = {
   __typename?: 'MerchantCustomerPaymentMethod';
@@ -808,17 +876,76 @@ export type MerchantTransactionProviderPaginationEdge = {
   node: MerchantTransactionProvider;
 };
 
+export type MerchantUpdateSchema = {
+  addressCity?: InputMaybe<Scalars['String']['input']>;
+  addressCountry?: InputMaybe<COUNTRY_ISO_2>;
+  addressLine1?: InputMaybe<Scalars['String']['input']>;
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  addressPostalCode?: InputMaybe<Scalars['String']['input']>;
+  addressState?: InputMaybe<Scalars['String']['input']>;
+  industry?: InputMaybe<Scalars['String']['input']>;
+  legalAddressCity?: InputMaybe<Scalars['String']['input']>;
+  legalAddressCountry?: InputMaybe<COUNTRY_ISO_2>;
+  legalAddressLine1?: InputMaybe<Scalars['String']['input']>;
+  legalAddressLine2?: InputMaybe<Scalars['String']['input']>;
+  legalAddressPostalCode?: InputMaybe<Scalars['String']['input']>;
+  legalAddressState?: InputMaybe<Scalars['String']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  primaryContactEmail?: InputMaybe<Scalars['String']['input']>;
+  primaryContactName?: InputMaybe<Scalars['String']['input']>;
+  primaryContactPhone?: InputMaybe<Scalars['String']['input']>;
+  timezone?: InputMaybe<Scalars['String']['input']>;
+  websiteUrl?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type MerchantUser = {
   __typename?: 'MerchantUser';
   createdAt: Scalars['DateTimeISO']['output'];
   id: Scalars['ID']['output'];
+  invitationId?: Maybe<Scalars['String']['output']>;
   isEnabled: Scalars['Boolean']['output'];
   merchant: Merchant;
   merchantId: Scalars['String']['output'];
   role: MERCHANT_USER_ROLE;
   updatedAt: Scalars['DateTimeISO']['output'];
-  user: User;
+  user?: Maybe<User>;
   userId: Scalars['String']['output'];
+};
+
+export type MerchantUserInvitation = {
+  __typename?: 'MerchantUserInvitation';
+  acceptedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  canceledAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  createdAt: Scalars['DateTimeISO']['output'];
+  createdByMerchantUserId: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  expiresAt: Scalars['DateTimeISO']['output'];
+  id: Scalars['ID']['output'];
+  merchant: Merchant;
+  merchantId: Scalars['String']['output'];
+  rejectedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  role: MERCHANT_USER_ROLE;
+  updatedAt: Scalars['DateTimeISO']['output'];
+};
+
+export type MerchantUserInvitationCreateSchema = {
+  email: Scalars['String']['input'];
+  expiresAt: Scalars['DateTimeISO']['input'];
+  role: MERCHANT_USER_ROLE;
+};
+
+export type MerchantUserInvitationPaginationConnection = {
+  __typename?: 'MerchantUserInvitationPaginationConnection';
+  edges: Array<MerchantUserInvitationPaginationEdge>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type MerchantUserInvitationPaginationEdge = {
+  __typename?: 'MerchantUserInvitationPaginationEdge';
+  cursor: Scalars['ConnectionCursor']['output'];
+  node: MerchantUserInvitation;
 };
 
 export type MerchantUserPaginationConnection = {
@@ -866,10 +993,16 @@ export type Mutation = {
   userEmailVerifyOrChangeFinish: User;
   userEmailVerifyOrChangeStart: Scalars['DateTimeISO']['output'];
   userHandleLoginAttempt: Scalars['DateTimeISO']['output'];
+  userMerchantCreate: MerchantUser;
+  userMerchantSentInvitationCancel: MerchantUserInvitation;
+  userMerchantSentInvitationCreate: MerchantUserInvitation;
+  userMerchantUpdate: Merchant;
   userPasswordChangeFinish: Scalars['String']['output'];
   userPasswordChangeStart: Scalars['DateTimeISO']['output'];
   userPasswordResetFinish: Scalars['String']['output'];
   userPasswordResetStart: Scalars['String']['output'];
+  userReceivedMerchantInvitationAccept: MerchantUserInvitation;
+  userReceivedMerchantInvitationReject: MerchantUserInvitation;
   userSessionsClose: Scalars['DateTimeISO']['output'];
   /** This method is used to finish the user sign up process. The string returned is the authentication provider custom token, use it to log in. */
   userSignUpWithEmailFinish: Scalars['String']['output'];
@@ -1059,6 +1192,29 @@ export type MutationuserHandleLoginAttemptArgs = {
 };
 
 
+export type MutationuserMerchantCreateArgs = {
+  data: MerchantCreateSchema;
+};
+
+
+export type MutationuserMerchantSentInvitationCancelArgs = {
+  invitationId: Scalars['String']['input'];
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationuserMerchantSentInvitationCreateArgs = {
+  data: MerchantUserInvitationCreateSchema;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationuserMerchantUpdateArgs = {
+  data: MerchantUpdateSchema;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationuserPasswordChangeFinishArgs = {
   data: UserPasswordChangeFinishSchema;
 };
@@ -1076,6 +1232,16 @@ export type MutationuserPasswordResetFinishArgs = {
 
 export type MutationuserPasswordResetStartArgs = {
   data: UserPasswordResetStartSchema;
+};
+
+
+export type MutationuserReceivedMerchantInvitationAcceptArgs = {
+  invitationId: Scalars['String']['input'];
+};
+
+
+export type MutationuserReceivedMerchantInvitationRejectArgs = {
+  invitationId: Scalars['String']['input'];
 };
 
 
@@ -1160,7 +1326,11 @@ export type Query = {
   merchantApiTransactions: MerchantTransactionPaginationConnection;
   user: User;
   userMerchant: Merchant;
+  userMerchantSentInvitation: MerchantUserInvitation;
+  userMerchantSentInvitations: MerchantUserInvitationPaginationConnection;
   userMerchants: MerchantPaginationConnection;
+  userReceivedMerchantInvitation: MerchantUserInvitation;
+  userReceivedMerchantInvitations: MerchantUserInvitationPaginationConnection;
 };
 
 
@@ -1449,6 +1619,28 @@ export type QueryuserMerchantArgs = {
 };
 
 
+export type QueryuserMerchantSentInvitationArgs = {
+  invitationId: Scalars['String']['input'];
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantSentInvitationsArgs = {
+  accepted?: InputMaybe<Scalars['Boolean']['input']>;
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  canceled?: InputMaybe<Scalars['Boolean']['input']>;
+  expired?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  rejected?: InputMaybe<Scalars['Boolean']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryuserMerchantsArgs = {
   addressCity?: InputMaybe<Scalars['String']['input']>;
   addressCountry?: InputMaybe<COUNTRY_ISO_2>;
@@ -1469,6 +1661,22 @@ export type QueryuserMerchantsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   sorting?: InputMaybe<Array<SortingFieldSchema>>;
   status?: InputMaybe<MERCHANT_STATUS>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryuserReceivedMerchantInvitationArgs = {
+  invitationId: Scalars['String']['input'];
+};
+
+
+export type QueryuserReceivedMerchantInvitationsArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
   take?: InputMaybe<Scalars['Int']['input']>;
 };
 
