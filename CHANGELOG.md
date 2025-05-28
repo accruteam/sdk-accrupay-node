@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.13.1
+
+### Patch Changes
+
+- dd312ae: change package exports strategy for node
+
 ## 0.13.0
 
 ### Minor Changes
