@@ -28,7 +28,7 @@ export type AdminMerchantCreateSchema = {
   addressCity: Scalars['String']['input'];
   addressCountry: COUNTRY_ISO_2;
   addressLine1: Scalars['String']['input'];
-  addressLine2: Scalars['String']['input'];
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
   addressPostalCode: Scalars['String']['input'];
   addressState: Scalars['String']['input'];
   email: Scalars['String']['input'];
@@ -37,7 +37,7 @@ export type AdminMerchantCreateSchema = {
   legalAddressCity: Scalars['String']['input'];
   legalAddressCountry: COUNTRY_ISO_2;
   legalAddressLine1: Scalars['String']['input'];
-  legalAddressLine2: Scalars['String']['input'];
+  legalAddressLine2?: InputMaybe<Scalars['String']['input']>;
   legalAddressPostalCode: Scalars['String']['input'];
   legalAddressState: Scalars['String']['input'];
   legalIdentifier: Scalars['String']['input'];
@@ -52,16 +52,23 @@ export type AdminMerchantCreateSchema = {
   websiteUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type AdminMerchantTransactionProviderApplicationUpdateSchema = {
+  providerError?: InputMaybe<Scalars['String']['input']>;
+  providerStatus?: InputMaybe<MERCHANT_TRANSACTION_PROVIDER_APPLICATION_STATUS>;
+  status?: InputMaybe<MERCHANT_TRANSACTION_PROVIDER_APPLICATION_STATUS>;
+  statusDescription?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type AdminMerchantTransactionProviderCreateSchema = {
+  applicationId?: InputMaybe<Scalars['String']['input']>;
   credentials: Scalars['JSON']['input'];
   merchantId: Scalars['String']['input'];
   provider: TRANSACTION_PROVIDER;
-  status: MERCHANT_TRANSACTION_PROVIDER_STATUS;
 };
 
 export type AdminMerchantTransactionProviderUpdateSchema = {
+  applicationId?: InputMaybe<Scalars['String']['input']>;
   credentials?: InputMaybe<Scalars['JSON']['input']>;
-  status?: InputMaybe<MERCHANT_TRANSACTION_PROVIDER_STATUS>;
 };
 
 export type AdminMerchantUpdateSchema = {
@@ -375,6 +382,23 @@ export enum CURRENCY {
   USD = 'USD'
 }
 
+export enum DEVICE_TYPE {
+  DESKTOP = 'DESKTOP',
+  SMARTPHONE = 'SMARTPHONE',
+  TABLET = 'TABLET',
+  TV = 'TV',
+  UNKNOWN = 'UNKNOWN'
+}
+
+export type DeviceDataSchema = {
+  deviceBrowser?: InputMaybe<Scalars['String']['input']>;
+  deviceId?: InputMaybe<Scalars['String']['input']>;
+  deviceIp?: InputMaybe<Scalars['String']['input']>;
+  deviceName?: InputMaybe<Scalars['String']['input']>;
+  deviceOS?: InputMaybe<Scalars['String']['input']>;
+  deviceType?: InputMaybe<DEVICE_TYPE>;
+};
+
 export enum ENTITY_TYPE {
   COMPANY = 'COMPANY',
   INDIVIDUAL = 'INDIVIDUAL'
@@ -436,6 +460,13 @@ export enum MERCHANT_STATUS {
   PENDING = 'PENDING'
 }
 
+export enum MERCHANT_TRANSACTION_PROVIDER_APPLICATION_STATUS {
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING'
+}
+
 export enum MERCHANT_TRANSACTION_PROVIDER_STATUS {
   DISABLED = 'DISABLED',
   ENABLED = 'ENABLED'
@@ -490,9 +521,12 @@ export type MerchantApiClientTransactionPaymentStartSchema = {
   amount: Scalars['BigInt']['input'];
   billing: BillingDataSchema;
   currency: CURRENCY;
+  device?: InputMaybe<DeviceDataSchema>;
   merchantInternalCustomerCode: Scalars['String']['input'];
   merchantInternalTransactionCode: Scalars['String']['input'];
+  shipping?: InputMaybe<ShippingDataSchema>;
   storePaymentMethod: Scalars['Boolean']['input'];
+  user?: InputMaybe<UserDataSchema>;
 };
 
 export type MerchantApiKey = {
@@ -518,6 +552,19 @@ export type MerchantApiKeyPaginationEdge = {
   node: MerchantApiKey;
 };
 
+export type MerchantApiServerAchPaymentTransactionCreateSchema = {
+  ach: MerchantServerAchTransactionDataSchema;
+  amount: Scalars['BigInt']['input'];
+  billing: BillingDataSchema;
+  currency: CURRENCY;
+  device?: InputMaybe<DeviceDataSchema>;
+  merchantInternalCustomerCode: Scalars['String']['input'];
+  merchantInternalTransactionCode: Scalars['String']['input'];
+  shipping?: InputMaybe<ShippingDataSchema>;
+  storePaymentMethod: Scalars['Boolean']['input'];
+  user?: InputMaybe<UserDataSchema>;
+};
+
 export type MerchantClientTransactionGenericPreSessionData = {
   __typename?: 'MerchantClientTransactionGenericPreSessionData';
   provider: TRANSACTION_PROVIDER;
@@ -538,7 +585,7 @@ export type MerchantCreateSchema = {
   addressCity: Scalars['String']['input'];
   addressCountry: COUNTRY_ISO_2;
   addressLine1: Scalars['String']['input'];
-  addressLine2: Scalars['String']['input'];
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
   addressPostalCode: Scalars['String']['input'];
   addressState: Scalars['String']['input'];
   email: Scalars['String']['input'];
@@ -547,7 +594,7 @@ export type MerchantCreateSchema = {
   legalAddressCity: Scalars['String']['input'];
   legalAddressCountry: COUNTRY_ISO_2;
   legalAddressLine1: Scalars['String']['input'];
-  legalAddressLine2: Scalars['String']['input'];
+  legalAddressLine2?: InputMaybe<Scalars['String']['input']>;
   legalAddressPostalCode: Scalars['String']['input'];
   legalAddressState: Scalars['String']['input'];
   legalIdentifier: Scalars['String']['input'];
@@ -590,6 +637,14 @@ export type MerchantCustomerPaymentMethod = {
   updatedAt: Scalars['DateTimeISO']['output'];
 };
 
+export type MerchantCustomerPaymentMethodAchInfo = {
+  __typename?: 'MerchantCustomerPaymentMethodAchInfo';
+  accountNumber?: Maybe<Scalars['String']['output']>;
+  methodType: PAYMENT_METHOD;
+  routingNumber?: Maybe<Scalars['String']['output']>;
+  secCode?: Maybe<TRANSACTION_ACH_SECCODE>;
+};
+
 export type MerchantCustomerPaymentMethodCreditCardInfo = {
   __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo';
   cardBrand?: Maybe<Scalars['String']['output']>;
@@ -602,7 +657,7 @@ export type MerchantCustomerPaymentMethodGenericInfo = {
   methodType: PAYMENT_METHOD;
 };
 
-export type MerchantCustomerPaymentMethodInfo = MerchantCustomerPaymentMethodCreditCardInfo | MerchantCustomerPaymentMethodGenericInfo;
+export type MerchantCustomerPaymentMethodInfo = MerchantCustomerPaymentMethodAchInfo | MerchantCustomerPaymentMethodCreditCardInfo | MerchantCustomerPaymentMethodGenericInfo;
 
 export type MerchantCustomerPaymentMethodPaginationConnection = {
   __typename?: 'MerchantCustomerPaymentMethodPaginationConnection';
@@ -784,6 +839,12 @@ export type MerchantPaymentPlanTemplateUpdateSchema = {
   trialPeriodYears?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type MerchantServerAchTransactionDataSchema = {
+  accountNumber: Scalars['String']['input'];
+  routingNumber: Scalars['String']['input'];
+  secCode?: InputMaybe<TRANSACTION_ACH_SECCODE>;
+};
+
 export type MerchantTransaction = {
   __typename?: 'MerchantTransaction';
   action: TRANSACTION_ACTION;
@@ -802,6 +863,12 @@ export type MerchantTransaction = {
   code: Scalars['String']['output'];
   createdAt: Scalars['DateTimeISO']['output'];
   currency: CURRENCY;
+  deviceBrowser?: Maybe<Scalars['String']['output']>;
+  deviceId?: Maybe<Scalars['String']['output']>;
+  deviceIp?: Maybe<Scalars['String']['output']>;
+  deviceName?: Maybe<Scalars['String']['output']>;
+  deviceOS?: Maybe<Scalars['String']['output']>;
+  deviceType?: Maybe<DEVICE_TYPE>;
   disputedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   failedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   id: Scalars['ID']['output'];
@@ -824,6 +891,16 @@ export type MerchantTransaction = {
   refundedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   relatedTransaction?: Maybe<MerchantTransaction>;
   relatedTransactionId?: Maybe<Scalars['String']['output']>;
+  shippingAddressCity?: Maybe<Scalars['String']['output']>;
+  shippingAddressCountry?: Maybe<COUNTRY_ISO_2>;
+  shippingAddressLine1?: Maybe<Scalars['String']['output']>;
+  shippingAddressLine2?: Maybe<Scalars['String']['output']>;
+  shippingAddressPostalCode?: Maybe<Scalars['String']['output']>;
+  shippingAddressState?: Maybe<Scalars['String']['output']>;
+  shippingEmail?: Maybe<Scalars['String']['output']>;
+  shippingFirstName?: Maybe<Scalars['String']['output']>;
+  shippingLastName?: Maybe<Scalars['String']['output']>;
+  shippingPhone?: Maybe<Scalars['String']['output']>;
   startedAt?: Maybe<Scalars['DateTimeISO']['output']>;
   status: TRANSACTION_STATUS;
   storePaymentMethod?: Maybe<Scalars['Boolean']['output']>;
@@ -836,6 +913,20 @@ export type MerchantTransaction = {
   transactionProviderId: Scalars['String']['output'];
   transactionsRelated?: Maybe<Array<MerchantTransaction>>;
   updatedAt: Scalars['DateTimeISO']['output'];
+  userAddressCity?: Maybe<Scalars['String']['output']>;
+  userAddressCountry?: Maybe<COUNTRY_ISO_2>;
+  userAddressLine1?: Maybe<Scalars['String']['output']>;
+  userAddressLine2?: Maybe<Scalars['String']['output']>;
+  userAddressPostalCode?: Maybe<Scalars['String']['output']>;
+  userAddressState?: Maybe<Scalars['String']['output']>;
+  userBirthDate?: Maybe<Scalars['DateTimeISO']['output']>;
+  userEmail?: Maybe<Scalars['String']['output']>;
+  userFirstName?: Maybe<Scalars['String']['output']>;
+  userLastName?: Maybe<Scalars['String']['output']>;
+  userLegalIdentifier?: Maybe<Scalars['String']['output']>;
+  userLegalIdentifierType?: Maybe<Scalars['String']['output']>;
+  userLocale?: Maybe<Scalars['String']['output']>;
+  userPhone?: Maybe<Scalars['String']['output']>;
   voidedAt?: Maybe<Scalars['DateTimeISO']['output']>;
 };
 
@@ -854,6 +945,7 @@ export type MerchantTransactionPaginationEdge = {
 
 export type MerchantTransactionProvider = {
   __typename?: 'MerchantTransactionProvider';
+  applicationId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTimeISO']['output'];
   id: Scalars['ID']['output'];
   merchantId: Scalars['String']['output'];
@@ -861,6 +953,60 @@ export type MerchantTransactionProvider = {
   providerCode: Scalars['String']['output'];
   status: MERCHANT_TRANSACTION_PROVIDER_STATUS;
   updatedAt: Scalars['DateTimeISO']['output'];
+};
+
+export type MerchantTransactionProviderApplication = {
+  __typename?: 'MerchantTransactionProviderApplication';
+  addressCity: Scalars['String']['output'];
+  addressCountry: COUNTRY_ISO_2;
+  addressLine1: Scalars['String']['output'];
+  addressLine2?: Maybe<Scalars['String']['output']>;
+  addressPostalCode: Scalars['String']['output'];
+  addressState: Scalars['String']['output'];
+  closedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  createdAt: Scalars['DateTimeISO']['output'];
+  email: Scalars['String']['output'];
+  entityType: ENTITY_TYPE;
+  id: Scalars['ID']['output'];
+  industry: Scalars['String']['output'];
+  legalAddressCity: Scalars['String']['output'];
+  legalAddressCountry: COUNTRY_ISO_2;
+  legalAddressLine1: Scalars['String']['output'];
+  legalAddressLine2?: Maybe<Scalars['String']['output']>;
+  legalAddressPostalCode: Scalars['String']['output'];
+  legalAddressState: Scalars['String']['output'];
+  legalIdentifier: Scalars['String']['output'];
+  legalIdentifierType: LEGAL_IDENTIFIER_TYPE;
+  merchantId: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  primaryContactEmail: Scalars['String']['output'];
+  primaryContactName: Scalars['String']['output'];
+  primaryContactPhone: Scalars['String']['output'];
+  provider: TRANSACTION_PROVIDER;
+  providerCode: Scalars['String']['output'];
+  providerError?: Maybe<Scalars['String']['output']>;
+  providerLastSyncedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  providerLastVerifiedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  providerStatus?: Maybe<MERCHANT_TRANSACTION_PROVIDER_APPLICATION_STATUS>;
+  startedAt?: Maybe<Scalars['DateTimeISO']['output']>;
+  status: MERCHANT_TRANSACTION_PROVIDER_APPLICATION_STATUS;
+  statusDescription?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTimeISO']['output'];
+  websiteUrl: Scalars['String']['output'];
+};
+
+export type MerchantTransactionProviderApplicationPaginationConnection = {
+  __typename?: 'MerchantTransactionProviderApplicationPaginationConnection';
+  edges: Array<MerchantTransactionProviderApplicationPaginationEdge>;
+  pageInfo: PageInfo;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type MerchantTransactionProviderApplicationPaginationEdge = {
+  __typename?: 'MerchantTransactionProviderApplicationPaginationEdge';
+  cursor: Scalars['ConnectionCursor']['output'];
+  node: MerchantTransactionProviderApplication;
 };
 
 export type MerchantTransactionProviderPaginationConnection = {
@@ -969,8 +1115,10 @@ export type Mutation = {
   adminMerchantApiKeyDelete: Scalars['DateTimeISO']['output'];
   adminMerchantCreate: Merchant;
   adminMerchantResetPublicId: Merchant;
+  adminMerchantTransactionProviderApplicationUpdate: MerchantTransactionProviderApplication;
   adminMerchantTransactionProviderCreate: MerchantTransactionProvider;
   adminMerchantTransactionProviderUpdate: MerchantTransactionProvider;
+  adminMerchantTransactionProviderUpdateStatus: MerchantTransactionProvider;
   adminMerchantUpdate: Merchant;
   adminMerchantUpdateStatus: Merchant;
   adminMerchantUserCreate: MerchantUser;
@@ -987,6 +1135,7 @@ export type Mutation = {
   merchantApiPaymentPlanTemplateSyncAll: Array<MerchantPaymentPlanTemplate>;
   merchantApiPaymentPlanTemplateSyncOne: MerchantPaymentPlanTemplate;
   merchantApiPaymentPlanTemplateUpdate: MerchantPaymentPlanTemplate;
+  merchantApiServerAchPaymentTransactionCreate: MerchantTransaction;
   merchantApiTransactionRefund: MerchantTransaction;
   merchantApiTransactionSyncOne: MerchantTransaction;
   merchantApiTransactionVoid: MerchantTransaction;
@@ -994,8 +1143,14 @@ export type Mutation = {
   userEmailVerifyOrChangeStart: Scalars['DateTimeISO']['output'];
   userHandleLoginAttempt: Scalars['DateTimeISO']['output'];
   userMerchantCreate: MerchantUser;
+  userMerchantCustomerPaymentMethodSyncOne: MerchantCustomerPaymentMethod;
+  userMerchantPaymentPlanSyncOne: MerchantPaymentPlan;
+  userMerchantPaymentPlanTemplateSyncOne: MerchantPaymentPlanTemplate;
   userMerchantSentInvitationCancel: MerchantUserInvitation;
   userMerchantSentInvitationCreate: MerchantUserInvitation;
+  userMerchantTransactionProviderApplicationApply: MerchantTransactionProviderApplication;
+  userMerchantTransactionProviderCreate: MerchantTransactionProvider;
+  userMerchantTransactionSyncOne: MerchantTransaction;
   userMerchantUpdate: Merchant;
   userPasswordChangeFinish: Scalars['String']['output'];
   userPasswordChangeStart: Scalars['DateTimeISO']['output'];
@@ -1037,6 +1192,12 @@ export type MutationadminMerchantResetPublicIdArgs = {
 };
 
 
+export type MutationadminMerchantTransactionProviderApplicationUpdateArgs = {
+  data: AdminMerchantTransactionProviderApplicationUpdateSchema;
+  merchantTransactionProviderApplicationId: Scalars['String']['input'];
+};
+
+
 export type MutationadminMerchantTransactionProviderCreateArgs = {
   data: AdminMerchantTransactionProviderCreateSchema;
 };
@@ -1045,6 +1206,12 @@ export type MutationadminMerchantTransactionProviderCreateArgs = {
 export type MutationadminMerchantTransactionProviderUpdateArgs = {
   data: AdminMerchantTransactionProviderUpdateSchema;
   merchantTransactionProviderId: Scalars['String']['input'];
+};
+
+
+export type MutationadminMerchantTransactionProviderUpdateStatusArgs = {
+  merchantTransactionProviderId: Scalars['String']['input'];
+  status: MERCHANT_TRANSACTION_PROVIDER_STATUS;
 };
 
 
@@ -1148,6 +1315,13 @@ export type MutationmerchantApiPaymentPlanTemplateUpdateArgs = {
 };
 
 
+export type MutationmerchantApiServerAchPaymentTransactionCreateArgs = {
+  data: MerchantApiServerAchPaymentTransactionCreateSchema;
+  merchantTransactionProviderId?: InputMaybe<Scalars['String']['input']>;
+  transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
+};
+
+
 export type MutationmerchantApiTransactionRefundArgs = {
   amount: Scalars['BigInt']['input'];
   code?: InputMaybe<Scalars['String']['input']>;
@@ -1197,6 +1371,28 @@ export type MutationuserMerchantCreateArgs = {
 };
 
 
+export type MutationuserMerchantCustomerPaymentMethodSyncOneArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantInternalCustomerCode: Scalars['String']['input'];
+  merchantTransactionProviderId: Scalars['String']['input'];
+  providerCode: Scalars['String']['input'];
+};
+
+
+export type MutationuserMerchantPaymentPlanSyncOneArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantTransactionProviderId: Scalars['String']['input'];
+  providerCode: Scalars['String']['input'];
+};
+
+
+export type MutationuserMerchantPaymentPlanTemplateSyncOneArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantTransactionProviderId: Scalars['String']['input'];
+  providerCode: Scalars['String']['input'];
+};
+
+
 export type MutationuserMerchantSentInvitationCancelArgs = {
   invitationId: Scalars['String']['input'];
   merchantId?: InputMaybe<Scalars['String']['input']>;
@@ -1206,6 +1402,28 @@ export type MutationuserMerchantSentInvitationCancelArgs = {
 export type MutationuserMerchantSentInvitationCreateArgs = {
   data: MerchantUserInvitationCreateSchema;
   merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationuserMerchantTransactionProviderApplicationApplyArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  provider: TRANSACTION_PROVIDER;
+};
+
+
+export type MutationuserMerchantTransactionProviderCreateArgs = {
+  data: UserMerchantTransactionProviderCreateSchema;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationuserMerchantTransactionSyncOneArgs = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantInternalTransactionCode?: InputMaybe<Scalars['String']['input']>;
+  providerCode?: InputMaybe<Scalars['String']['input']>;
+  token?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1265,7 +1483,9 @@ export type MutationuserUpdateDataArgs = {
 };
 
 export enum PAYMENT_METHOD {
-  CARD = 'CARD'
+  ACH = 'ACH',
+  CARD = 'CARD',
+  OTHER = 'OTHER'
 }
 
 export enum PAYMENT_METHOD_STATUS {
@@ -1302,6 +1522,8 @@ export type Query = {
   adminMerchantApiKey: MerchantApiKey;
   adminMerchantApiKeys: MerchantApiKeyPaginationConnection;
   adminMerchantTransactionProvider: MerchantTransactionProvider;
+  adminMerchantTransactionProviderApplication: MerchantTransactionProviderApplication;
+  adminMerchantTransactionProviderApplications: MerchantTransactionProviderApplicationPaginationConnection;
   adminMerchantTransactionProviderCredential: Scalars['JSON']['output'];
   adminMerchantTransactionProviders: MerchantTransactionProviderPaginationConnection;
   adminMerchantUser: MerchantUser;
@@ -1326,8 +1548,21 @@ export type Query = {
   merchantApiTransactions: MerchantTransactionPaginationConnection;
   user: User;
   userMerchant: Merchant;
+  userMerchantCustomerPaymentMethod: MerchantCustomerPaymentMethod;
+  userMerchantCustomerPaymentMethods: MerchantCustomerPaymentMethodPaginationConnection;
+  userMerchantPaymentPlan: MerchantPaymentPlan;
+  userMerchantPaymentPlanTemplate: MerchantPaymentPlanTemplate;
+  userMerchantPaymentPlanTemplates: MerchantPaymentPlanTemplatePaginationConnection;
+  userMerchantPaymentPlans: MerchantPaymentPlanPaginationConnection;
   userMerchantSentInvitation: MerchantUserInvitation;
   userMerchantSentInvitations: MerchantUserInvitationPaginationConnection;
+  userMerchantTransaction: MerchantTransaction;
+  userMerchantTransactionProvider: MerchantTransactionProvider;
+  userMerchantTransactionProviderApplication: MerchantTransactionProviderApplication;
+  userMerchantTransactionProviderApplications: MerchantTransactionProviderApplicationPaginationConnection;
+  userMerchantTransactionProviderGetCredentialsSchema: Scalars['JSON']['output'];
+  userMerchantTransactionProviders: MerchantTransactionProviderPaginationConnection;
+  userMerchantTransactions: MerchantTransactionPaginationConnection;
   userMerchants: MerchantPaginationConnection;
   userReceivedMerchantInvitation: MerchantUserInvitation;
   userReceivedMerchantInvitations: MerchantUserInvitationPaginationConnection;
@@ -1373,6 +1608,29 @@ export type QueryadminMerchantApiKeysArgs = {
 
 export type QueryadminMerchantTransactionProviderArgs = {
   merchantTransactionProviderId: Scalars['String']['input'];
+};
+
+
+export type QueryadminMerchantTransactionProviderApplicationArgs = {
+  merchantTransactionProviderApplicationId: Scalars['String']['input'];
+};
+
+
+export type QueryadminMerchantTransactionProviderApplicationsArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  closed?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<TRANSACTION_PROVIDER>;
+  providerCode?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  started?: InputMaybe<Scalars['Boolean']['input']>;
+  status?: InputMaybe<MERCHANT_TRANSACTION_PROVIDER_APPLICATION_STATUS>;
+  take?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1606,9 +1864,12 @@ export type QuerymerchantApiTransactionsArgs = {
   sorting?: InputMaybe<Array<SortingFieldSchema>>;
   started?: InputMaybe<Scalars['Boolean']['input']>;
   status?: InputMaybe<TRANSACTION_STATUS>;
+  statuses?: InputMaybe<Array<TRANSACTION_STATUS>>;
   succeeded?: InputMaybe<Scalars['Boolean']['input']>;
   take?: InputMaybe<Scalars['Int']['input']>;
   token?: InputMaybe<Scalars['String']['input']>;
+  transactionDateFrom?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  transactionDateTo?: InputMaybe<Scalars['DateTimeISO']['input']>;
   transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
   transactionProviderId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -1616,6 +1877,90 @@ export type QuerymerchantApiTransactionsArgs = {
 
 export type QueryuserMerchantArgs = {
   merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantCustomerPaymentMethodArgs = {
+  merchantCustomerPaymentMethodId: Scalars['String']['input'];
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantCustomerPaymentMethodsArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  hasProviderError?: InputMaybe<Scalars['Boolean']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantInternalCustomerCode?: InputMaybe<Scalars['String']['input']>;
+  methodType?: InputMaybe<PAYMENT_METHOD>;
+  providerCode?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
+  transactionProviderId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantPaymentPlanArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantPaymentPlanId: Scalars['String']['input'];
+};
+
+
+export type QueryuserMerchantPaymentPlanTemplateArgs = {
+  id: Scalars['String']['input'];
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantPaymentPlanTemplatesArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  currency?: InputMaybe<CURRENCY>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  providerCode?: InputMaybe<Scalars['String']['input']>;
+  providerStatus?: InputMaybe<PAYMENT_PLAN_TEMPLATE_STATUS>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
+  transactionProviderId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantPaymentPlansArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  canceled?: InputMaybe<Scalars['Boolean']['input']>;
+  currency?: InputMaybe<CURRENCY>;
+  ended?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  hasProviderError?: InputMaybe<Scalars['Boolean']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantInternalCustomerCode?: InputMaybe<Scalars['String']['input']>;
+  merchantInternalPaymentPlanCode?: InputMaybe<Scalars['String']['input']>;
+  paymentMethod?: InputMaybe<PAYMENT_METHOD>;
+  paymentMethodId?: InputMaybe<Scalars['String']['input']>;
+  providerCode?: InputMaybe<Scalars['String']['input']>;
+  providerStatus?: InputMaybe<PAYMENT_PLAN_STATUS>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  started?: InputMaybe<Scalars['Boolean']['input']>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  templateId?: InputMaybe<Scalars['String']['input']>;
+  transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
+  transactionProviderId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1638,6 +1983,106 @@ export type QueryuserMerchantSentInvitationsArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
   sorting?: InputMaybe<Array<SortingFieldSchema>>;
   take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryuserMerchantTransactionArgs = {
+  code?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantInternalTransactionCode?: InputMaybe<Scalars['String']['input']>;
+  providerCode?: InputMaybe<Scalars['String']['input']>;
+  token?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryuserMerchantTransactionProviderArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantTransactionProviderId: Scalars['String']['input'];
+};
+
+
+export type QueryuserMerchantTransactionProviderApplicationArgs = {
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantTransactionProviderApplicationId: Scalars['String']['input'];
+};
+
+
+export type QueryuserMerchantTransactionProviderApplicationsArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  closed?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<TRANSACTION_PROVIDER>;
+  providerCode?: InputMaybe<Scalars['String']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  started?: InputMaybe<Scalars['Boolean']['input']>;
+  status?: InputMaybe<MERCHANT_TRANSACTION_PROVIDER_APPLICATION_STATUS>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryuserMerchantTransactionProviderGetCredentialsSchemaArgs = {
+  format: TRANSACTION_PROVIDER_CREDENTIALS_SCHEMA_FORMAT;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  provider: TRANSACTION_PROVIDER;
+};
+
+
+export type QueryuserMerchantTransactionProvidersArgs = {
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<TRANSACTION_PROVIDER>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  status?: InputMaybe<MERCHANT_TRANSACTION_PROVIDER_STATUS>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryuserMerchantTransactionsArgs = {
+  action?: InputMaybe<TRANSACTION_ACTION>;
+  after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
+  canceled?: InputMaybe<Scalars['Boolean']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<CURRENCY>;
+  disputed?: InputMaybe<Scalars['Boolean']['input']>;
+  failed?: InputMaybe<Scalars['Boolean']['input']>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  hasProviderError?: InputMaybe<Scalars['Boolean']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  merchantId?: InputMaybe<Scalars['String']['input']>;
+  merchantInternalCustomerCode?: InputMaybe<Scalars['String']['input']>;
+  merchantInternalTransactionCode?: InputMaybe<Scalars['String']['input']>;
+  paymentMethodId?: InputMaybe<Scalars['String']['input']>;
+  paymentMethodType?: InputMaybe<PAYMENT_METHOD>;
+  paymentPlanId?: InputMaybe<Scalars['String']['input']>;
+  providerCode?: InputMaybe<Scalars['String']['input']>;
+  providerRelatedCode?: InputMaybe<Scalars['String']['input']>;
+  relatedTransactionId?: InputMaybe<Scalars['String']['input']>;
+  reverted?: InputMaybe<Scalars['Boolean']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  sorting?: InputMaybe<Array<SortingFieldSchema>>;
+  started?: InputMaybe<Scalars['Boolean']['input']>;
+  status?: InputMaybe<TRANSACTION_STATUS>;
+  statuses?: InputMaybe<Array<TRANSACTION_STATUS>>;
+  succeeded?: InputMaybe<Scalars['Boolean']['input']>;
+  take?: InputMaybe<Scalars['Int']['input']>;
+  token?: InputMaybe<Scalars['String']['input']>;
+  transactionDateFrom?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  transactionDateTo?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
+  transactionProviderId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1685,10 +2130,32 @@ export enum SORT_ORDER {
   DESC = 'DESC'
 }
 
+export type ShippingDataSchema = {
+  shippingAddressCity?: InputMaybe<Scalars['String']['input']>;
+  /** Country using the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format (e.g. US, UK, etc.). */
+  shippingAddressCountry: COUNTRY_ISO_2;
+  shippingAddressLine1?: InputMaybe<Scalars['String']['input']>;
+  shippingAddressLine2?: InputMaybe<Scalars['String']['input']>;
+  shippingAddressPostalCode?: InputMaybe<Scalars['String']['input']>;
+  /** State using the [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) format for main country subdivisions, provinces, states (e.g. [for US] → NY, IN, CA, etc.). The [iso-3166-2](https://www.npmjs.com/package/iso-3166-2) package is suggested. */
+  shippingAddressState?: InputMaybe<Scalars['String']['input']>;
+  shippingEmail: Scalars['String']['input'];
+  shippingFirstName: Scalars['String']['input'];
+  shippingLastName: Scalars['String']['input'];
+  shippingPhone?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SortingFieldSchema = {
   field: Scalars['String']['input'];
   order: SORT_ORDER;
 };
+
+export enum TRANSACTION_ACH_SECCODE {
+  CCD = 'CCD',
+  TEL = 'TEL',
+  UNKNOWN = 'UNKNOWN',
+  WEB = 'WEB'
+}
 
 export enum TRANSACTION_ACTION {
   AUTHENTICATION = 'AUTHENTICATION',
@@ -1706,6 +2173,10 @@ export enum TRANSACTION_ACTION {
 
 export enum TRANSACTION_PROVIDER {
   NUVEI = 'NUVEI'
+}
+
+export enum TRANSACTION_PROVIDER_CREDENTIALS_SCHEMA_FORMAT {
+  JSON_SCHEMA_D07 = 'JSON_SCHEMA_D07'
 }
 
 export enum TRANSACTION_STATUS {
@@ -1733,6 +2204,25 @@ export type User = {
   updatedAt: Scalars['DateTimeISO']['output'];
 };
 
+export type UserDataSchema = {
+  userAddressCity?: InputMaybe<Scalars['String']['input']>;
+  /** Country using the [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) format (e.g. US, UK, etc.). */
+  userAddressCountry: COUNTRY_ISO_2;
+  userAddressLine1?: InputMaybe<Scalars['String']['input']>;
+  userAddressLine2?: InputMaybe<Scalars['String']['input']>;
+  userAddressPostalCode?: InputMaybe<Scalars['String']['input']>;
+  /** State using the [ISO 3166-2](https://en.wikipedia.org/wiki/ISO_3166-2) format for main country subdivisions, provinces, states (e.g. [for US] → NY, IN, CA, etc.). The [iso-3166-2](https://www.npmjs.com/package/iso-3166-2) package is suggested. */
+  userAddressState?: InputMaybe<Scalars['String']['input']>;
+  userBirthDate?: InputMaybe<Scalars['DateTimeISO']['input']>;
+  userEmail: Scalars['String']['input'];
+  userFirstName: Scalars['String']['input'];
+  userLastName: Scalars['String']['input'];
+  userLegalIdentifier?: InputMaybe<Scalars['String']['input']>;
+  userLegalIdentifierType?: InputMaybe<Scalars['String']['input']>;
+  userLocale?: InputMaybe<Scalars['String']['input']>;
+  userPhone?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UserEmailVerifyOrChangeFinishSchema = {
   email: Scalars['String']['input'];
   verificationCode: Scalars['String']['input'];
@@ -1740,6 +2230,11 @@ export type UserEmailVerifyOrChangeFinishSchema = {
 
 export type UserEmailVerifyOrChangeStartSchema = {
   email: Scalars['String']['input'];
+};
+
+export type UserMerchantTransactionProviderCreateSchema = {
+  credentials: Scalars['JSON']['input'];
+  provider: TRANSACTION_PROVIDER;
 };
 
 export type UserPaginationConnection = {
@@ -1802,7 +2297,7 @@ export type MerchantApiQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MerchantApiQuery = { __typename?: 'Query', merchantApi: { __typename?: 'Merchant', id: string, name: string, email: string, phone?: string | null, status: MERCHANT_STATUS, publicId?: string | null, publicIdUpdatedAt?: Date | null, createdAt: Date, updatedAt: Date } };
 
-export type MerchantCustomerPaymentMethodFragmentFragment = { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null };
+export type MerchantCustomerPaymentMethodFragmentFragment = { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null };
 
 export type MerchantApiCustomerPaymentMethodsQueryVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -1823,14 +2318,14 @@ export type MerchantApiCustomerPaymentMethodsQueryVariables = Exact<{
 }>;
 
 
-export type MerchantApiCustomerPaymentMethodsQuery = { __typename?: 'Query', merchantApiCustomerPaymentMethods: { __typename?: 'MerchantCustomerPaymentMethodPaginationConnection', totalCount: number, edges: Array<{ __typename?: 'MerchantCustomerPaymentMethodPaginationEdge', cursor: any, node: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
+export type MerchantApiCustomerPaymentMethodsQuery = { __typename?: 'Query', merchantApiCustomerPaymentMethods: { __typename?: 'MerchantCustomerPaymentMethodPaginationConnection', totalCount: number, edges: Array<{ __typename?: 'MerchantCustomerPaymentMethodPaginationEdge', cursor: any, node: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
 
 export type MerchantApiCustomerPaymentMethodQueryVariables = Exact<{
   merchantCustomerPaymentMethodId: Scalars['String']['input'];
 }>;
 
 
-export type MerchantApiCustomerPaymentMethodQuery = { __typename?: 'Query', merchantApiCustomerPaymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } };
+export type MerchantApiCustomerPaymentMethodQuery = { __typename?: 'Query', merchantApiCustomerPaymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } };
 
 export type MerchantPaymentPlanTemplateFragmentFragment = { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string };
 
@@ -1878,7 +2373,7 @@ export type MerchantApiPaymentPlanTemplateUpdateMutationVariables = Exact<{
 
 export type MerchantApiPaymentPlanTemplateUpdateMutation = { __typename?: 'Mutation', merchantApiPaymentPlanTemplateUpdate: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } };
 
-export type MerchantPaymentPlanFragmentFragment = { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> };
+export type MerchantPaymentPlanFragmentFragment = { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> };
 
 export type MerchantApiPaymentPlansQueryVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -1906,14 +2401,14 @@ export type MerchantApiPaymentPlansQueryVariables = Exact<{
 }>;
 
 
-export type MerchantApiPaymentPlansQuery = { __typename?: 'Query', merchantApiPaymentPlans: { __typename?: 'MerchantPaymentPlanPaginationConnection', totalCount: number, edges: Array<{ __typename?: 'MerchantPaymentPlanPaginationEdge', cursor: any, node: { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
+export type MerchantApiPaymentPlansQuery = { __typename?: 'Query', merchantApiPaymentPlans: { __typename?: 'MerchantPaymentPlanPaginationConnection', totalCount: number, edges: Array<{ __typename?: 'MerchantPaymentPlanPaginationEdge', cursor: any, node: { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
 
 export type MerchantApiPaymentPlanQueryVariables = Exact<{
   merchantPaymentPlanId: Scalars['String']['input'];
 }>;
 
 
-export type MerchantApiPaymentPlanQuery = { __typename?: 'Query', merchantApiPaymentPlan: { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> } };
+export type MerchantApiPaymentPlanQuery = { __typename?: 'Query', merchantApiPaymentPlan: { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> } };
 
 export type MerchantApiPaymentPlanCreateMutationVariables = Exact<{
   data: MerchantPaymentPlanCreateSchema;
@@ -1921,7 +2416,7 @@ export type MerchantApiPaymentPlanCreateMutationVariables = Exact<{
 }>;
 
 
-export type MerchantApiPaymentPlanCreateMutation = { __typename?: 'Mutation', merchantApiPaymentPlanCreate: { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> } };
+export type MerchantApiPaymentPlanCreateMutation = { __typename?: 'Mutation', merchantApiPaymentPlanCreate: { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> } };
 
 export type MerchantApiPaymentPlanCancelMutationVariables = Exact<{
   merchantPaymentPlanId: Scalars['String']['input'];
@@ -1929,7 +2424,7 @@ export type MerchantApiPaymentPlanCancelMutationVariables = Exact<{
 }>;
 
 
-export type MerchantApiPaymentPlanCancelMutation = { __typename?: 'Mutation', merchantApiPaymentPlanCancel: { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> } };
+export type MerchantApiPaymentPlanCancelMutation = { __typename?: 'Mutation', merchantApiPaymentPlanCancel: { __typename?: 'MerchantPaymentPlan', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, timeAnchor: Date, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, trialEndsAt: Date, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, periodCount: number, endsAfterMonths: number, endsAfterDays: number, endsAfterYears: number, endsAt: Date, startedAt?: Date | null, canceledAt?: Date | null, currentPeriodStart: Date, currentPeriodEnd: Date, merchantInternalCustomerCode: string, merchantInternalPaymentPlanCode: string, merchantInternalPaymentPlanDescription?: string | null, createdAt: Date, updatedAt: Date, status: PAYMENT_PLAN_STATUS, transactionProviderId: string, templateId?: string | null, paymentMethodId: string, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, template?: { __typename?: 'MerchantPaymentPlanTemplate', id: string, name: string, description?: string | null, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS, payload: any, initialAmount: bigint, amount: bigint, currency: CURRENCY, trialPeriodDays: number, trialPeriodMonths: number, trialPeriodYears: number, renewalIntervalMonths: number, renewalIntervalDays: number, renewalIntervalYears: number, endsAfterDays: number, endsAfterMonths: number, endsAfterYears: number, createdAt: Date, updatedAt: Date, transactionProviderId: string } | null, paymentMethod: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null }, transactions: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null }> } };
 
 export type MerchantTransactionProviderFragmentFragment = { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string };
 
@@ -1958,7 +2453,7 @@ export type MerchantApiTransactionProviderQuery = { __typename?: 'Query', mercha
 
 export type MerchantTransactionBaseFragmentFragment = { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null };
 
-export type MerchantTransactionFragmentFragment = { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null };
+export type MerchantTransactionFragmentFragment = { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null };
 
 export type MerchantApiTransactionsQueryVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -1990,7 +2485,7 @@ export type MerchantApiTransactionsQueryVariables = Exact<{
 }>;
 
 
-export type MerchantApiTransactionsQuery = { __typename?: 'Query', merchantApiTransactions: { __typename?: 'MerchantTransactionPaginationConnection', totalCount: number, edges: Array<{ __typename?: 'MerchantTransactionPaginationEdge', cursor: any, node: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
+export type MerchantApiTransactionsQuery = { __typename?: 'Query', merchantApiTransactions: { __typename?: 'MerchantTransactionPaginationConnection', totalCount: number, edges: Array<{ __typename?: 'MerchantTransactionPaginationEdge', cursor: any, node: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } }>, pageInfo: { __typename?: 'PageInfo', hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: string | null, endCursor?: string | null } } };
 
 export type MerchantApiTransactionQueryVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -2000,7 +2495,7 @@ export type MerchantApiTransactionQueryVariables = Exact<{
 }>;
 
 
-export type MerchantApiTransactionQuery = { __typename?: 'Query', merchantApiTransaction: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
+export type MerchantApiTransactionQuery = { __typename?: 'Query', merchantApiTransaction: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
 
 export type MerchantApiClientTransactionNuveiPreSessionDataQueryVariables = Exact<{
   transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
@@ -2017,7 +2512,7 @@ export type MerchantApiClientTransactionPaymentSessionStartMutationVariables = E
 }>;
 
 
-export type MerchantApiClientTransactionPaymentSessionStartMutation = { __typename?: 'Mutation', merchantApiClientTransactionPaymentSessionStart: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
+export type MerchantApiClientTransactionPaymentSessionStartMutation = { __typename?: 'Mutation', merchantApiClientTransactionPaymentSessionStart: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
 
 export type MerchantApiClientTransactionPaymentSessionVerifyMutationVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -2027,7 +2522,7 @@ export type MerchantApiClientTransactionPaymentSessionVerifyMutationVariables = 
 }>;
 
 
-export type MerchantApiClientTransactionPaymentSessionVerifyMutation = { __typename?: 'Mutation', merchantApiClientTransactionPaymentSessionVerify: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
+export type MerchantApiClientTransactionPaymentSessionVerifyMutation = { __typename?: 'Mutation', merchantApiClientTransactionPaymentSessionVerify: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
 
 export type MerchantApiTransactionVoidMutationVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -2037,7 +2532,7 @@ export type MerchantApiTransactionVoidMutationVariables = Exact<{
 }>;
 
 
-export type MerchantApiTransactionVoidMutation = { __typename?: 'Mutation', merchantApiTransactionVoid: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
+export type MerchantApiTransactionVoidMutation = { __typename?: 'Mutation', merchantApiTransactionVoid: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
 
 export type MerchantApiTransactionRefundMutationVariables = Exact<{
   id?: InputMaybe<Scalars['String']['input']>;
@@ -2048,7 +2543,7 @@ export type MerchantApiTransactionRefundMutationVariables = Exact<{
 }>;
 
 
-export type MerchantApiTransactionRefundMutation = { __typename?: 'Mutation', merchantApiTransactionRefund: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
+export type MerchantApiTransactionRefundMutation = { __typename?: 'Mutation', merchantApiTransactionRefund: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerRelatedCode?: string | null, providerStatus: TRANSACTION_STATUS, token?: string | null, tokenExpiresAt?: Date | null, paymentMethodType?: PAYMENT_METHOD | null, paymentMethodCode?: string | null, payload: any, amount: bigint, currency: CURRENCY, transactionDate: Date, startedAt?: Date | null, succeededAt?: Date | null, failedAt?: Date | null, canceledAt?: Date | null, voidedAt?: Date | null, refundedAt?: Date | null, disputedAt?: Date | null, refundedAmount?: bigint | null, storePaymentMethod?: boolean | null, merchantInternalCustomerCode?: string | null, merchantInternalTransactionCode?: string | null, createdAt: Date, updatedAt: Date, status: TRANSACTION_STATUS, transactionProviderId: string, paymentMethodId?: string | null, relatedTransactionId?: string | null, paymentPlanId?: string | null, transactionProvider: { __typename?: 'MerchantTransactionProvider', id: string, provider: TRANSACTION_PROVIDER, providerCode: string, status: MERCHANT_TRANSACTION_PROVIDER_STATUS, createdAt: Date, updatedAt: Date, merchantId: string }, paymentMethod?: { __typename?: 'MerchantCustomerPaymentMethod', id: string, providerCode: string, providerError?: string | null, providerLastVerifiedAt: Date, providerStatus: PAYMENT_METHOD_STATUS, methodType: PAYMENT_METHOD, isEnabled: boolean, isDefault: boolean, billingFirstName?: string | null, billingLastName?: string | null, billingEmail?: string | null, billingPhone?: string | null, billingAddressCountry?: COUNTRY_ISO_2 | null, billingAddressState?: string | null, billingAddressCity?: string | null, billingAddressLine1?: string | null, billingAddressLine2?: string | null, billingAddressPostalCode?: string | null, merchantInternalCustomerCode: string, createdAt: Date, updatedAt: Date, transactionProviderId: string, paymentMethodInfo?: { __typename?: 'MerchantCustomerPaymentMethodAchInfo' } | { __typename?: 'MerchantCustomerPaymentMethodCreditCardInfo', methodType: PAYMENT_METHOD, cardNumberMasked?: string | null, cardBrand?: string | null } | { __typename?: 'MerchantCustomerPaymentMethodGenericInfo', methodType: PAYMENT_METHOD } | null } | null, relatedTransaction?: { __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null } | null, transactionsRelated?: Array<{ __typename?: 'MerchantTransaction', id: string, code: string, action: TRANSACTION_ACTION, status: TRANSACTION_STATUS, amount: bigint, providerCode: string, providerRelatedCode?: string | null }> | null } };
 
 export const MerchantFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"Merchant"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"publicId"}},{"kind":"Field","name":{"kind":"Name","value":"publicIdUpdatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]} as unknown as DocumentNode<MerchantFragmentFragment, unknown>;
 export const MerchantTransactionProviderFragmentFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"MerchantTransactionProviderFragment"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"MerchantTransactionProvider"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"providerCode"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"merchantId"}}]}}]} as unknown as DocumentNode<MerchantTransactionProviderFragmentFragment, unknown>;
