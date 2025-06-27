@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.13.3
+
+### Patch Changes
+
+- 5f7c3b2: update schema
+
 ## 0.13.2
 
 ### Patch Changes
