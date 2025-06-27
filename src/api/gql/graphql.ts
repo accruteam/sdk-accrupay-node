@@ -1407,7 +1407,7 @@ export type MutationuserMerchantSentInvitationCreateArgs = {
 
 export type MutationuserMerchantTransactionProviderApplicationApplyArgs = {
   merchantId?: InputMaybe<Scalars['String']['input']>;
-  provider: TRANSACTION_PROVIDER;
+  provider: Scalars['String']['input'];
 };
 
 
