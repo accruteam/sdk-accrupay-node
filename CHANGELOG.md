@@ -1,5 +1,12 @@
 # @accrupay/node
 
+## 0.13.4
+
+### Patch Changes
+
+- 77bca05: add ach info to payment method
+- 5f7c3b2: update schema
+
 ## 0.13.3
 
 ### Patch Changes
