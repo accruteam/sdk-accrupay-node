@@ -26,11 +26,17 @@ export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
     paymentMethodInfo {
       ... on MerchantCustomerPaymentMethodCreditCardInfo {
         methodType
-        cardNumberMasked
         cardBrand
+        cardNumberMasked
       }
       ... on MerchantCustomerPaymentMethodGenericInfo {
         methodType
+      }
+      ... on MerchantCustomerPaymentMethodAchInfo {
+        methodType
+        accountNumber
+        routingNumber
+        secCode
       }
     }
     transactionProviderId
