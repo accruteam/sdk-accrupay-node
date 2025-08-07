@@ -1407,7 +1407,7 @@ export type MutationuserMerchantSentInvitationCreateArgs = {
 
 export type MutationuserMerchantTransactionProviderApplicationApplyArgs = {
   merchantId?: InputMaybe<Scalars['String']['input']>;
-  provider: Scalars['String']['input'];
+  provider: TRANSACTION_PROVIDER;
 };
 
 
@@ -1840,6 +1840,7 @@ export type QuerymerchantApiTransactionProvidersArgs = {
 
 export type QuerymerchantApiTransactionsArgs = {
   action?: InputMaybe<TRANSACTION_ACTION>;
+  actions?: InputMaybe<Array<TRANSACTION_ACTION>>;
   after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   canceled?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2050,6 +2051,7 @@ export type QueryuserMerchantTransactionProvidersArgs = {
 
 export type QueryuserMerchantTransactionsArgs = {
   action?: InputMaybe<TRANSACTION_ACTION>;
+  actions?: InputMaybe<Array<TRANSACTION_ACTION>>;
   after?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   before?: InputMaybe<Scalars['ConnectionCursor']['input']>;
   canceled?: InputMaybe<Scalars['Boolean']['input']>;
