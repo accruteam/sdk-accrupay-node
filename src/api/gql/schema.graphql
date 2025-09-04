@@ -520,6 +520,18 @@ type Merchant {
   websiteUrl: String
 }
 
+input MerchantApiClientTransactionPaymentSessionStartSchema {
+  amount: BigInt!
+  billing: BillingDataSchema!
+  currency: CURRENCY!
+  device: DeviceDataSchema
+  merchantInternalCustomerCode: String!
+  merchantInternalTransactionCode: String!
+  shipping: ShippingDataSchema
+  storePaymentMethod: Boolean!
+  user: UserDataSchema
+}
+
 input MerchantApiClientTransactionPaymentStartSchema {
   amount: BigInt!
   billing: BillingDataSchema!
@@ -1195,6 +1207,7 @@ type Mutation {
   adminMerchantUserCreate(data: AdminMerchantUserCreateSchema!, merchantId: String!): MerchantUser!
   adminMerchantUserUpdate(data: AdminMerchantUserUpdateSchema!, merchantUserId: String!): MerchantUser!
   merchantApiClientTransactionPaymentSessionStart(data: MerchantApiClientTransactionPaymentStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantTransaction!
+  merchantApiClientTransactionPaymentSessionStartV2(data: MerchantApiClientTransactionPaymentSessionStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantClientTransactionSession!
   merchantApiClientTransactionPaymentSessionVerify(
     """Transaction code on AccruPay API."""
     code: String @deprecated(reason: "Transaction `code` field is deprecated. Please use the other identifiers instead.")
@@ -1367,8 +1380,8 @@ type Query {
   adminMerchantUsers(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, isEnabled: Boolean, last: Int, merchantId: String, role: MERCHANT_USER_ROLE, skip: Int, sorting: [SortingFieldSchema!], take: Int, userEmail: String, userId: String, userName: String): MerchantUserPaginationConnection!
   adminMerchants(addressCity: String, addressCountry: COUNTRY_ISO_2, addressPostalCode: String, addressState: String, after: ConnectionCursor, before: ConnectionCursor, email: String, entityType: ENTITY_TYPE, first: Int, id: String, last: Int, legalIdentifier: String, legalIdentifierType: LEGAL_IDENTIFIER_TYPE, name: String, phone: String, publicId: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_STATUS, take: Int, userId: String): MerchantPaginationConnection!
   adminUsers(after: ConnectionCursor, before: ConnectionCursor, email: String, emailVerified: Boolean, first: Int, id: String, last: Int, name: String, phone: String, phoneVerified: Boolean, skip: Int, sorting: [SortingFieldSchema!], take: Int): UserPaginationConnection!
-  clientPublicTransactionGetPreSessionData(merchantPublicId: String!, transactionCode: String!): MerchantClientTransactionPreSessionData! @deprecated(reason: "Use query `clientPublicTransactionSessionBaseConfig` instead.")
-  clientPublicTransactionSessionBaseConfig(merchantPublicId: String!, transactionCode: String!): MerchantClientTransactionSessionBaseConfig!
+  clientPublicTransactionGetPreSessionData(merchantPublicId: String!, transactionCode: String @deprecated(reason: "Use transactionId instead."), transactionId: String!): MerchantClientTransactionPreSessionData! @deprecated(reason: "Use query `clientPublicTransactionSessionBaseConfig` instead.")
+  clientPublicTransactionSessionBaseConfig(merchantPublicId: String!, transactionCode: String @deprecated(reason: "Use transactionId instead."), transactionId: String!): MerchantClientTransactionSessionBaseConfig!
   healthCheck: DateTimeISO!
   healthLivenessCheck: DateTimeISO!
   healthReadinessCheck: DateTimeISO!
@@ -1399,7 +1412,7 @@ type Query {
   ): MerchantTransaction!
   merchantApiTransactionProvider(merchantTransactionProviderId: String!): MerchantTransactionProvider!
   merchantApiTransactionProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, provider: TRANSACTION_PROVIDER, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_TRANSACTION_PROVIDER_STATUS, take: Int): MerchantTransactionProviderPaginationConnection!
-  merchantApiTransactions(action: TRANSACTION_ACTION, actions: [TRANSACTION_ACTION!], after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, clientTransactionSessionId: String, code: String @deprecated(reason: "Use other identifiers instead."), currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantInternalCustomerCode: String, merchantInternalTransactionCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, paymentPlanId: String, providerCode: String, providerRelatedCode: String, relatedTransactionId: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, statuses: [TRANSACTION_STATUS!], succeeded: Boolean, take: Int, token: String @deprecated(reason: "Use Payment Session API instead."), transactionDateFrom: DateTimeISO, transactionDateTo: DateTimeISO, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
+  merchantApiTransactions(action: TRANSACTION_ACTION, actions: [TRANSACTION_ACTION!], after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, clientTransactionSessionId: String, code: String @deprecated(reason: "Use other identifiers instead."), currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantInternalCustomerCode: String, merchantInternalTransactionCode: String, paymentMethodCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, paymentPlanId: String, providerCode: String, providerRelatedCode: String, relatedTransactionId: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, statuses: [TRANSACTION_STATUS!], succeeded: Boolean, take: Int, token: String @deprecated(reason: "Use Payment Session API instead."), transactionDateFrom: DateTimeISO, transactionDateTo: DateTimeISO, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
   user: User!
   userMerchant(merchantId: String): Merchant!
   userMerchantCustomerPaymentMethod(merchantCustomerPaymentMethodId: String!, merchantId: String): MerchantCustomerPaymentMethod!
@@ -1432,7 +1445,7 @@ type Query {
   userMerchantTransactionProviderApplications(after: ConnectionCursor, before: ConnectionCursor, closed: Boolean, first: Int, id: String, last: Int, merchantId: String, provider: TRANSACTION_PROVIDER, providerCode: String, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: MERCHANT_TRANSACTION_PROVIDER_APPLICATION_STATUS, take: Int): MerchantTransactionProviderApplicationPaginationConnection!
   userMerchantTransactionProviderGetCredentialsSchema(format: TRANSACTION_PROVIDER_CREDENTIALS_SCHEMA_FORMAT!, merchantId: String, provider: TRANSACTION_PROVIDER!): JSON!
   userMerchantTransactionProviders(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, last: Int, merchantId: String, provider: TRANSACTION_PROVIDER, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_TRANSACTION_PROVIDER_STATUS, take: Int): MerchantTransactionProviderPaginationConnection!
-  userMerchantTransactions(action: TRANSACTION_ACTION, actions: [TRANSACTION_ACTION!], after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, clientTransactionSessionId: String, code: String @deprecated(reason: "Use other identifiers instead."), currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantId: String, merchantInternalCustomerCode: String, merchantInternalTransactionCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, paymentPlanId: String, providerCode: String, providerRelatedCode: String, relatedTransactionId: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, statuses: [TRANSACTION_STATUS!], succeeded: Boolean, take: Int, token: String @deprecated(reason: "Use Payment Session API instead."), transactionDateFrom: DateTimeISO, transactionDateTo: DateTimeISO, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
+  userMerchantTransactions(action: TRANSACTION_ACTION, actions: [TRANSACTION_ACTION!], after: ConnectionCursor, before: ConnectionCursor, canceled: Boolean, clientTransactionSessionId: String, code: String @deprecated(reason: "Use other identifiers instead."), currency: CURRENCY, disputed: Boolean, failed: Boolean, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantId: String, merchantInternalCustomerCode: String, merchantInternalTransactionCode: String, paymentMethodCode: String, paymentMethodId: String, paymentMethodType: PAYMENT_METHOD, paymentPlanId: String, providerCode: String, providerRelatedCode: String, relatedTransactionId: String, reverted: Boolean, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, status: TRANSACTION_STATUS, statuses: [TRANSACTION_STATUS!], succeeded: Boolean, take: Int, token: String @deprecated(reason: "Use Payment Session API instead."), transactionDateFrom: DateTimeISO, transactionDateTo: DateTimeISO, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantTransactionPaginationConnection!
   userMerchants(addressCity: String, addressCountry: COUNTRY_ISO_2, addressPostalCode: String, addressState: String, after: ConnectionCursor, before: ConnectionCursor, email: String, entityType: ENTITY_TYPE, first: Int, id: String, last: Int, legalIdentifier: String, legalIdentifierType: LEGAL_IDENTIFIER_TYPE, name: String, phone: String, publicId: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_STATUS, take: Int): MerchantPaginationConnection!
   userReceivedMerchantInvitation(invitationId: String!): MerchantUserInvitation!
   userReceivedMerchantInvitations(after: ConnectionCursor, before: ConnectionCursor, first: Int, last: Int, skip: Int, sorting: [SortingFieldSchema!], take: Int): MerchantUserInvitationPaginationConnection!

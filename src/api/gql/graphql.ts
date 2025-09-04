@@ -526,6 +526,18 @@ export type Merchant = {
   websiteUrl?: Maybe<Scalars['String']['output']>;
 };
 
+export type MerchantApiClientTransactionPaymentSessionStartSchema = {
+  amount: Scalars['BigInt']['input'];
+  billing: BillingDataSchema;
+  currency: CURRENCY;
+  device?: InputMaybe<DeviceDataSchema>;
+  merchantInternalCustomerCode: Scalars['String']['input'];
+  merchantInternalTransactionCode: Scalars['String']['input'];
+  shipping?: InputMaybe<ShippingDataSchema>;
+  storePaymentMethod: Scalars['Boolean']['input'];
+  user?: InputMaybe<UserDataSchema>;
+};
+
 export type MerchantApiClientTransactionPaymentStartSchema = {
   amount: Scalars['BigInt']['input'];
   billing: BillingDataSchema;
@@ -1242,6 +1254,7 @@ export type Mutation = {
   adminMerchantUserCreate: MerchantUser;
   adminMerchantUserUpdate: MerchantUser;
   merchantApiClientTransactionPaymentSessionStart: MerchantTransaction;
+  merchantApiClientTransactionPaymentSessionStartV2: MerchantClientTransactionSession;
   merchantApiClientTransactionPaymentSessionVerify: MerchantTransaction;
   merchantApiCustomerPaymentMethodSyncAll: Array<MerchantCustomerPaymentMethod>;
   merchantApiCustomerPaymentMethodSyncOne: MerchantCustomerPaymentMethod;
@@ -1360,6 +1373,13 @@ export type MutationadminMerchantUserUpdateArgs = {
 
 export type MutationmerchantApiClientTransactionPaymentSessionStartArgs = {
   data: MerchantApiClientTransactionPaymentStartSchema;
+  merchantTransactionProviderId?: InputMaybe<Scalars['String']['input']>;
+  transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
+};
+
+
+export type MutationmerchantApiClientTransactionPaymentSessionStartV2Args = {
+  data: MerchantApiClientTransactionPaymentSessionStartSchema;
   merchantTransactionProviderId?: InputMaybe<Scalars['String']['input']>;
   transactionProvider?: InputMaybe<TRANSACTION_PROVIDER>;
 };
@@ -1853,13 +1873,15 @@ export type QueryadminUsersArgs = {
 
 export type QueryclientPublicTransactionGetPreSessionDataArgs = {
   merchantPublicId: Scalars['String']['input'];
-  transactionCode: Scalars['String']['input'];
+  transactionCode?: InputMaybe<Scalars['String']['input']>;
+  transactionId: Scalars['String']['input'];
 };
 
 
 export type QueryclientPublicTransactionSessionBaseConfigArgs = {
   merchantPublicId: Scalars['String']['input'];
-  transactionCode: Scalars['String']['input'];
+  transactionCode?: InputMaybe<Scalars['String']['input']>;
+  transactionId: Scalars['String']['input'];
 };
 
 
@@ -1999,6 +2021,7 @@ export type QuerymerchantApiTransactionsArgs = {
   last?: InputMaybe<Scalars['Int']['input']>;
   merchantInternalCustomerCode?: InputMaybe<Scalars['String']['input']>;
   merchantInternalTransactionCode?: InputMaybe<Scalars['String']['input']>;
+  paymentMethodCode?: InputMaybe<Scalars['String']['input']>;
   paymentMethodId?: InputMaybe<Scalars['String']['input']>;
   paymentMethodType?: InputMaybe<PAYMENT_METHOD>;
   paymentPlanId?: InputMaybe<Scalars['String']['input']>;
@@ -2213,6 +2236,7 @@ export type QueryuserMerchantTransactionsArgs = {
   merchantId?: InputMaybe<Scalars['String']['input']>;
   merchantInternalCustomerCode?: InputMaybe<Scalars['String']['input']>;
   merchantInternalTransactionCode?: InputMaybe<Scalars['String']['input']>;
+  paymentMethodCode?: InputMaybe<Scalars['String']['input']>;
   paymentMethodId?: InputMaybe<Scalars['String']['input']>;
   paymentMethodType?: InputMaybe<PAYMENT_METHOD>;
   paymentPlanId?: InputMaybe<Scalars['String']['input']>;
