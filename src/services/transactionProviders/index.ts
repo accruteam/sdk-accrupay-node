@@ -1,11 +1,8 @@
 import { AccruPayContext } from '@/types/context.types';
 import {
-  MerchantApiTransactionProviderQuery,
   MerchantApiTransactionProviderQueryVariables,
-  MerchantApiTransactionProvidersQuery,
   MerchantApiTransactionProvidersQueryVariables,
 } from '@api/gql/graphql';
-import { Res } from '@utils/response.type';
 import { parsePlainNodes } from '@utils/parsePlainNodes';
 import {
   MERCHANT_TRANSACTION_PROVIDERS_GET_MANY_QUERY,
@@ -17,7 +14,7 @@ class TransactionProviders {
 
   public async getMany(
     variables: MerchantApiTransactionProvidersQueryVariables,
-  ): Promise<Res<MerchantApiTransactionProvidersQuery>> {
+  ) {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_TRANSACTION_PROVIDERS_GET_MANY_QUERY,
       variables,
@@ -26,9 +23,7 @@ class TransactionProviders {
     return parsePlainNodes(data.merchantApiTransactionProviders);
   }
 
-  public async getOne(
-    variables: MerchantApiTransactionProviderQueryVariables,
-  ): Promise<Res<MerchantApiTransactionProviderQuery>> {
+  public async getOne(variables: MerchantApiTransactionProviderQueryVariables) {
     const { data } = await this.context.apolloClient.query({
       query: MERCHANT_TRANSACTION_PROVIDERS_GET_ONE_QUERY,
       variables,

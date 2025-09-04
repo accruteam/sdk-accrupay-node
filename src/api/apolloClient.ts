@@ -30,7 +30,7 @@ interface IAccruPayParams {
   environment?: keyof typeof AccruPayEnvironmentUrls;
 
   /** Overrides the environment base URL */
-  url?: string;
+  url?: string | null;
 
   onAuthError?: () => void;
   onGraphQLError?: (errors: ReadonlyArray<GraphQLFormattedError>) => void;
@@ -129,7 +129,7 @@ export const createApolloClient = ({
 
   const selectedEnvironmentUrl =
     AccruPayEnvironmentUrls[environment || 'production'];
-  if (!selectedEnvironmentUrl) throw new Error('Invalid environment.');
+  if (!selectedEnvironmentUrl && !url) throw new Error('Invalid environment.');
 
   const httpLink = createHttpLink({
     uri: url || selectedEnvironmentUrl,
