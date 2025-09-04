@@ -3,26 +3,28 @@ import { gql } from '@api/gql';
 export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
   fragment MerchantCustomerPaymentMethodFragment on MerchantCustomerPaymentMethod {
     id
+    isDefault
+    isEnabled
+    merchantInternalCustomerCode
+    methodType
     providerCode
     providerError
+    providerLastSyncedAt
     providerLastVerifiedAt
     providerStatus
-    methodType
-    isEnabled
-    isDefault
+    transactionProviderId
+
     billingFirstName
     billingLastName
     billingEmail
     billingPhone
-    billingAddressCountry
-    billingAddressState
-    billingAddressCity
     billingAddressLine1
     billingAddressLine2
+    billingAddressCity
+    billingAddressState
+    billingAddressCountry
     billingAddressPostalCode
-    merchantInternalCustomerCode
-    createdAt
-    updatedAt
+
     paymentMethodInfo {
       ... on MerchantCustomerPaymentMethodCreditCardInfo {
         methodType
@@ -39,6 +41,8 @@ export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
         secCode
       }
     }
-    transactionProviderId
+
+    createdAt
+    updatedAt
   }
 `);

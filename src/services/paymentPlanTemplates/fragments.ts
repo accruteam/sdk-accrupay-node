@@ -5,25 +5,31 @@ export const MERCHANT_PAYMENT_PLAN_TEMPLATE_FRAGMENT = gql(`
     id
     name
     description
+    amount
+    initialAmount
+    currency
     providerCode
     providerError
+    providerLastSyncedAt
     providerLastVerifiedAt
     providerStatus
-    payload
-    initialAmount
-    amount
-    currency
-    trialPeriodDays
-    trialPeriodMonths
-    trialPeriodYears
-    renewalIntervalMonths
+    transactionProviderId
+
     renewalIntervalDays
+    renewalIntervalMonths
     renewalIntervalYears
+
     endsAfterDays
     endsAfterMonths
     endsAfterYears
+
+    trialPeriodDays
+    trialPeriodMonths
+    trialPeriodYears
+
+    payload
+
     createdAt
     updatedAt
-    transactionProviderId
   }
 `);
