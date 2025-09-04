@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.13.6
+
+### Patch Changes
+
+- 03c5700: add sdk testing
+
 ## 0.13.5
 
 ### Patch Changes
