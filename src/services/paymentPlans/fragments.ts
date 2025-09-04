@@ -3,51 +3,58 @@ import { gql } from '@api/gql';
 export const MERCHANT_PAYMENT_PLAN_FRAGMENT = gql(`
   fragment MerchantPaymentPlanFragment on MerchantPaymentPlan {
     id
+    merchantInternalPaymentPlanCode
+    merchantInternalPaymentPlanDescription
+    merchantInternalCustomerCode
+    amount
+    initialAmount
+    currency
     providerCode
     providerError
+    providerLastSyncedAt
     providerLastVerifiedAt
     providerStatus
-    payload
-    initialAmount
-    amount
-    currency
-    timeAnchor
+    status
+
+    renewalIntervalDays
+    renewalIntervalMonths
+    renewalIntervalYears
+
+    endsAfterDays
+    endsAfterMonths
+    endsAfterYears
+
     trialPeriodDays
     trialPeriodMonths
     trialPeriodYears
-    trialEndsAt
-    renewalIntervalMonths
-    renewalIntervalDays
-    renewalIntervalYears
+
     periodCount
-    endsAfterMonths
-    endsAfterDays
-    endsAfterYears
-    endsAt
-    startedAt
-    canceledAt
+    timeAnchor
     currentPeriodStart
     currentPeriodEnd
-    merchantInternalCustomerCode
-    merchantInternalPaymentPlanCode
-    merchantInternalPaymentPlanDescription
-    createdAt
-    updatedAt
-    status
-    transactionProviderId
-    transactionProvider {
-      ...MerchantTransactionProviderFragment
-    }
-    templateId
-    template {
-      ...MerchantPaymentPlanTemplateFragment
-    }
+    startedAt
+    endsAt
+    trialEndsAt
+    canceledAt
+
     paymentMethodId
     paymentMethod {
       ...MerchantCustomerPaymentMethodFragment
     }
-    transactions {
-      ...MerchantTransactionBaseFragment
+
+    templateId
+    template {
+      ...MerchantPaymentPlanTemplateFragment
     }
+
+    transactionProviderId
+    transactionProvider {
+      ...MerchantTransactionProviderFragment
+    }
+
+    payload
+
+    createdAt
+    updatedAt
   }
 `);
