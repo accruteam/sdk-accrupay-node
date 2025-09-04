@@ -6,7 +6,10 @@ dotenv.config({ quiet: true });
 const config: CodegenConfig & Record<string, any> = {
   schema:
     process.env.BACKEND_GRAPHQL_ENDPOINT || 'http://localhost:3334/graphql',
-  documents: ['./src/**/*.{ts,tsx,js,jsx}'],
+  documents: [
+    './src/**/*.{ts,tsx,js,jsx}',
+    '!./src/**/*.{test,spec}.{ts,tsx,js,jsx}',
+  ],
   generates: {
     './src/api/gql/schema.graphql': {
       plugins: ['schema-ast'],
