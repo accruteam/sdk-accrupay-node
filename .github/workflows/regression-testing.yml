@@ -43,12 +43,8 @@ jobs:
             INCLUDE_PRERELEASES=$(jq -r '.regression.include_prereleases' "$CONFIG_FILE")
             TIMEOUT_MINUTES=$(jq -r '.regression.timeout_minutes' "$CONFIG_FILE")
           else
-            echo "Config file not found, using defaults"
-            SECRET_NAME="SDK-ACCRUPAY-NODE-TEST-ENV"
-            MIN_VERSION="0.13.5"
-            EXCLUDE_VERSIONS='[]'
-            INCLUDE_PRERELEASES="false"
-            TIMEOUT_MINUTES="15"
+            echo "Config file not found"
+            exit 1
           fi
           
           echo "Configuration loaded:"
