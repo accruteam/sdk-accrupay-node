@@ -12,29 +12,6 @@ env:
   SECRET_NAME: "SDK-ACCRUPAY-NODE-TEST-ENV"
 
 jobs:
-  get-credentials:
-    name: Get Credentials
-    runs-on: ubuntu-latest
-    outputs:
-      secret-data: ${{ steps.secrets.outputs.data }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Google auth
-        id: auth
-        uses: 'google-github-actions/auth@v3'
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIAL_JSON_BASE64 }}
-
-      - name: Get secrets from Google Secret Manager
-        id: secrets
-        uses: google-github-actions/get-secretmanager-secrets@v1
-        with:
-          secrets: |-
-            data:${{ vars.GCP_PROJECT_ID }}/${{ env.SECRET_NAME }}
-
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -78,11 +55,22 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    needs: get-credentials
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Google auth
+        id: auth
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIAL_JSON_BASE64 }}
+
+      - name: Get secrets from Google Secret Manager
+        id: secrets
+        uses: google-github-actions/get-secretmanager-secrets@v1
+        with:
+          secrets: |-
+            data:${{ vars.GCP_PROJECT_ID }}/${{ env.SECRET_NAME }}
 
       - name: Setup node
         uses: actions/setup-node@v4
@@ -97,7 +85,7 @@ jobs:
         id: parse-secrets
         uses: luizfelipelaviola/parse-plain-dotenv@v1
         with:
-          data: ${{ needs.get-credentials.outputs.secret-data }}
+          data: ${{ steps.secrets.outputs.data }}
           parse-env: false
           write-env-file: true
           env-file-path: .env
