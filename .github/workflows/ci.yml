@@ -1,0 +1,106 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+env:
+  SECRET_NAME: "SDK-ACCRUPAY-NODE-TEST-ENV"
+
+jobs:
+  get-credentials:
+    name: Get Credentials
+    runs-on: ubuntu-latest
+    outputs:
+      secret-data: ${{ steps.secrets.outputs.data }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Google auth
+        id: auth
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIAL_JSON_BASE64 }}
+
+      - name: Get secrets from Google Secret Manager
+        id: secrets
+        uses: google-github-actions/get-secretmanager-secrets@v1
+        with:
+          secrets: |-
+            data:${{ vars.GCP_PROJECT_ID }}/${{ env.SECRET_NAME }}
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check types
+        run: yarn lint
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run build
+        run: yarn build
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: get-credentials
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Parse secrets data dotenv syntax as .env file
+        id: parse-secrets
+        uses: luizfelipelaviola/parse-plain-dotenv@v1
+        with:
+          data: ${{ needs.get-credentials.outputs.secret-data }}
+          parse-env: false
+          write-env-file: true
+          env-file-path: .env
+
+      - name: Run tests
+        run: yarn test --bail 1
