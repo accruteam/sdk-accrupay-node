@@ -1,0 +1,11 @@
+{
+  "regression": {
+    "min_version": "0.13.5",
+    "exclude_versions": [],
+    "include_prereleases": false,
+    "timeout_minutes": 15
+  },
+  "secrets": {
+    "name": "SDK-ACCRUPAY-NODE-TEST-ENV"
+  }
+}

@@ -1,0 +1,332 @@
+name: Regression Testing
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  get-credentials:
+    name: Get Credentials
+    runs-on: ubuntu-latest
+    outputs:
+      secret_data: ${{ steps.secrets.outputs.data }}
+      secret_name: ${{ steps.config.outputs.secret_name }}
+      min_version: ${{ steps.config.outputs.min_version }}
+      exclude_versions: ${{ steps.config.outputs.exclude_versions }}
+      include_prereleases: ${{ steps.config.outputs.include_prereleases }}
+      timeout_minutes: ${{ steps.config.outputs.timeout_minutes }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get configuration
+        id: config
+        run: |
+          # Read configuration from src/test/config.json
+          CONFIG_FILE="src/test/config.json"
+          if [ -f "$CONFIG_FILE" ]; then
+            echo "Reading configuration from $CONFIG_FILE"
+            SECRET_NAME=$(jq -r '.secrets.name' "$CONFIG_FILE")
+            MIN_VERSION=$(jq -r '.regression.min_version' "$CONFIG_FILE")
+            EXCLUDE_VERSIONS=$(jq -r '.regression.exclude_versions' "$CONFIG_FILE")
+            INCLUDE_PRERELEASES=$(jq -r '.regression.include_prereleases' "$CONFIG_FILE")
+            TIMEOUT_MINUTES=$(jq -r '.regression.timeout_minutes' "$CONFIG_FILE")
+          else
+            echo "Config file not found, using defaults"
+            SECRET_NAME="SDK-ACCRUPAY-NODE-TEST-ENV"
+            MIN_VERSION="0.13.5"
+            EXCLUDE_VERSIONS='[]'
+            INCLUDE_PRERELEASES="false"
+            TIMEOUT_MINUTES="15"
+          fi
+          
+          echo "Configuration loaded:"
+          echo "  Secret Name: $SECRET_NAME"
+          echo "  Min Version: $MIN_VERSION"
+          echo "  Exclude Versions: $EXCLUDE_VERSIONS"
+          echo "  Include Prereleases: $INCLUDE_PRERELEASES"
+          echo "  Timeout: $TIMEOUT_MINUTES minutes"
+          
+          echo "secret_name=$SECRET_NAME" >> $GITHUB_OUTPUT
+          echo "min_version=$MIN_VERSION" >> $GITHUB_OUTPUT
+          echo "exclude_versions=$EXCLUDE_VERSIONS" >> $GITHUB_OUTPUT
+          echo "include_prereleases=$INCLUDE_PRERELEASES" >> $GITHUB_OUTPUT
+          echo "timeout_minutes=$TIMEOUT_MINUTES" >> $GITHUB_OUTPUT
+
+      - name: Google auth
+        id: auth
+        if: success()
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIAL_JSON_BASE64 }}
+
+      - name: Get secrets from Google Secret Manager
+        id: secrets
+        if: success()
+        uses: google-github-actions/get-secretmanager-secrets@v1
+        with:
+          secrets: |-
+            data:${{ vars.GCP_PROJECT_ID }}/${{ steps.config.outputs.secret_name }}
+
+  get-versions:
+    name: Get Versions to Test
+    runs-on: ubuntu-latest
+    needs: [get-credentials]
+    if: success()
+    outputs:
+      package_name: ${{ steps.get-versions.outputs.package_name }}
+      versions: ${{ steps.get-versions.outputs.versions }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Yarn
+        run: |
+          if ! command -v yarn &> /dev/null; then
+            echo "Yarn not found, installing..."
+            npm install -g yarn
+          else
+            echo "Yarn already installed"
+          fi
+
+      - name: Get available versions
+        id: get-versions
+        run: |
+          PACKAGE_NAME=$(jq -r '.name' package.json)
+          CURRENT_VERSION=$(jq -r '.version' package.json)
+          
+          echo "Package: $PACKAGE_NAME"
+          echo "Current version: $CURRENT_VERSION"
+
+          MIN_VERSION="${{ needs.get-credentials.outputs.min_version }}"
+          EXCLUDE_VERSIONS_JSON='${{ needs.get-credentials.outputs.exclude_versions }}'
+          INCLUDE_PRERELEASES="${{ needs.get-credentials.outputs.include_prereleases }}"
+          TIMEOUT_MINUTES="${{ needs.get-credentials.outputs.timeout_minutes }}"
+
+          EXCLUDE_VERSIONS=$(echo "$EXCLUDE_VERSIONS_JSON" | jq -r '.[]' | tr '\n' ' ')
+
+          echo "Configuration:"
+          echo "  Package: $PACKAGE_NAME"
+          echo "  Min Version: $MIN_VERSION"
+          echo "  Current Version: $CURRENT_VERSION"
+          echo "  Exclude Versions: $EXCLUDE_VERSIONS"
+          echo "  Include Prereleases: $INCLUDE_PRERELEASES"
+          echo "  Timeout: $TIMEOUT_MINUTES minutes"
+
+          echo "Fetching versions from NPM..."
+          if [ "$INCLUDE_PRERELEASES" = "true" ]; then
+            VERSIONS=$(yarn info "$PACKAGE_NAME" versions --json | jq -r '.data' | jq -r '.[]' | grep -E "^[0-9]+\.[0-9]+\.[0-9]+" | sort -V)
+          else
+            VERSIONS=$(yarn info "$PACKAGE_NAME" versions --json | jq -r '.data' | jq -r '.[]' | grep -E "^[0-9]+\.[0-9]+\.[0-9]+$" | sort -V)
+          fi
+
+          echo "All available versions:"
+          echo "$VERSIONS"
+
+          VERSIONS=$(echo "$VERSIONS" | while read version; do
+            if [ "$(printf '%s\n' "$MIN_VERSION" "$version" | sort -V | head -n1)" = "$MIN_VERSION" ]; then
+              echo "$version"
+            fi
+          done)
+
+          for exclude in $EXCLUDE_VERSIONS; do
+            VERSIONS=$(echo "$VERSIONS" | grep -v "^$exclude$")
+          done
+
+          echo "Filtered versions to test:"
+          echo "$VERSIONS"
+
+          VERSIONS_JSON=$(echo "$VERSIONS" | jq -R -s -c 'split("\n")[:-1]')
+          
+          echo "Versions to test (JSON): $VERSIONS_JSON"
+          echo "versions=$VERSIONS_JSON" >> $GITHUB_OUTPUT
+          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
+
+  regression-test:
+    name: Regression Test v${{ matrix.version }}
+    runs-on: ubuntu-latest
+    needs: [get-credentials, get-versions]
+    if: success() && needs.get-versions.outputs.versions != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        version: ${{ fromJson(needs.get-versions.outputs.versions) }}
+
+    steps:
+      - name: Checkout specific version tag
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ matrix.version }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'yarn'
+
+      - name: Install Yarn
+        run: |
+          if ! command -v yarn &> /dev/null; then
+            echo "Yarn not found, installing..."
+            npm install -g yarn
+          else
+            echo "Yarn already installed"
+          fi
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Parse secrets data dotenv syntax as .env file
+        id: parse-secrets
+        uses: luizfelipelaviola/parse-plain-dotenv@v1
+        with:
+          data: ${{ needs.get-credentials.outputs.secret_data }}
+          parse-env: false
+          write-env-file: true
+          env-file-path: .env
+
+      - name: Run tests for version ${{ matrix.version }}
+        id: test-run
+        run: |
+          echo "Testing ${{ needs.get-versions.outputs.package_name }} version ${{ matrix.version }}"
+          echo "Git tag: v${{ matrix.version }}"
+          echo "Package version: $(cat package.json | jq -r '.version')"
+          echo "Running tests..."
+          
+          echo "VERSION=${{ matrix.version }}" > result.txt
+          
+          set +e
+          TEST_OUTPUT=$(yarn test 2>&1)
+          TEST_EXIT_CODE=$?
+          set -e
+          
+          echo "STATUS=$([ $TEST_EXIT_CODE -eq 0 ] && echo 'SUCCEEDED' || echo 'FAILED')" >> result.txt
+          echo "EXIT_CODE=$TEST_EXIT_CODE" >> result.txt
+          echo "---" >> result.txt
+          echo "$TEST_OUTPUT" >> result.txt
+          echo "---" >> result.txt
+        env:
+          NODE_ENV: test
+        timeout-minutes: ${{ needs.get-credentials.outputs.timeout_minutes }}
+
+      - name: Check test result
+        run: |
+          if [ -f "result.txt" ]; then
+            EXIT_CODE=$(grep "^EXIT_CODE=" result.txt | cut -d'=' -f2)
+            if [ "$EXIT_CODE" != "0" ]; then
+              echo "❌ Tests failed for version ${{ matrix.version }}"
+              exit 1
+            else
+              echo "✅ Tests passed for version ${{ matrix.version }}"
+            fi
+          else
+            echo "❌ No result file found"
+            exit 1
+          fi
+
+      - name: Upload test result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-v${{ matrix.version }}
+          path: result.txt
+          retention-days: 1
+
+  regression-summary:
+    name: Regression Test Summary
+    runs-on: ubuntu-latest
+    needs: [get-credentials, get-versions, regression-test]
+    if: always() && needs.get-credentials.result == 'success'
+    
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: results
+
+      - name: Display results
+        run: |
+          echo "## Regression Test Results"
+          echo ""
+          
+          SUCCEEDED_VERSIONS=()
+          FAILED_VERSIONS=()
+          if [ -d "results" ]; then
+            for result_file in results/*/result.txt; do
+              if [ -f "$result_file" ]; then
+                VERSION=$(grep "^VERSION=" "$result_file" | cut -d'=' -f2)
+                STATUS=$(grep "^STATUS=" "$result_file" | cut -d'=' -f2)
+                
+                if [ "$STATUS" = "SUCCEEDED" ]; then
+                  SUCCEEDED_VERSIONS+=("v$VERSION")
+                else
+                  FAILED_VERSIONS+=("v$VERSION")
+                fi
+              fi
+            done
+          else
+            echo "No results directory found"
+          fi
+          
+          echo "### ✅ SUCCEEDED VERSIONS:"
+          if [ ${#SUCCEEDED_VERSIONS[@]} -gt 0 ]; then
+            for version in "${SUCCEEDED_VERSIONS[@]}"; do
+              echo "$version"
+            done
+          else
+            echo "None"
+          fi
+          echo ""
+          
+          echo "### ❌ FAILED VERSIONS:"
+          if [ ${#FAILED_VERSIONS[@]} -gt 0 ]; then
+            for version in "${FAILED_VERSIONS[@]}"; do
+              echo "$version"
+            done
+          else
+            echo "None"
+          fi
+          echo ""
+
+          echo "### COMPLETE TEST OUTPUTS:"
+          echo ""
+          if [ -d "results" ]; then
+            for result_file in results/*/result.txt; do
+              if [ -f "$result_file" ]; then
+                VERSION=$(grep "^VERSION=" "$result_file" | cut -d'=' -f2)
+                STATUS=$(grep "^STATUS=" "$result_file" | cut -d'=' -f2)
+                
+                echo "=== 🔎 TEST OUTPUT FOR VERSION v$VERSION ($STATUS) ==="
+                sed -n '/^---$/,/^---$/p' "$result_file" | sed '1d;$d'
+                echo ""
+              fi
+            done
+          else
+            echo "No test results found"
+          fi
+
+      - name: Check for failures
+        run: |
+          if [ "${{ needs.regression-test.result }}" != "success" ]; then
+            echo "❌ Some regression tests failed!"
+            exit 1
+          else
+            echo "✅ All regression tests passed!"
+          fi
