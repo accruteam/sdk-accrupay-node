@@ -15,11 +15,10 @@ permissions:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  get-credentials:
-    name: Get Credentials
+  get-config:
+    name: Get Config
     runs-on: ubuntu-latest
     outputs:
-      secret_data: ${{ steps.secrets.outputs.data }}
       secret_name: ${{ steps.config.outputs.secret_name }}
       min_version: ${{ steps.config.outputs.min_version }}
       exclude_versions: ${{ steps.config.outputs.exclude_versions }}
@@ -43,12 +42,8 @@ jobs:
             INCLUDE_PRERELEASES=$(jq -r '.regression.include_prereleases' "$CONFIG_FILE")
             TIMEOUT_MINUTES=$(jq -r '.regression.timeout_minutes' "$CONFIG_FILE")
           else
-            echo "Config file not found, using defaults"
-            SECRET_NAME="SDK-ACCRUPAY-NODE-TEST-ENV"
-            MIN_VERSION="0.13.5"
-            EXCLUDE_VERSIONS='[]'
-            INCLUDE_PRERELEASES="false"
-            TIMEOUT_MINUTES="15"
+            echo "Config file not found"
+            exit 1
           fi
           
           echo "Configuration loaded:"
@@ -64,25 +59,10 @@ jobs:
           echo "include_prereleases=$INCLUDE_PRERELEASES" >> $GITHUB_OUTPUT
           echo "timeout_minutes=$TIMEOUT_MINUTES" >> $GITHUB_OUTPUT
 
-      - name: Google auth
-        id: auth
-        if: success()
-        uses: 'google-github-actions/auth@v3'
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIAL_JSON_BASE64 }}
-
-      - name: Get secrets from Google Secret Manager
-        id: secrets
-        if: success()
-        uses: google-github-actions/get-secretmanager-secrets@v1
-        with:
-          secrets: |-
-            data:${{ vars.GCP_PROJECT_ID }}/${{ steps.config.outputs.secret_name }}
-
   get-versions:
     name: Get Versions to Test
     runs-on: ubuntu-latest
-    needs: [get-credentials]
+    needs: [get-config]
     if: success()
     outputs:
       package_name: ${{ steps.get-versions.outputs.package_name }}
@@ -114,10 +94,10 @@ jobs:
           echo "Package: $PACKAGE_NAME"
           echo "Current version: $CURRENT_VERSION"
 
-          MIN_VERSION="${{ needs.get-credentials.outputs.min_version }}"
-          EXCLUDE_VERSIONS_JSON='${{ needs.get-credentials.outputs.exclude_versions }}'
-          INCLUDE_PRERELEASES="${{ needs.get-credentials.outputs.include_prereleases }}"
-          TIMEOUT_MINUTES="${{ needs.get-credentials.outputs.timeout_minutes }}"
+          MIN_VERSION="${{ needs.get-config.outputs.min_version }}"
+          EXCLUDE_VERSIONS_JSON='${{ needs.get-config.outputs.exclude_versions }}'
+          INCLUDE_PRERELEASES="${{ needs.get-config.outputs.include_prereleases }}"
+          TIMEOUT_MINUTES="${{ needs.get-config.outputs.timeout_minutes }}"
 
           EXCLUDE_VERSIONS=$(echo "$EXCLUDE_VERSIONS_JSON" | jq -r '.[]' | tr '\n' ' ')
 
@@ -161,7 +141,7 @@ jobs:
   regression-test:
     name: Regression Test v${{ matrix.version }}
     runs-on: ubuntu-latest
-    needs: [get-credentials, get-versions]
+    needs: [get-config, get-versions]
     if: success() && needs.get-versions.outputs.versions != '[]'
     strategy:
       fail-fast: false
@@ -193,14 +173,24 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Parse secrets data dotenv syntax as .env file
-        id: parse-secrets
-        uses: luizfelipelaviola/parse-plain-dotenv@v1
+      - name: Google auth
+        id: auth
+        if: success()
+        uses: 'google-github-actions/auth@v3'
         with:
-          data: ${{ needs.get-credentials.outputs.secret_data }}
-          parse-env: false
-          write-env-file: true
-          env-file-path: .env
+          credentials_json: ${{ secrets.GCP_CREDENTIAL_JSON_BASE64 }}
+
+      - name: Get secrets from Google Secret Manager
+        id: secrets
+        if: success()
+        uses: google-github-actions/get-secretmanager-secrets@v1
+        with:
+          secrets: |-
+            data:${{ vars.GCP_PROJECT_ID }}/${{ needs.get-config.outputs.secret_name }}
+
+      - name: Parse secrets data dotenv syntax as .env file
+        run: |
+          echo "${{ steps.secrets.outputs.data }}" > .env
 
       - name: Run tests for version ${{ matrix.version }}
         id: test-run
@@ -224,7 +214,7 @@ jobs:
           echo "---" >> result.txt
         env:
           NODE_ENV: test
-        timeout-minutes: ${{ needs.get-credentials.outputs.timeout_minutes }}
+        timeout-minutes: ${{ needs.get-config.outputs.timeout_minutes }}
 
       - name: Check test result
         run: |
@@ -252,8 +242,8 @@ jobs:
   regression-summary:
     name: Regression Test Summary
     runs-on: ubuntu-latest
-    needs: [get-credentials, get-versions, regression-test]
-    if: always() && needs.get-credentials.result == 'success'
+    needs: [get-config, get-versions, regression-test]
+    if: always() && needs.get-config.result == 'success'
     
     steps:
       - name: Download all test results
