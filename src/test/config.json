@@ -1,6 +1,6 @@
 {
   "regression": {
-    "min_version": "0.13.5",
+    "min_version": "0.13.6",
     "exclude_versions": [],
     "include_prereleases": false,
     "timeout_minutes": 15
