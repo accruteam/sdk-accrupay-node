@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.13.7
+
+### Patch Changes
+
+- 39fc638: add status field to payment method fragment
+
 ## 0.13.6
 
 ### Patch Changes
