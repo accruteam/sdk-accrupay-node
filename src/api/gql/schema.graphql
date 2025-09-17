@@ -674,7 +674,12 @@ type MerchantClientTransactionSession {
   userPhone: String
 }
 
-union MerchantClientTransactionSessionBaseConfig = MerchantClientTransactionSessionGenericBaseConfig | MerchantClientTransactionSessionNuveiBaseConfig
+type MerchantClientTransactionSessionBaseConfig {
+  data: MerchantClientTransactionSessionBaseConfigData!
+  provider: TRANSACTION_PROVIDER!
+}
+
+union MerchantClientTransactionSessionBaseConfigData = MerchantClientTransactionSessionGenericBaseConfig | MerchantClientTransactionSessionNuveiBaseConfig
 
 type MerchantClientTransactionSessionGenericBaseConfig {
   provider: TRANSACTION_PROVIDER!
@@ -1317,7 +1322,7 @@ type Mutation {
   ): MerchantTransaction!
   userMerchantUpdate(data: MerchantUpdateSchema!, merchantId: String): Merchant!
   userPasswordChangeFinish(data: UserPasswordChangeFinishSchema!): String!
-  userPasswordChangeStart(data: UserPasswordChangeStartSchema!): DateTimeISO!
+  userPasswordChangeStart: DateTimeISO!
   userPasswordResetFinish(data: UserPasswordResetFinishSchema!): String!
   userPasswordResetStart(data: UserPasswordResetStartSchema!): String!
   userReceivedMerchantInvitationAccept(invitationId: String!): MerchantUserInvitation!
@@ -1380,8 +1385,8 @@ type Query {
   adminMerchantUsers(after: ConnectionCursor, before: ConnectionCursor, first: Int, id: String, isEnabled: Boolean, last: Int, merchantId: String, role: MERCHANT_USER_ROLE, skip: Int, sorting: [SortingFieldSchema!], take: Int, userEmail: String, userId: String, userName: String): MerchantUserPaginationConnection!
   adminMerchants(addressCity: String, addressCountry: COUNTRY_ISO_2, addressPostalCode: String, addressState: String, after: ConnectionCursor, before: ConnectionCursor, email: String, entityType: ENTITY_TYPE, first: Int, id: String, last: Int, legalIdentifier: String, legalIdentifierType: LEGAL_IDENTIFIER_TYPE, name: String, phone: String, publicId: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_STATUS, take: Int, userId: String): MerchantPaginationConnection!
   adminUsers(after: ConnectionCursor, before: ConnectionCursor, email: String, emailVerified: Boolean, first: Int, id: String, last: Int, name: String, phone: String, phoneVerified: Boolean, skip: Int, sorting: [SortingFieldSchema!], take: Int): UserPaginationConnection!
-  clientPublicTransactionGetPreSessionData(merchantPublicId: String!, transactionCode: String @deprecated(reason: "Use transactionId instead."), transactionId: String!): MerchantClientTransactionPreSessionData! @deprecated(reason: "Use query `clientPublicTransactionSessionBaseConfig` instead.")
-  clientPublicTransactionSessionBaseConfig(merchantPublicId: String!, transactionCode: String @deprecated(reason: "Use transactionId instead."), transactionId: String!): MerchantClientTransactionSessionBaseConfig!
+  clientPublicTransactionGetPreSessionData(merchantPublicId: String!, transactionCode: String!, transactionId: String!): MerchantClientTransactionPreSessionData! @deprecated(reason: "Use query `clientPublicTransactionSessionBaseConfig` instead.")
+  clientPublicTransactionSessionBaseConfig(merchantPublicId: String!, transactionProvider: TRANSACTION_PROVIDER, transactionSessionId: String): MerchantClientTransactionSessionBaseConfig!
   healthCheck: DateTimeISO!
   healthLivenessCheck: DateTimeISO!
   healthReadinessCheck: DateTimeISO!
@@ -1588,10 +1593,6 @@ type UserPaginationEdge {
 input UserPasswordChangeFinishSchema {
   updatedPassword: String!
   verificationCode: String!
-}
-
-input UserPasswordChangeStartSchema {
-  currentPassword: String
 }
 
 input UserPasswordResetFinishSchema {
