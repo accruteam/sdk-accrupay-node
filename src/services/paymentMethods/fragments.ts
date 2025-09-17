@@ -5,6 +5,7 @@ export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
     id
     isDefault
     isEnabled
+    status
     merchantInternalCustomerCode
     methodType
     providerCode
