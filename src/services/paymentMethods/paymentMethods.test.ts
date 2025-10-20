@@ -27,6 +27,24 @@ describe('PaymentMethods', () => {
         }),
       );
     });
+
+    it('should validate syncOne syntax and types', async () => {
+      await expectSyntaxValidation(() =>
+        client.paymentMethods.syncOne({
+          merchantInternalCustomerCode: 'invalid-customer-code',
+          merchantTransactionProviderId: baseFixtures.safeUnusedId,
+          providerCode: 'invalid-provider-code',
+        }),
+      );
+      await expectSyntaxValidation(() =>
+        client.paymentMethods.syncOne({
+          merchantInternalCustomerCode:
+            baseFixtures.merchantInternalCustomerCode,
+          merchantTransactionProviderId: baseFixtures.safeUnusedId,
+          providerCode: 'invalid-provider-code',
+        }),
+      );
+    });
   });
 
   describe('Integration', () => {
@@ -43,6 +61,15 @@ describe('PaymentMethods', () => {
       });
       expect(data).toBeDefined();
       expect(data.id).toBe(id);
+    });
+
+    it('should be able to sync one payment method', async () => {
+      const data = await client.paymentMethods.syncOne({
+        merchantInternalCustomerCode: baseFixtures.merchantInternalCustomerCode,
+        merchantTransactionProviderId: baseFixtures.transactionProviderId,
+        providerCode: baseFixtures.customerPaymentMethodCode,
+      });
+      expect(data).toBeDefined();
     });
   });
 });

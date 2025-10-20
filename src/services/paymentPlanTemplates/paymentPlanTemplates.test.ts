@@ -72,6 +72,15 @@ describe('PaymentPlanTemplates', () => {
         }),
       );
     });
+
+    it('should validate syncOne syntax and types', async () => {
+      await expectSyntaxValidation(() =>
+        client.paymentPlanTemplates.syncOne({
+          merchantTransactionProviderId: baseFixtures.safeUnusedId,
+          providerCode: 'safe-provider-code',
+        }),
+      );
+    });
   });
 
   describe('Integration', () => {
@@ -82,12 +91,19 @@ describe('PaymentPlanTemplates', () => {
     });
 
     it('should be able to get one payment plan template', async () => {
-      const id = baseFixtures.paymentPlanTemplateId;
       const data = await client.paymentPlanTemplates.getOne({
-        merchantPaymentPlanTemplateId: id,
+        merchantPaymentPlanTemplateId: baseFixtures.paymentPlanTemplateId,
       });
       expect(data).toBeDefined();
-      expect(data.id).toBe(id);
+      expect(data.id).toBe(baseFixtures.paymentPlanTemplateId);
+    });
+
+    it('should be able to sync one payment plan template', async () => {
+      const data = await client.paymentPlanTemplates.syncOne({
+        merchantTransactionProviderId: baseFixtures.transactionProviderId,
+        providerCode: baseFixtures.paymentPlanTemplateCode,
+      });
+      expect(data).toBeDefined();
     });
   });
 });

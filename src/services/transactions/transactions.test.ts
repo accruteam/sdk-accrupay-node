@@ -43,6 +43,12 @@ describe('Transactions', () => {
           merchantInternalTransactionCode: 'invalid-test',
         }),
       );
+      await expectSyntaxValidation(() =>
+        client.transactions.syncOne({
+          merchantTransactionProviderId: baseFixtures.safeUnusedId,
+          providerCode: 'safe-provider-code',
+        }),
+      );
     });
 
     it('should validate getClientPaymentPreSessionData syntax and types', async () => {
@@ -116,6 +122,15 @@ describe('Transactions', () => {
         }),
       );
     });
+
+    it('should validate syncOne syntax and types', async () => {
+      await expectSyntaxValidation(() =>
+        client.transactions.syncOne({
+          merchantTransactionProviderId: baseFixtures.safeUnusedId,
+          providerCode: 'safe-provider-code',
+        }),
+      );
+    });
   });
 
   describe('Integration', () => {
@@ -132,6 +147,14 @@ describe('Transactions', () => {
       });
       expect(data).toBeDefined();
       expect(data.id).toBe(id);
+    });
+
+    it('should be able to sync one transaction', async () => {
+      const data = await client.transactions.syncOne({
+        merchantTransactionProviderId: baseFixtures.transactionProviderId,
+        providerCode: baseFixtures.transactionProviderCode,
+      });
+      expect(data).toBeDefined();
     });
   });
 });
