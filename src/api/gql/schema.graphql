@@ -783,6 +783,17 @@ type MerchantClientTransactionSessionNuveiBaseConfig {
   provider: TRANSACTION_PROVIDER!
 }
 
+type MerchantClientTransactionSessionPaginationConnection {
+  edges: [MerchantClientTransactionSessionPaginationEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type MerchantClientTransactionSessionPaginationEdge {
+  cursor: ConnectionCursor!
+  node: MerchantClientTransactionSession!
+}
+
 input MerchantCreateSchema {
   addressCity: String!
   addressCountry: COUNTRY_ISO_2!
@@ -1493,7 +1504,24 @@ type Query {
   healthReadinessCheck: DateTimeISO!
   merchantApi: Merchant!
   merchantApiClientGetPreSessionData(merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantClientTransactionPreSessionData! @deprecated(reason: "Use query `merchantApiClientSessionGetBaseConfig` instead.")
+  merchantApiClientTransactionSession(
+    """Transaction code on AccruPay API."""
+    code: String @deprecated(reason: "Transaction `code` field is deprecated. Please use the other identifiers instead.")
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Client transaction session code on Transaction Provider."""
+    providerCode: String
+
+    """Token for the session."""
+    token: String
+  ): MerchantClientTransactionSession!
   merchantApiClientTransactionSessionBaseConfig(merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantClientTransactionSessionBaseConfig!
+  merchantApiClientTransactionSessions(action: TRANSACTION_ACTION, after: ConnectionCursor, amount: BigInt, before: ConnectionCursor, canceled: Boolean, completed: Boolean, currency: CURRENCY, first: Int, hasProviderError: Boolean, id: String, last: Int, merchantInternalCustomerCode: String, merchantInternalTransactionCode: String, paymentMethodId: String, paymentPlanId: String, providerCode: String, providerStatus: CLIENT_TRANSACTION_SESSION_STATUS, skip: Int, sorting: [SortingFieldSchema!], started: Boolean, take: Int, token: String, transactionProviderId: String): MerchantClientTransactionSessionPaginationConnection!
   merchantApiCustomerPaymentMethod(merchantCustomerPaymentMethodId: String!): MerchantCustomerPaymentMethod!
   merchantApiCustomerPaymentMethods(after: ConnectionCursor, before: ConnectionCursor, first: Int, hasProviderError: Boolean, id: String, initialTransactionId: String, isDefault: Boolean, last: Int, merchantInternalCustomerCode: String, methodType: PAYMENT_METHOD, providerCode: String, skip: Int, sorting: [SortingFieldSchema!], take: Int, transactionProvider: TRANSACTION_PROVIDER, transactionProviderId: String): MerchantCustomerPaymentMethodPaginationConnection!
   merchantApiPaymentPlan(merchantPaymentPlanId: String!): MerchantPaymentPlan!

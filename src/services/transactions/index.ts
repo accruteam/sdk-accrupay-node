@@ -20,9 +20,14 @@ import {
   MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION,
   MERCHANT_TRANSACTIONS_SYNC_ONE_MUTATION,
 } from './queries';
+import { TransactionsSessions } from './sessions';
 
 class Transactions {
-  constructor(private context: AccruPayContext) {}
+  public readonly sessions: TransactionsSessions;
+
+  constructor(private context: AccruPayContext) {
+    this.sessions = new TransactionsSessions(this.context);
+  }
 
   public async getMany(variables: MerchantApiTransactionsQueryVariables) {
     const { data } = await this.context.apolloClient.query({
