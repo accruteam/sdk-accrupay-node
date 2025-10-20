@@ -202,3 +202,25 @@ export const MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION = gql(`
     }
   }
 `);
+
+export const MERCHANT_TRANSACTIONS_SYNC_ONE_MUTATION = gql(`
+  mutation MerchantApiTransactionSyncOne(
+    $merchantTransactionProviderId: String!,
+    $id: String,
+    $code: String,
+    $merchantInternalTransactionCode: String,
+    $providerCode: String,
+    $token: String
+  ) {
+    merchantApiTransactionSyncOne(
+      merchantTransactionProviderId: $merchantTransactionProviderId,
+      id: $id,
+      code: $code,
+      merchantInternalTransactionCode: $merchantInternalTransactionCode,
+      providerCode: $providerCode,
+      token: $token
+    ) {
+      ...MerchantTransactionFragment
+    }
+  }
+`);

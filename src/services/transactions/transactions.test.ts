@@ -4,6 +4,7 @@ import { getClientInstance } from 'test/utils/getClientInstance';
 import { getBaseFixtures } from 'test/utils/getBaseFixtures';
 import { expectSyntaxValidation } from 'test/utils/expectSyntaxValidation';
 import { TRANSACTION_PROVIDER, CURRENCY } from '@api/gql/graphql';
+import { getProviderFixtureEntries } from 'test/utils/getProviderFixtures';
 
 describe('Transactions', () => {
   const client = getClientInstance();
@@ -17,7 +18,7 @@ describe('Transactions', () => {
           skip: 0,
           take: 10,
           currency: CURRENCY.USD,
-          merchantInternalTransactionCode: 'invalid-test',
+          merchantInternalTransactionCode: 'safe-test',
         }),
       );
     });
@@ -30,17 +31,23 @@ describe('Transactions', () => {
       );
       await expectSyntaxValidation(() =>
         client.transactions.getOne({
-          code: 'invalid-code',
+          code: 'safe-code',
         }),
       );
       await expectSyntaxValidation(() =>
         client.transactions.getOne({
-          token: 'invalid-token',
+          token: 'safe-token',
         }),
       );
       await expectSyntaxValidation(() =>
         client.transactions.getOne({
-          merchantInternalTransactionCode: 'invalid-test',
+          merchantInternalTransactionCode: 'safe-test',
+        }),
+      );
+      await expectSyntaxValidation(() =>
+        client.transactions.syncOne({
+          merchantTransactionProviderId: baseFixtures.safeUnusedId,
+          providerCode: 'safe-provider-code',
         }),
       );
     });
@@ -62,8 +69,8 @@ describe('Transactions', () => {
           data: {
             amount: 100n,
             currency: CURRENCY.USD,
-            merchantInternalCustomerCode: 'invalid-test',
-            merchantInternalTransactionCode: 'invalid-test',
+            merchantInternalCustomerCode: 'safe-test',
+            merchantInternalTransactionCode: 'safe-test',
             billing: {
               billingFirstName: 'Test',
               billingLastName: 'User',
@@ -84,7 +91,7 @@ describe('Transactions', () => {
       );
       await expectSyntaxValidation(() =>
         client.transactions.verifyClientPaymentSession({
-          code: 'invalid-code',
+          code: 'safe-code',
         }),
       );
     });
@@ -97,7 +104,7 @@ describe('Transactions', () => {
       );
       await expectSyntaxValidation(() =>
         client.transactions.voidOne({
-          code: 'invalid-code',
+          code: 'safe-code',
         }),
       );
     });
@@ -111,8 +118,17 @@ describe('Transactions', () => {
       );
       await expectSyntaxValidation(() =>
         client.transactions.refundOne({
-          code: 'invalid-code',
+          code: 'safe-code',
           amount: 50n,
+        }),
+      );
+    });
+
+    it('should validate syncOne syntax and types', async () => {
+      await expectSyntaxValidation(() =>
+        client.transactions.syncOne({
+          merchantTransactionProviderId: baseFixtures.safeUnusedId,
+          providerCode: 'safe-provider-code',
         }),
       );
     });
@@ -132,6 +148,16 @@ describe('Transactions', () => {
       });
       expect(data).toBeDefined();
       expect(data.id).toBe(id);
+    });
+
+    getProviderFixtureEntries().forEach(([provider, fixture]) => {
+      it(`should be able to sync one transaction ${provider}`, async () => {
+        const data = await client.transactions.syncOne({
+          merchantTransactionProviderId: fixture.transactionProviderId,
+          providerCode: fixture.providerTransactionCode,
+        });
+        expect(data).toBeDefined();
+      });
     });
   });
 });

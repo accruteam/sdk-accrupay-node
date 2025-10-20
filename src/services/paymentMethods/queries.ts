@@ -75,3 +75,19 @@ export const MERCHANT_PAYMENT_METHODS_GET_ONE_QUERY = gql(`
     }
   }
 `);
+
+export const MERCHANT_PAYMENT_METHODS_SYNC_ONE_MUTATION = gql(`
+  mutation MerchantApiCustomerPaymentMethodSyncOne(
+    $merchantInternalCustomerCode: String!,
+    $merchantTransactionProviderId: String!,
+    $providerCode: String!
+  ) {
+    merchantApiCustomerPaymentMethodSyncOne(
+      merchantInternalCustomerCode: $merchantInternalCustomerCode,
+      merchantTransactionProviderId: $merchantTransactionProviderId,
+      providerCode: $providerCode
+    ) {
+      ...MerchantCustomerPaymentMethodFragment
+    }
+  }
+`);

@@ -9,6 +9,7 @@ import {
   MerchantPaymentPlanTemplateCreateSchema,
   MerchantPaymentPlanTemplateUpdateSchema,
 } from '@api/gql/graphql';
+import { getProviderFixtureEntries } from 'test/utils/getProviderFixtures';
 
 describe('PaymentPlanTemplates', () => {
   const client = getClientInstance();
@@ -72,6 +73,15 @@ describe('PaymentPlanTemplates', () => {
         }),
       );
     });
+
+    it('should validate syncOne syntax and types', async () => {
+      await expectSyntaxValidation(() =>
+        client.paymentPlanTemplates.syncOne({
+          merchantTransactionProviderId: baseFixtures.safeUnusedId,
+          providerCode: 'safe-provider-code',
+        }),
+      );
+    });
   });
 
   describe('Integration', () => {
@@ -82,12 +92,21 @@ describe('PaymentPlanTemplates', () => {
     });
 
     it('should be able to get one payment plan template', async () => {
-      const id = baseFixtures.paymentPlanTemplateId;
       const data = await client.paymentPlanTemplates.getOne({
-        merchantPaymentPlanTemplateId: id,
+        merchantPaymentPlanTemplateId: baseFixtures.paymentPlanTemplateId,
       });
       expect(data).toBeDefined();
-      expect(data.id).toBe(id);
+      expect(data.id).toBe(baseFixtures.paymentPlanTemplateId);
+    });
+
+    getProviderFixtureEntries().forEach(([provider, fixture]) => {
+      it(`should be able to sync one payment plan template ${provider}`, async () => {
+        const data = await client.paymentPlanTemplates.syncOne({
+          merchantTransactionProviderId: fixture.transactionProviderId,
+          providerCode: fixture.providerPaymentPlanTemplateCode,
+        });
+        expect(data).toBeDefined();
+      });
     });
   });
 });

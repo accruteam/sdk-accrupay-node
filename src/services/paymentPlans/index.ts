@@ -4,6 +4,7 @@ import {
   MerchantApiPaymentPlanQueryVariables,
   MerchantApiPaymentPlanCancelMutationVariables,
   MerchantApiPaymentPlanCreateMutationVariables,
+  MerchantApiPaymentPlanSyncOneMutationVariables,
 } from '@api/gql/graphql';
 import { parsePlainNodes } from '@utils/parsePlainNodes';
 import {
@@ -11,6 +12,7 @@ import {
   MERCHANT_PAYMENT_PLANS_GET_ONE_QUERY,
   MERCHANT_PAYMENT_PLANS_CANCEL_ONE_MUTATION,
   MERCHANT_PAYMENT_PLANS_CREATE_ONE_MUTATION,
+  MERCHANT_PAYMENT_PLANS_SYNC_ONE_MUTATION,
 } from './queries';
 
 class PaymentPlans {
@@ -54,6 +56,17 @@ class PaymentPlans {
     });
 
     return data!.merchantApiPaymentPlanCancel;
+  }
+
+  public async syncOne(
+    variables: MerchantApiPaymentPlanSyncOneMutationVariables,
+  ) {
+    const { data } = await this.context.apolloClient.mutate({
+      mutation: MERCHANT_PAYMENT_PLANS_SYNC_ONE_MUTATION,
+      variables,
+    });
+
+    return data!.merchantApiPaymentPlanSyncOne;
   }
 }
 
