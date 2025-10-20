@@ -111,3 +111,17 @@ export const MERCHANT_PAYMENT_PLANS_CANCEL_ONE_MUTATION = gql(`
     }
   }
 `);
+
+export const MERCHANT_PAYMENT_PLANS_SYNC_ONE_MUTATION = gql(`
+  mutation MerchantApiPaymentPlanSyncOne(
+    $merchantTransactionProviderId: String!,
+    $providerCode: String!
+  ) {
+    merchantApiPaymentPlanSyncOne(
+      merchantTransactionProviderId: $merchantTransactionProviderId,
+      providerCode: $providerCode
+    ) {
+      ...MerchantPaymentPlanFragment
+    }
+  }
+`);

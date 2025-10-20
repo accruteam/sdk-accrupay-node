@@ -7,6 +7,7 @@ import {
   MerchantApiClientTransactionPaymentSessionVerifyMutationVariables,
   MerchantApiClientTransactionNuveiPreSessionDataQueryVariables,
   MerchantApiTransactionRefundMutationVariables,
+  MerchantApiTransactionSyncOneMutationVariables,
 } from '@api/gql/graphql';
 import { parsePlainNodes } from '@utils/parsePlainNodes';
 import {
@@ -17,6 +18,7 @@ import {
   MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION,
   MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_QUERY,
   MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION,
+  MERCHANT_TRANSACTIONS_SYNC_ONE_MUTATION,
 } from './queries';
 
 class Transactions {
@@ -92,6 +94,17 @@ class Transactions {
     });
 
     return data!.merchantApiTransactionRefund;
+  }
+
+  public async syncOne(
+    variables: MerchantApiTransactionSyncOneMutationVariables,
+  ) {
+    const { data } = await this.context.apolloClient.mutate({
+      mutation: MERCHANT_TRANSACTIONS_SYNC_ONE_MUTATION,
+      variables,
+    });
+
+    return data!.merchantApiTransactionSyncOne;
   }
 }
 

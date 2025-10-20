@@ -93,3 +93,17 @@ export const MERCHANT_PAYMENT_PLAN_TEMPLATES_UPDATE_ONE_MUTATION = gql(`
     }
   }
 `);
+
+export const MERCHANT_PAYMENT_PLAN_TEMPLATES_SYNC_ONE_MUTATION = gql(`
+  mutation MerchantApiPaymentPlanTemplateSyncOne(
+    $merchantTransactionProviderId: String!,
+     $providerCode: String!
+  ) {
+    merchantApiPaymentPlanTemplateSyncOne(
+      merchantTransactionProviderId: $merchantTransactionProviderId,
+      providerCode: $providerCode
+    ) {
+      ...MerchantPaymentPlanTemplateFragment
+    }
+  }
+`);
