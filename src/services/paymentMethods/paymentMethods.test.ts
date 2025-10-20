@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getClientInstance } from 'test/utils/getClientInstance';
 import { getBaseFixtures } from 'test/utils/getBaseFixtures';
 import { expectSyntaxValidation } from 'test/utils/expectSyntaxValidation';
+import { getProviderFixtureEntries } from 'test/utils/getProviderFixtures';
 
 describe('PaymentMethods', () => {
   const client = getClientInstance();
@@ -15,7 +16,7 @@ describe('PaymentMethods', () => {
         client.paymentMethods.getMany({
           skip: 0,
           take: 10,
-          merchantInternalCustomerCode: 'invalid-customer-code',
+          merchantInternalCustomerCode: 'safe-customer-code',
         }),
       );
     });
@@ -31,17 +32,16 @@ describe('PaymentMethods', () => {
     it('should validate syncOne syntax and types', async () => {
       await expectSyntaxValidation(() =>
         client.paymentMethods.syncOne({
-          merchantInternalCustomerCode: 'invalid-customer-code',
+          merchantInternalCustomerCode: 'safe-customer-code',
           merchantTransactionProviderId: baseFixtures.safeUnusedId,
-          providerCode: 'invalid-provider-code',
+          providerCode: 'safe-provider-code',
         }),
       );
       await expectSyntaxValidation(() =>
         client.paymentMethods.syncOne({
-          merchantInternalCustomerCode:
-            baseFixtures.merchantInternalCustomerCode,
+          merchantInternalCustomerCode: baseFixtures.safeUnusedId,
           merchantTransactionProviderId: baseFixtures.safeUnusedId,
-          providerCode: 'invalid-provider-code',
+          providerCode: 'safe-provider-code',
         }),
       );
     });
@@ -63,13 +63,15 @@ describe('PaymentMethods', () => {
       expect(data.id).toBe(id);
     });
 
-    it('should be able to sync one payment method', async () => {
-      const data = await client.paymentMethods.syncOne({
-        merchantInternalCustomerCode: baseFixtures.merchantInternalCustomerCode,
-        merchantTransactionProviderId: baseFixtures.transactionProviderId,
-        providerCode: baseFixtures.customerPaymentMethodCode,
+    getProviderFixtureEntries().forEach(([provider, fixture]) => {
+      it(`should be able to sync one payment method ${provider}`, async () => {
+        const data = await client.paymentMethods.syncOne({
+          merchantInternalCustomerCode: fixture.merchantInternalCustomerCode,
+          merchantTransactionProviderId: fixture.transactionProviderId,
+          providerCode: fixture.providerCustomerPaymentMethodCode,
+        });
+        expect(data).toBeDefined();
       });
-      expect(data).toBeDefined();
     });
   });
 });

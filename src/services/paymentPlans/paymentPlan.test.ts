@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getClientInstance } from 'test/utils/getClientInstance';
 import { getBaseFixtures } from 'test/utils/getBaseFixtures';
 import { expectSyntaxValidation } from 'test/utils/expectSyntaxValidation';
+import { getProviderFixtureEntries } from 'test/utils/getProviderFixtures';
 import { CURRENCY, MerchantPaymentPlanCreateSchema } from '@api/gql/graphql';
 
 describe('PaymentPlan', () => {
@@ -16,7 +17,7 @@ describe('PaymentPlan', () => {
         client.paymentPlans.getMany({
           skip: 0,
           take: 10,
-          merchantInternalCustomerCode: 'invalid-customer-code',
+          merchantInternalCustomerCode: 'safe-customer-code',
         }),
       );
     });
@@ -44,9 +45,9 @@ describe('PaymentPlan', () => {
             endsAfterMonths: 1,
             endsAfterYears: 1,
             initialAmount: 100n,
-            merchantInternalCustomerCode: 'invalid-test',
-            merchantInternalPaymentPlanCode: 'invalid-test',
-            merchantInternalPaymentPlanDescription: 'invalid-test',
+            merchantInternalCustomerCode: 'safe-test',
+            merchantInternalPaymentPlanCode: 'safe-test',
+            merchantInternalPaymentPlanDescription: 'safe-test',
             paymentMethodId: baseFixtures.safeUnusedId,
             renewalIntervalDays: 10,
             renewalIntervalMonths: 1,
@@ -80,7 +81,7 @@ describe('PaymentPlan', () => {
       await expectSyntaxValidation(() =>
         client.paymentPlans.syncOne({
           merchantTransactionProviderId: baseFixtures.safeUnusedId,
-          providerCode: baseFixtures.paymentPlanCode,
+          providerCode: 'safe-provider-code',
         }),
       );
     });
@@ -101,12 +102,14 @@ describe('PaymentPlan', () => {
       expect(data.id).toBe(baseFixtures.paymentPlanId);
     });
 
-    it('should be able to sync one payment plan', async () => {
-      const data = await client.paymentPlans.syncOne({
-        merchantTransactionProviderId: baseFixtures.transactionProviderId,
-        providerCode: baseFixtures.paymentPlanCode,
+    getProviderFixtureEntries().forEach(([provider, fixture]) => {
+      it(`should be able to sync one payment plan ${provider}`, async () => {
+        const data = await client.paymentPlans.syncOne({
+          merchantTransactionProviderId: fixture.transactionProviderId,
+          providerCode: fixture.providerPaymentPlanCode,
+        });
+        expect(data).toBeDefined();
       });
-      expect(data).toBeDefined();
     });
   });
 });

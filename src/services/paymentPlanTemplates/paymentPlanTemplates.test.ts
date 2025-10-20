@@ -9,6 +9,7 @@ import {
   MerchantPaymentPlanTemplateCreateSchema,
   MerchantPaymentPlanTemplateUpdateSchema,
 } from '@api/gql/graphql';
+import { getProviderFixtureEntries } from 'test/utils/getProviderFixtures';
 
 describe('PaymentPlanTemplates', () => {
   const client = getClientInstance();
@@ -98,12 +99,14 @@ describe('PaymentPlanTemplates', () => {
       expect(data.id).toBe(baseFixtures.paymentPlanTemplateId);
     });
 
-    it('should be able to sync one payment plan template', async () => {
-      const data = await client.paymentPlanTemplates.syncOne({
-        merchantTransactionProviderId: baseFixtures.transactionProviderId,
-        providerCode: baseFixtures.paymentPlanTemplateCode,
+    getProviderFixtureEntries().forEach(([provider, fixture]) => {
+      it(`should be able to sync one payment plan template ${provider}`, async () => {
+        const data = await client.paymentPlanTemplates.syncOne({
+          merchantTransactionProviderId: fixture.transactionProviderId,
+          providerCode: fixture.providerPaymentPlanTemplateCode,
+        });
+        expect(data).toBeDefined();
       });
-      expect(data).toBeDefined();
     });
   });
 });

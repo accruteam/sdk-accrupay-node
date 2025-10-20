@@ -1,6 +1,8 @@
 import { TRANSACTION_PROVIDER } from '@api/gql/graphql';
 
 interface IProviderFixtures {
+  transactionProviderId: string;
+
   merchantInternalCustomerCode: string;
   merchantInternalTransactionCode: string;
 
@@ -14,10 +16,8 @@ interface IProviderFixtures {
 const getProviderFixtures = () => {
   const fixtures = {
     [TRANSACTION_PROVIDER.NUVEI]: {
-      merchantInternalCustomerCode:
-        process.env.TESTING_NUVEI_FIXTURE_MERCHANT_INTERNAL_CUSTOMER_CODE!,
-      merchantInternalTransactionCode:
-        process.env.TESTING_NUVEI_FIXTURE_MERCHANT_INTERNAL_TRANSACTION_CODE!,
+      transactionProviderId:
+        process.env.TESTING_NUVEI_FIXTURE_TRANSACTION_PROVIDER_ID!,
 
       providerTransactionCode:
         process.env.TESTING_NUVEI_FIXTURE_PROVIDER_TRANSACTION_CODE!,
@@ -29,6 +29,11 @@ const getProviderFixtures = () => {
         process.env.TESTING_NUVEI_FIXTURE_PROVIDER_PAYMENT_PLAN_CODE!,
       providerPaymentPlanTemplateCode:
         process.env.TESTING_NUVEI_FIXTURE_PROVIDER_PAYMENT_PLAN_TEMPLATE_CODE!,
+
+      merchantInternalCustomerCode:
+        process.env.TESTING_NUVEI_FIXTURE_MERCHANT_INTERNAL_CUSTOMER_CODE!,
+      merchantInternalTransactionCode:
+        process.env.TESTING_NUVEI_FIXTURE_MERCHANT_INTERNAL_TRANSACTION_CODE!,
     },
   } satisfies Record<TRANSACTION_PROVIDER, IProviderFixtures>;
 
@@ -43,4 +48,8 @@ const getProviderFixtures = () => {
   return fixtures;
 };
 
-export { getProviderFixtures };
+const getProviderFixtureEntries = () => {
+  return Object.entries(getProviderFixtures());
+};
+
+export { getProviderFixtures, getProviderFixtureEntries };
