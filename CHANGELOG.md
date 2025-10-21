@@ -1,5 +1,13 @@
 # @accrupay/node
 
+## 0.14.0
+
+### Minor Changes
+
+- ccac7d3: add transaction sessions api
+- 6b20733: add readme
+- ccac7d3: add sync one methods
+
 ## 0.13.7
 
 ### Patch Changes
