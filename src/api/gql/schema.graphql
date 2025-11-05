@@ -610,6 +610,16 @@ type Merchant {
   websiteUrl: String
 }
 
+input MerchantApiClientTransactionAddPaymentMethodSessionStartSchema {
+  billing: BillingDataSchema!
+  currency: CURRENCY!
+  device: DeviceDataSchema
+  merchantInternalCustomerCode: String!
+  merchantInternalTransactionCode: String!
+  shipping: ShippingDataSchema
+  user: UserDataSchema
+}
+
 input MerchantApiClientTransactionPaymentSessionStartSchema {
   amount: BigInt!
   billing: BillingDataSchema!
@@ -679,13 +689,20 @@ input MerchantApiServerPaymentMethodTransactionCreateSchema {
   user: UserDataSchema
 }
 
+type MerchantClientPublicTransactionSessionData {
+  baseConfig: MerchantClientTransactionSessionBaseConfigData!
+  provider: TRANSACTION_PROVIDER!
+  transactionSession: MerchantClientTransactionSession!
+}
+
 type MerchantClientTransactionGenericPreSessionData {
   provider: TRANSACTION_PROVIDER!
   publicKey: String
 }
 
 type MerchantClientTransactionNuveiPreSessionData {
-  environment: String!
+  env: String!
+  environment: String! @deprecated(reason: "Use `env` instead.")
   merchantId: String!
   merchantSiteId: String!
   provider: TRANSACTION_PROVIDER!
@@ -777,10 +794,11 @@ type MerchantClientTransactionSessionGenericBaseConfig {
 }
 
 type MerchantClientTransactionSessionNuveiBaseConfig {
-  environment: String!
+  env: String!
+  environment: String! @deprecated(reason: "Use `env` instead.")
   merchantId: String!
   merchantSiteId: String!
-  provider: TRANSACTION_PROVIDER!
+  provider: TRANSACTION_PROVIDER! @deprecated(reason: "Use parent `provider` instead.")
 }
 
 type MerchantClientTransactionSessionPaginationConnection {
@@ -1313,6 +1331,23 @@ type Mutation {
   adminMerchantUpdateStatus(merchantId: String!, status: MERCHANT_STATUS!): Merchant!
   adminMerchantUserCreate(data: AdminMerchantUserCreateSchema!, merchantId: String!): MerchantUser!
   adminMerchantUserUpdate(data: AdminMerchantUserUpdateSchema!, merchantUserId: String!): MerchantUser!
+  merchantApiClientTransactionAddPaymentMethodSessionStart(data: MerchantApiClientTransactionAddPaymentMethodSessionStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantClientTransactionSession!
+  merchantApiClientTransactionAddPaymentMethodSessionVerify(
+    """Transaction code on AccruPay API."""
+    code: String @deprecated(reason: "Transaction `code` field is deprecated. Please use the other identifiers instead.")
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Client transaction session code on Transaction Provider."""
+    providerCode: String
+
+    """Token for the session."""
+    token: String
+  ): MerchantTransaction!
   merchantApiClientTransactionPaymentSessionStart(data: MerchantApiClientTransactionPaymentStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantTransaction!
   merchantApiClientTransactionPaymentSessionStartV2(data: MerchantApiClientTransactionPaymentSessionStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantClientTransactionSession!
   merchantApiClientTransactionPaymentSessionVerify(
@@ -1498,6 +1533,7 @@ type Query {
   adminMerchants(addressCity: String, addressCountry: COUNTRY_ISO_2, addressPostalCode: String, addressState: String, after: ConnectionCursor, before: ConnectionCursor, email: String, entityType: MERCHANT_ENTITY_TYPE, first: Int, id: String, last: Int, legalIdentifier: String, legalIdentifierType: LEGAL_IDENTIFIER_TYPE, name: String, phone: String, publicId: String, skip: Int, sorting: [SortingFieldSchema!], status: MERCHANT_STATUS, take: Int, userId: String): MerchantPaginationConnection!
   adminUsers(after: ConnectionCursor, before: ConnectionCursor, email: String, emailVerified: Boolean, first: Int, id: String, last: Int, name: String, phone: String, phoneVerified: Boolean, skip: Int, sorting: [SortingFieldSchema!], take: Int): UserPaginationConnection!
   clientPublicTransactionGetPreSessionData(merchantPublicId: String!, transactionCode: String!, transactionId: String!): MerchantClientTransactionPreSessionData! @deprecated(reason: "Use query `clientPublicTransactionSessionBaseConfig` instead.")
+  clientPublicTransactionSession(merchantPublicId: String!, transactionSessionId: String!): MerchantClientPublicTransactionSessionData!
   clientPublicTransactionSessionBaseConfig(merchantPublicId: String!, transactionProvider: TRANSACTION_PROVIDER, transactionSessionId: String): MerchantClientTransactionSessionBaseConfig!
   healthCheck: DateTimeISO!
   healthLivenessCheck: DateTimeISO!

@@ -17,6 +17,7 @@ import {
   Kind,
   buildClientSchema,
 } from 'graphql';
+import { collectAppMetadata } from '@utils/appMetadata';
 import introspectionResult from './gql/schema.graphql.json' assert { type: 'json' };
 
 const AccruPayEnvironmentUrls = {
@@ -31,6 +32,9 @@ interface IAccruPayParams {
 
   /** Overrides the environment base URL */
   url?: string | null;
+
+  /** Enable telemetry data collection (node version, platform, time, etc.). This helps us understand the usage of the SDK and identify issues. Default: true */
+  enableTelemetry?: boolean;
 
   onAuthError?: () => void;
   onGraphQLError?: (errors: ReadonlyArray<GraphQLFormattedError>) => void;
@@ -90,6 +94,8 @@ export const createApolloClient = ({
 
   url,
 
+  enableTelemetry = true,
+
   onGraphQLError,
   onNetworkError,
   onAuthError,
@@ -118,11 +124,15 @@ export const createApolloClient = ({
     },
   });
 
+  const metadata = collectAppMetadata(enableTelemetry);
+
   const authLink = setContext(async (_, { headers }) => {
     return {
       headers: {
         ...headers,
         'accrupay-api-secret': apiSecret,
+        'accrupay-app-metadata': JSON.stringify(metadata),
+        'accrupay-sdk-version': metadata.sdk.version,
       },
     };
   });

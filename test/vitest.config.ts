@@ -4,13 +4,10 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
+    testTimeout: 15_000,
     setupFiles: ['dotenv/config'],
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
+    maxWorkers: 1,
     maxConcurrency: 4,
     coverage: {
       enabled: true,

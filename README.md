@@ -40,11 +40,11 @@ const sdk = new AccruPay({
 });
 ```
 
-### 2. Get Session Configuration
+### 2. Get Client Session Configuration
 
 ```typescript
-// Get base configuration for payment sessions
-const config = await sdk.transactions.sessions.getBaseConfig({
+// Get base configuration for payment sessions (client-facing)
+const config = await sdk.transactions.clientSessions.getBaseConfig({
   transactionProvider: TRANSACTION_PROVIDER.NUVEI,
   merchantTransactionProviderId: 'your-provider-id', // optional
 });
@@ -53,12 +53,12 @@ console.log('Session config:', config);
 // Output: { provider: 'NUVEI', data: { merchantId: '...', environment: '...' } }
 ```
 
-### 3. Start a Payment Session
+### 3. Start a Client Payment Session
 
 ```typescript
 import AccruPay, { TRANSACTION_PROVIDER, CURRENCY, COUNTRY_ISO_2 } from '@accrupay/node';
 
-const session = await sdk.transactions.sessions.start({
+const session = await sdk.transactions.clientSessions.payments.start({
   transactionProvider: TRANSACTION_PROVIDER.NUVEI,
   merchantTransactionProviderId: 'your-provider-id', // optional
   data: {
@@ -81,21 +81,21 @@ const session = await sdk.transactions.sessions.start({
 });
 
 console.log('Session started:', session);
-// Use session.token and session.providerCode for frontend integration
+// Use data for frontend integration
 ```
 
 ### 4. Verify Payment Session
 
 ```typescript
 // After frontend payment completion
-const transaction = await sdk.transactions.sessions.verify({
+const transaction = await sdk.transactions.clientSessions.payments.verify({
   id: session.id, // or use token, providerCode, or merchantInternalTransactionCode
 });
 
 console.log('Transaction completed:', transaction);
 ```
 
-### 5. Fetch Transaction History
+### 5. Fetch Transaction History (Server)
 
 ```typescript
 // Get paginated list of transactions
@@ -156,24 +156,47 @@ const sdk = new AccruPay({
 - `sdk.transactions.refundOne()` - Refund a transaction
 - `sdk.transactions.syncOne()` - Sync transaction with provider
 
-#### Transaction Sessions
-- `sdk.transactions.sessions.getBaseConfig()` - Get session configuration
-- `sdk.transactions.sessions.start()` - Start payment session
-- `sdk.transactions.sessions.verify()` - Verify completed session
-- `sdk.transactions.sessions.getOne()` - Get session details
-- `sdk.transactions.sessions.getMany()` - List sessions
 
-#### Payment Methods
-- `sdk.paymentMethods.getMany()` - List customer payment methods
-- `sdk.paymentMethods.syncOne()` - Sync payment method
+#### Transaction Client Sessions (Frontend flow)
+- `sdk.transactions.clientSessions.getBaseConfig()` - Get session configuration
+- `sdk.transactions.clientSessions.payments.start()` - Start client payment session
+- `sdk.transactions.clientSessions.payments.verify()` - Verify completed payment session
+- `sdk.transactions.clientSessions.paymentMethod.add.start()` - Start session to add payment method (without payment)
+- `sdk.transactions.clientSessions.paymentMethod.add.verify()` - Verify completed add payment method session
+- `sdk.transactions.clientSessions.getOne()` - Get session details (by id | token | providerCode | merchantInternalTransactionCode)
+- `sdk.transactions.clientSessions.getMany()` - List sessions
+
+#### Transactions Payments (Server-initiated)
+- `sdk.transactions.payments.ach.initiate({ merchantTransactionProviderId?, transactionProvider?, data })`
+  - Initiate ACH transaction using `MerchantApiServerAchPaymentTransactionCreateSchema`
+- `sdk.transactions.payments.paymentMethod.charge({ merchantTransactionProviderId?, transactionProvider?, data })`
+  - Charge using a stored customer payment method via `MerchantApiServerPaymentMethodTransactionCreateSchema`
 
 #### Payment Plans
 - `sdk.paymentPlans.getMany()` - List payment plans
 - `sdk.paymentPlans.getOne()` - Get payment plan details
+- `sdk.paymentPlans.createOne()` - Create payment plan
 - `sdk.paymentPlans.cancelOne()` - Cancel payment plan
+- `sdk.paymentPlans.syncOne()` - Sync payment plan with provider
+
+#### Payment Plan Templates
+- `sdk.paymentPlanTemplates.getMany()` - List payment plan templates
+- `sdk.paymentPlanTemplates.getOne()` - Get payment plan template details
+- `sdk.paymentPlanTemplates.createOne()` - Create payment plan template
+- `sdk.paymentPlanTemplates.updateOne()` - Update payment plan template
+- `sdk.paymentPlanTemplates.syncOne()` - Sync payment plan template with provider
+
+#### Payment Methods
+- `sdk.paymentMethods.getMany()` - List customer payment methods
+- `sdk.paymentMethods.getOne()` - Get payment method details
+- `sdk.paymentMethods.syncOne()` - Sync payment method with provider
+
+#### Transaction Providers
+- `sdk.transactionProviders.getMany()` - List transaction providers
+- `sdk.transactionProviders.getOne()` - Get transaction provider details
 
 #### Merchants
-- `sdk.merchants.getOne()` - Get merchant information
+- `sdk.merchants.getCurrent()` - Get current merchant information
 
 ### Data Types
 
@@ -223,7 +246,7 @@ interface SessionStartData {
 
 ## Examples
 
-### Complete Payment Flow
+### Complete Payment Flow (Client Session)
 
 ```typescript
 import AccruPay, { TRANSACTION_PROVIDER, CURRENCY, COUNTRY_ISO_2 } from '@accrupay/node';
@@ -236,12 +259,12 @@ async function processPayment() {
 
   try {
     // 1. Get session configuration
-    const config = await sdk.transactions.sessions.getBaseConfig({
+    const config = await sdk.transactions.clientSessions.getBaseConfig({
       transactionProvider: TRANSACTION_PROVIDER.NUVEI,
     });
 
     // 2. Start payment session
-    const session = await sdk.transactions.sessions.start({
+    const session = await sdk.transactions.clientSessions.payments.start({
       transactionProvider: TRANSACTION_PROVIDER.NUVEI,
       data: {
         amount: 2500n, // $25.00
@@ -262,19 +285,16 @@ async function processPayment() {
       },
     });
 
-    // 3. Frontend integration would use:
-    // - session.token for payment processing
-    // - session.providerCode for verification
-    // - config.data for provider-specific settings
-
-    console.log('Payment session created:', {
+     console.log('Payment session created:', {
       sessionId: session.id,
       token: session.token,
       providerCode: session.providerCode,
     });
 
+    // 3. Use session data to complete payment on the frontend
+   
     // 4. After frontend payment completion, verify the session
-    const transaction = await sdk.transactions.sessions.verify({
+    const transaction = await sdk.transactions.clientSessions.payments.verify({
       id: session.id,
     });
 
@@ -290,6 +310,86 @@ async function processPayment() {
     throw error;
   }
 }
+```
+
+### Server-Side Payments (ACH and Stored Method)
+
+```typescript
+import AccruPay, { TRANSACTION_PROVIDER, CURRENCY, COUNTRY_ISO_2 } from '@accrupay/node';
+
+const sdk = new AccruPay({ apiSecret: process.env.ACCRUPAY_API_SECRET });
+
+// 1) ACH initiate
+const achTx = await sdk.transactions.payments.ach.initiate({
+  transactionProvider: TRANSACTION_PROVIDER.NUVEI, // or omit and use merchantTransactionProviderId
+  data: {
+    amount: 5000n,
+    currency: CURRENCY.USD,
+    merchantInternalCustomerCode: 'cust-1',
+    merchantInternalTransactionCode: 'txn-ach-1',
+    billing: {
+      billingEmail: 'john@example.com',
+      billingFirstName: 'John',
+      billingLastName: 'Doe',
+      billingAddressCountry: COUNTRY_ISO_2.US,
+    },
+    ach: {
+      accountNumber: '000123456789',
+      routingNumber: '011000015',
+    },
+    storePaymentMethod: false,
+  },
+});
+
+// 2) Stored payment method charge
+const pmTx = await sdk.transactions.payments.paymentMethod.charge({
+  transactionProvider: TRANSACTION_PROVIDER.NUVEI,
+  data: {
+    amount: 2500n,
+    currency: CURRENCY.USD,
+    merchantCustomerPaymentMethodId: 'pm_123',
+    merchantInternalCustomerCode: 'cust-1',
+    merchantInternalTransactionCode: 'txn-pm-1',
+    billing: {
+      billingEmail: 'john@example.com',
+      billingFirstName: 'John',
+      billingLastName: 'Doe',
+      billingAddressCountry: COUNTRY_ISO_2.US,
+    },
+  },
+});
+```
+
+### Add Payment Method (Client Session)
+
+```typescript
+import AccruPay, { TRANSACTION_PROVIDER, CURRENCY, COUNTRY_ISO_2 } from '@accrupay/node';
+
+const sdk = new AccruPay({ apiSecret: process.env.ACCRUPAY_API_SECRET });
+
+// Start a session to add a payment method (without making a payment, $0 auth)
+const addPmSession = await sdk.transactions.clientSessions.paymentMethod.add.start({
+  transactionProvider: TRANSACTION_PROVIDER.NUVEI,
+  data: {
+    currency: CURRENCY.USD,
+    merchantInternalCustomerCode: 'cust-1',
+    merchantInternalTransactionCode: `add-pm-${Date.now()}`,
+    billing: {
+      billingEmail: 'john@example.com',
+      billingFirstName: 'John',
+      billingLastName: 'Doe',
+      billingAddressCountry: COUNTRY_ISO_2.US,
+    },
+  },
+});
+
+// Use session data for frontend integration to collect payment method
+// After completion, verify the session to get the stored payment method
+const transaction = await sdk.transactions.clientSessions.paymentMethod.add.verify({
+  id: addPmSession.id,
+});
+
+console.log('Payment method stored:', transaction.paymentMethod);
 ```
 
 ### Transaction Management
@@ -314,22 +414,6 @@ const transaction = await sdk.transactions.getOne({
 const refund = await sdk.transactions.refundOne({
   id: 'transaction-id',
   amount: 1000n, // Refund $10.00
-});
-```
-
-### Payment Plan Management
-
-```typescript
-// List payment plans
-const plans = await sdk.paymentPlans.getMany({
-  merchantInternalCustomerCode: 'customer-123',
-  take: 10,
-});
-
-// Cancel a payment plan
-const canceledPlan = await sdk.paymentPlans.cancelOne({
-  merchantPaymentPlanId: 'plan-id',
-  merchantTransactionProviderId: 'provider-id',
 });
 ```
 
@@ -375,7 +459,7 @@ import AccruPay, {
 } from '@accrupay/node';
 
 // All methods are fully typed
-const session = await sdk.transactions.sessions.start({
+const session = await sdk.transactions.clientSessions.payments.start({
   transactionProvider: TRANSACTION_PROVIDER.NUVEI, // Type-safe enum
   data: {
     amount: 1000n, // BigInt type

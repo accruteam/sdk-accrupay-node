@@ -1,12 +1,16 @@
+import type { GraphQLFormattedError } from 'graphql';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import type { NetworkError } from '@apollo/client/errors';
 import { gql } from '@apollo/client/core';
 
 import { createApolloClient, IAccruPayParams } from './apolloClient';
 
 describe('ApolloClient', () => {
-  let mockOnGraphQLError: ReturnType<typeof vi.fn>;
-  let mockOnNetworkError: ReturnType<typeof vi.fn>;
-  let mockOnAuthError: ReturnType<typeof vi.fn>;
+  let mockOnGraphQLError: (
+    errors: ReadonlyArray<GraphQLFormattedError>,
+  ) => void;
+  let mockOnNetworkError: (error: NetworkError) => void;
+  let mockOnAuthError: () => void;
   let baseParams: IAccruPayParams;
 
   beforeEach(() => {

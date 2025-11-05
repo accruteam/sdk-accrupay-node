@@ -207,14 +207,38 @@ jobs:
           TEST_EXIT_CODE=$?
           set -e
           
-          echo "STATUS=$([ $TEST_EXIT_CODE -eq 0 ] && echo 'SUCCEEDED' || echo 'FAILED')" >> result.txt
+          STATUS=$([ $TEST_EXIT_CODE -eq 0 ] && echo 'SUCCEEDED' || echo 'FAILED')
+          
+          echo "STATUS=$STATUS" >> result.txt
           echo "EXIT_CODE=$TEST_EXIT_CODE" >> result.txt
           echo "---" >> result.txt
           echo "$TEST_OUTPUT" >> result.txt
           echo "---" >> result.txt
+          
+          # Display test output in logs
+          echo "::group::Test Output for v${{ matrix.version }}"
+          echo "$TEST_OUTPUT"
+          echo "::endgroup::"
+          
+          # Add to step summary
+          {
+            echo "### Test Results for v${{ matrix.version }}"
+            echo ""
+            echo "**Status:** $STATUS"
+            echo "**Exit Code:** $TEST_EXIT_CODE"
+            echo ""
+            echo "<details>"
+            echo "<summary>View Full Test Output</summary>"
+            echo ""
+            echo '```'
+            echo "$TEST_OUTPUT"
+            echo '```'
+            echo "</details>"
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
         env:
           NODE_ENV: test
-        timeout-minutes: ${{ needs.get-config.outputs.timeout_minutes }}
+        timeout-minutes: ${{ fromJSON(needs.get-config.outputs.timeout_minutes) }}
 
       - name: Check test result
         run: |
@@ -253,9 +277,6 @@ jobs:
 
       - name: Display results
         run: |
-          echo "## Regression Test Results"
-          echo ""
-          
           SUCCEEDED_VERSIONS=()
           FAILED_VERSIONS=()
           if [ -d "results" ]; then
@@ -275,6 +296,57 @@ jobs:
             echo "No results directory found"
           fi
           
+          # Write to step summary (visible in pipeline summary)
+          {
+            echo "# Regression Test Results"
+            echo ""
+            echo "## ✅ SUCCEEDED VERSIONS"
+            if [ ${#SUCCEEDED_VERSIONS[@]} -gt 0 ]; then
+              for version in "${SUCCEEDED_VERSIONS[@]}"; do
+                echo "- $version"
+              done
+            else
+              echo "None"
+            fi
+            echo ""
+            echo "## ❌ FAILED VERSIONS"
+            if [ ${#FAILED_VERSIONS[@]} -gt 0 ]; then
+              for version in "${FAILED_VERSIONS[@]}"; do
+                echo "- $version"
+              done
+            else
+              echo "None"
+            fi
+            echo ""
+            echo "## Complete Test Outputs"
+            echo ""
+            if [ -d "results" ]; then
+              for result_file in results/*/result.txt; do
+                if [ -f "$result_file" ]; then
+                  VERSION=$(grep "^VERSION=" "$result_file" | cut -d'=' -f2)
+                  STATUS=$(grep "^STATUS=" "$result_file" | cut -d'=' -f2)
+                  EXIT_CODE=$(grep "^EXIT_CODE=" "$result_file" | cut -d'=' -f2)
+                  
+                  echo "### 🔎 v$VERSION - $STATUS (Exit Code: $EXIT_CODE)"
+                  echo ""
+                  echo "<details>"
+                  echo "<summary>View Full Test Output</summary>"
+                  echo ""
+                  echo '```'
+                  sed -n '/^---$/,/^---$/p' "$result_file" | sed '1d;$d'
+                  echo '```'
+                  echo "</details>"
+                  echo ""
+                fi
+              done
+            else
+              echo "No test results found"
+            fi
+          } >> $GITHUB_STEP_SUMMARY
+          
+          # Also display in logs
+          echo "## Regression Test Results"
+          echo ""
           echo "### ✅ SUCCEEDED VERSIONS:"
           if [ ${#SUCCEEDED_VERSIONS[@]} -gt 0 ]; then
             for version in "${SUCCEEDED_VERSIONS[@]}"; do
@@ -284,7 +356,6 @@ jobs:
             echo "None"
           fi
           echo ""
-          
           echo "### ❌ FAILED VERSIONS:"
           if [ ${#FAILED_VERSIONS[@]} -gt 0 ]; then
             for version in "${FAILED_VERSIONS[@]}"; do
@@ -294,23 +365,6 @@ jobs:
             echo "None"
           fi
           echo ""
-
-          echo "### COMPLETE TEST OUTPUTS:"
-          echo ""
-          if [ -d "results" ]; then
-            for result_file in results/*/result.txt; do
-              if [ -f "$result_file" ]; then
-                VERSION=$(grep "^VERSION=" "$result_file" | cut -d'=' -f2)
-                STATUS=$(grep "^STATUS=" "$result_file" | cut -d'=' -f2)
-                
-                echo "=== 🔎 TEST OUTPUT FOR VERSION v$VERSION ($STATUS) ==="
-                sed -n '/^---$/,/^---$/p' "$result_file" | sed '1d;$d'
-                echo ""
-              fi
-            done
-          else
-            echo "No test results found"
-          fi
 
       - name: Check for failures
         run: |
