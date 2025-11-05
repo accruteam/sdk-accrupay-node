@@ -3,22 +3,28 @@ import { gql } from '@api/gql';
 export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
   query MerchantApiTransactions(
     $id: String,
-    $code: String,
     $paymentMethodId: String,
-    $transactionProviderId: String,
-
-    $status: TRANSACTION_STATUS,
-    $currency: CURRENCY,
+    $paymentMethodCode: String,
     $paymentMethodType: PAYMENT_METHOD,
+    $paymentPlanId: String,
+    $transactionProviderId: String,
+    $clientTransactionSessionId: String,
+
+    $action: TRANSACTION_ACTION,
+    $actions: [TRANSACTION_ACTION!],
+    $status: TRANSACTION_STATUS,
+    $statuses: [TRANSACTION_STATUS!],
+    $currency: CURRENCY,
     $transactionProvider: TRANSACTION_PROVIDER,
 
     $providerCode: String,
+    $providerRelatedCode: String,
     $hasProviderError: Boolean,
 
     $merchantInternalCustomerCode: String,
     $merchantInternalTransactionCode: String,
 
-    $token: String,
+    $relatedTransactionId: String,
 
     $failed: Boolean,
     $started: Boolean,
@@ -26,6 +32,9 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
     $reverted: Boolean,
     $canceled: Boolean,
     $succeeded: Boolean,
+
+    $transactionDateFrom: DateTimeISO,
+    $transactionDateTo: DateTimeISO,
 
     $skip: Int,
     $take: Int,
@@ -40,22 +49,28 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
   ) {
     merchantApiTransactions(
       id: $id,
-      code: $code,
       paymentMethodId: $paymentMethodId,
-      transactionProviderId: $transactionProviderId,
-
-      status: $status,
-      currency: $currency,
+      paymentMethodCode: $paymentMethodCode,
       paymentMethodType: $paymentMethodType,
+      paymentPlanId: $paymentPlanId,
+      transactionProviderId: $transactionProviderId,
+      clientTransactionSessionId: $clientTransactionSessionId,
+
+      action: $action,
+      actions: $actions,
+      status: $status,
+      statuses: $statuses,
+      currency: $currency,
       transactionProvider: $transactionProvider,
 
       providerCode: $providerCode,
+      providerRelatedCode: $providerRelatedCode,
       hasProviderError: $hasProviderError,
 
       merchantInternalCustomerCode: $merchantInternalCustomerCode,
       merchantInternalTransactionCode: $merchantInternalTransactionCode,
 
-      token: $token,
+      relatedTransactionId: $relatedTransactionId,
 
       failed: $failed,
       started: $started,
@@ -63,6 +78,9 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
       reverted: $reverted,
       canceled: $canceled,
       succeeded: $succeeded,
+
+      transactionDateFrom: $transactionDateFrom,
+      transactionDateTo: $transactionDateTo,
 
       skip: $skip,
       take: $take,
@@ -95,70 +113,13 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
 export const MERCHANT_TRANSACTIONS_GET_ONE_QUERY = gql(`
   query MerchantApiTransaction(
     $id: String,
-    $code: String,
-    $token: String,
-    $merchantInternalTransactionCode: String
+    $merchantInternalTransactionCode: String,
+    $providerCode: String
   ) {
     merchantApiTransaction(
       id: $id,
-      code: $code,
-      token: $token,
-      merchantInternalTransactionCode: $merchantInternalTransactionCode
-    ) {
-      ...MerchantTransactionFragment
-    }
-  }
-`);
-
-export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_GET_PRE_SESSION_DATA_QUERY =
-  gql(`
-  query MerchantApiClientTransactionNuveiPreSessionData($transactionProvider: TRANSACTION_PROVIDER, $merchantTransactionProviderId: String) {
-    merchantApiClientGetPreSessionData(transactionProvider: $transactionProvider, merchantTransactionProviderId: $merchantTransactionProviderId) {
-      ... on MerchantClientTransactionNuveiPreSessionData {
-        provider
-        merchantId
-        merchantSiteId
-        environment
-      }
-      ... on MerchantClientTransactionGenericPreSessionData {
-        provider
-        publicKey
-      }
-    }
-  }
-`);
-
-export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_START_MUTATION = gql(`
-  mutation MerchantApiClientTransactionPaymentSessionStart(
-    $merchantTransactionProviderId: String,
-    $transactionProvider: TRANSACTION_PROVIDER,
-
-    $data: MerchantApiClientTransactionPaymentStartSchema!
-  ) {
-    merchantApiClientTransactionPaymentSessionStart(
-      transactionProvider: $transactionProvider,
-      merchantTransactionProviderId: $merchantTransactionProviderId
-
-      data: $data,
-    ) {
-      ...MerchantTransactionFragment
-    }
-  }
-`);
-
-export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION =
-  gql(`
-  mutation MerchantApiClientTransactionPaymentSessionVerify(
-    $id: String,
-    $code: String,
-    $token: String,
-    $merchantInternalTransactionCode: String
-  ) {
-    merchantApiClientTransactionPaymentSessionVerify(
-      id: $id,
-      code: $code,
-      token: $token,
-      merchantInternalTransactionCode: $merchantInternalTransactionCode
+      merchantInternalTransactionCode: $merchantInternalTransactionCode,
+      providerCode: $providerCode
     ) {
       ...MerchantTransactionFragment
     }
@@ -168,15 +129,13 @@ export const MERCHANT_TRANSACTIONS_CLIENT_PAYMENT_SESSION_VERIFY_MUTATION =
 export const MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION = gql(`
   mutation MerchantApiTransactionVoid(
     $id: String,
-    $code: String,
-    $token: String,
-    $merchantInternalTransactionCode: String
+    $merchantInternalTransactionCode: String,
+    $providerCode: String
   ) {
     merchantApiTransactionVoid(
       id: $id,
-      code: $code,
-      token: $token,
-      merchantInternalTransactionCode: $merchantInternalTransactionCode
+      merchantInternalTransactionCode: $merchantInternalTransactionCode,
+      providerCode: $providerCode
     ) {
       ...MerchantTransactionFragment
     }
@@ -186,16 +145,14 @@ export const MERCHANT_TRANSACTIONS_VOID_ONE_MUTATION = gql(`
 export const MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION = gql(`
   mutation MerchantApiTransactionRefund(
     $id: String,
-    $code: String,
-    $token: String,
     $merchantInternalTransactionCode: String,
+    $providerCode: String,
     $amount: BigInt!
   ) {
     merchantApiTransactionRefund(
       id: $id,
-      code: $code,
-      token: $token,
       merchantInternalTransactionCode: $merchantInternalTransactionCode,
+      providerCode: $providerCode,
       amount: $amount
     ) {
       ...MerchantTransactionFragment
@@ -207,18 +164,14 @@ export const MERCHANT_TRANSACTIONS_SYNC_ONE_MUTATION = gql(`
   mutation MerchantApiTransactionSyncOne(
     $merchantTransactionProviderId: String!,
     $id: String,
-    $code: String,
     $merchantInternalTransactionCode: String,
     $providerCode: String,
-    $token: String
   ) {
     merchantApiTransactionSyncOne(
       merchantTransactionProviderId: $merchantTransactionProviderId,
       id: $id,
-      code: $code,
       merchantInternalTransactionCode: $merchantInternalTransactionCode,
-      providerCode: $providerCode,
-      token: $token
+      providerCode: $providerCode
     ) {
       ...MerchantTransactionFragment
     }
