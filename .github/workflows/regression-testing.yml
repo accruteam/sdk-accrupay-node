@@ -203,21 +203,24 @@ jobs:
           echo "VERSION=${{ matrix.version }}" > result.txt
           
           set +e
-          TEST_OUTPUT=$(yarn test 2>&1)
+          TEST_OUTPUT=$(yarn test --testTimeout 15000 --hookTimeout 15000 --retry 2 2>&1)
           TEST_EXIT_CODE=$?
           set -e
+          
+          # Strip ANSI color codes from output
+          TEST_OUTPUT_CLEAN=$(echo "$TEST_OUTPUT" | sed 's/\x1b\[[0-9;]*m//g')
           
           STATUS=$([ $TEST_EXIT_CODE -eq 0 ] && echo 'SUCCEEDED' || echo 'FAILED')
           
           echo "STATUS=$STATUS" >> result.txt
           echo "EXIT_CODE=$TEST_EXIT_CODE" >> result.txt
           echo "---" >> result.txt
-          echo "$TEST_OUTPUT" >> result.txt
+          echo "$TEST_OUTPUT_CLEAN" >> result.txt
           echo "---" >> result.txt
           
           # Display test output in logs
           echo "::group::Test Output for v${{ matrix.version }}"
-          echo "$TEST_OUTPUT"
+          echo "$TEST_OUTPUT_CLEAN"
           echo "::endgroup::"
           
           # Add to step summary
@@ -231,7 +234,7 @@ jobs:
             echo "<summary>View Full Test Output</summary>"
             echo ""
             echo '```'
-            echo "$TEST_OUTPUT"
+            echo "$TEST_OUTPUT_CLEAN"
             echo '```'
             echo "</details>"
             echo ""

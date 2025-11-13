@@ -30,7 +30,41 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Check types
-        run: yarn lint
+        id: lint
+        run: |
+          set +e
+          LINT_OUTPUT=$(yarn lint 2>&1)
+          LINT_EXIT_CODE=$?
+          set -e
+          
+          # Strip ANSI color codes from output
+          LINT_OUTPUT_CLEAN=$(echo "$LINT_OUTPUT" | sed 's/\x1b\[[0-9;]*m//g')
+          
+          # Display output in logs
+          echo "::group::Lint Output"
+          echo "$LINT_OUTPUT_CLEAN"
+          echo "::endgroup::"
+          
+          # Add to step summary
+          {
+            echo "## Lint Results"
+            echo ""
+            echo "**Status:** $([ $LINT_EXIT_CODE -eq 0 ] && echo '✅ Passed' || echo '❌ Failed')"
+            echo "**Exit Code:** $LINT_EXIT_CODE"
+            echo ""
+            echo "<details>"
+            echo "<summary>View Full Output</summary>"
+            echo ""
+            echo '```'
+            echo "$LINT_OUTPUT_CLEAN"
+            echo '```'
+            echo "</details>"
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+          
+          if [ $LINT_EXIT_CODE -ne 0 ]; then
+            exit 1
+          fi
 
   build:
     name: Build
@@ -50,7 +84,41 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Run build
-        run: yarn build
+        id: build
+        run: |
+          set +e
+          BUILD_OUTPUT=$(yarn build 2>&1)
+          BUILD_EXIT_CODE=$?
+          set -e
+          
+          # Strip ANSI color codes from output
+          BUILD_OUTPUT_CLEAN=$(echo "$BUILD_OUTPUT" | sed 's/\x1b\[[0-9;]*m//g')
+          
+          # Display output in logs
+          echo "::group::Build Output"
+          echo "$BUILD_OUTPUT_CLEAN"
+          echo "::endgroup::"
+          
+          # Add to step summary
+          {
+            echo "## Build Results"
+            echo ""
+            echo "**Status:** $([ $BUILD_EXIT_CODE -eq 0 ] && echo '✅ Passed' || echo '❌ Failed')"
+            echo "**Exit Code:** $BUILD_EXIT_CODE"
+            echo ""
+            echo "<details>"
+            echo "<summary>View Full Output</summary>"
+            echo ""
+            echo '```'
+            echo "$BUILD_OUTPUT_CLEAN"
+            echo '```'
+            echo "</details>"
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+          
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            exit 1
+          fi
 
   test:
     name: Test
@@ -91,4 +159,49 @@ jobs:
           env-file-path: .env
 
       - name: Run tests
-        run: yarn test --bail 1
+        id: test
+        run: |
+          set +e
+          TEST_OUTPUT=$(yarn test 2>&1)
+          TEST_EXIT_CODE=$?
+          set -e
+          
+          # Strip ANSI color codes from output
+          TEST_OUTPUT_CLEAN=$(echo "$TEST_OUTPUT" | sed 's/\x1b\[[0-9;]*m//g')
+          
+          # Display output in logs
+          echo "::group::Test Output"
+          echo "$TEST_OUTPUT_CLEAN"
+          echo "::endgroup::"
+          
+          # Extract test summary if available
+          TEST_SUMMARY=$(echo "$TEST_OUTPUT_CLEAN" | grep -E "(Test Files|Tests|Duration)" || echo "")
+          
+          # Add to step summary
+          {
+            echo "## Test Results"
+            echo ""
+            echo "**Status:** $([ $TEST_EXIT_CODE -eq 0 ] && echo '✅ Passed' || echo '❌ Failed')"
+            echo "**Exit Code:** $TEST_EXIT_CODE"
+            echo ""
+            if [ -n "$TEST_SUMMARY" ]; then
+              echo "### Summary"
+              echo ""
+              echo '```'
+              echo "$TEST_SUMMARY"
+              echo '```'
+              echo ""
+            fi
+            echo "<details>"
+            echo "<summary>View Full Test Output</summary>"
+            echo ""
+            echo '```'
+            echo "$TEST_OUTPUT_CLEAN"
+            echo '```'
+            echo "</details>"
+            echo ""
+          } >> $GITHUB_STEP_SUMMARY
+          
+          if [ $TEST_EXIT_CODE -ne 0 ]; then
+            exit 1
+          fi
