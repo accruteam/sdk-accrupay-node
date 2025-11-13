@@ -211,6 +211,7 @@ jobs:
           TEST_OUTPUT_CLEAN=$(echo "$TEST_OUTPUT" | sed 's/\x1b\[[0-9;]*m//g')
           
           STATUS=$([ $TEST_EXIT_CODE -eq 0 ] && echo 'SUCCEEDED' || echo 'FAILED')
+          STATUS_SYMBOL=$([ $TEST_EXIT_CODE -eq 0 ] && echo '✅' || echo '❌')
           
           echo "STATUS=$STATUS" >> result.txt
           echo "EXIT_CODE=$TEST_EXIT_CODE" >> result.txt
@@ -225,9 +226,9 @@ jobs:
           
           # Add to step summary
           {
-            echo "### Test Results for v${{ matrix.version }}"
+            echo "### Test Results for v${{ matrix.version }} $STATUS_SYMBOL"
             echo ""
-            echo "**Status:** $STATUS"
+            echo "**Status:** $STATUS $STATUS_SYMBOL"
             echo "**Exit Code:** $TEST_EXIT_CODE"
             echo ""
             echo "<details>"
