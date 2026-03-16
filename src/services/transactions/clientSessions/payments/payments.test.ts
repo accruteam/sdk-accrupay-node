@@ -189,16 +189,19 @@ getTransactionProviderList().forEach(provider => {
           client.transactions.clientSessions.payments.verify({
             token: session.token,
           }),
-        ).rejects.toThrowError(
-          expect.objectContaining({
-            message: expect.any(String),
-            cause: expect.objectContaining({
+        ).rejects.toMatchObject({
+          name: 'CombinedGraphQLErrors',
+          message: expect.any(String),
+          data: null,
+          errors: [
+            expect.objectContaining({
+              message: expect.any(String),
               extensions: expect.objectContaining({
                 code: expect.stringContaining('@'),
               }),
             }),
-          }),
-        );
+          ],
+        });
       });
     });
   });

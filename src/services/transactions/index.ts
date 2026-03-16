@@ -32,7 +32,7 @@ class Transactions {
       variables,
     });
 
-    return parsePlainNodes(data.merchantApiTransactions);
+    return parsePlainNodes(data!.merchantApiTransactions);
   }
 
   public async getOne(variables: MerchantApiTransactionQueryVariables) {
@@ -41,7 +41,7 @@ class Transactions {
       variables,
     });
 
-    return data.merchantApiTransaction;
+    return data!.merchantApiTransaction;
   }
 
   public async voidOne(variables: MerchantApiTransactionVoidMutationVariables) {

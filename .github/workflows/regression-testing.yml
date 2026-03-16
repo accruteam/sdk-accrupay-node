@@ -188,9 +188,9 @@ jobs:
           secrets: |-
             data:${{ vars.GCP_PROJECT_ID }}/${{ needs.get-config.outputs.secret_name }}
 
-      - name: Parse secrets data dotenv syntax as .env file
+      - name: Parse secrets data dotenv syntax as .env.test file
         run: |
-          echo "${{ steps.secrets.outputs.data }}" > .env
+          echo "${{ steps.secrets.outputs.data }}" > .env.test
 
       - name: Run tests for version ${{ matrix.version }}
         id: test-run

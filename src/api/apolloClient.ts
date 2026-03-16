@@ -1,12 +1,12 @@
+import { ApolloClient, InMemoryCache, ApolloLink } from '@apollo/client';
+import { ErrorLink } from '@apollo/client/link/error';
 import {
-  ApolloClient,
-  InMemoryCache,
-  createHttpLink,
-  ApolloLink,
-} from '@apollo/client/core';
-import { onError } from '@apollo/client/link/error';
-import { NetworkError } from '@apollo/client/errors';
-import { setContext } from '@apollo/client/link/context';
+  CombinedGraphQLErrors,
+  CombinedProtocolErrors,
+  ServerError,
+} from '@apollo/client/errors';
+import { SetContextLink } from '@apollo/client/link/context';
+import { HttpLink } from '@apollo/client/link/http';
 import { withScalars } from 'apollo-link-scalars';
 import { DateTimeISOResolver } from 'graphql-scalars';
 import {
@@ -38,13 +38,15 @@ interface IAccruPayParams {
 
   onAuthError?: () => void;
   onGraphQLError?: (errors: ReadonlyArray<GraphQLFormattedError>) => void;
-  onNetworkError?: (error: NetworkError) => void;
+  onNetworkError?: (error: Error) => void;
 }
 
-// eslint-disable-next-line func-names
-(BigInt.prototype as any).toJSON = function () {
-  return this.toString();
-};
+if (!(BigInt.prototype as any).toJSON) {
+  // eslint-disable-next-line func-names
+  (BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
+}
 
 const BigIntResolver = new GraphQLScalarType({
   name: 'BigInt',
@@ -100,20 +102,32 @@ export const createApolloClient = ({
   onNetworkError,
   onAuthError,
 }: IAccruPayParams) => {
-  const errorLink = onError(({ graphQLErrors, networkError }) => {
-    if (graphQLErrors?.length && typeof onGraphQLError === 'function')
-      onGraphQLError(graphQLErrors);
+  const errorLink = new ErrorLink(({ error }) => {
+    if (CombinedGraphQLErrors.is(error)) {
+      if (error.errors.length && typeof onGraphQLError === 'function')
+        onGraphQLError(error.errors);
 
-    if (networkError && typeof onNetworkError === 'function')
-      onNetworkError(networkError);
+      if (
+        error.errors.some(err => err.extensions?.code === 'UNAUTHENTICATED') &&
+        typeof onAuthError === 'function'
+      )
+        onAuthError();
 
-    if (
-      graphQLErrors?.some(
-        error => error.extensions?.code === 'UNAUTHENTICATED',
-      ) &&
-      typeof onAuthError === 'function'
-    )
-      onAuthError();
+      return;
+    }
+
+    if (CombinedProtocolErrors.is(error)) {
+      if (typeof onNetworkError === 'function') onNetworkError(error);
+      return;
+    }
+
+    if (ServerError.is(error)) {
+      if (typeof onNetworkError === 'function') onNetworkError(error);
+      return;
+    }
+
+    if (error && typeof onNetworkError === 'function')
+      onNetworkError(error instanceof Error ? error : new Error(String(error)));
   });
 
   const scalarLink = withScalars({
@@ -126,10 +140,10 @@ export const createApolloClient = ({
 
   const metadata = collectAppMetadata(enableTelemetry);
 
-  const authLink = setContext(async (_, { headers }) => {
+  const authLink = new SetContextLink(async prevContext => {
     return {
       headers: {
-        ...headers,
+        ...(prevContext?.headers || {}),
         'accrupay-api-secret': apiSecret,
         'accrupay-app-metadata': JSON.stringify(metadata),
         'accrupay-sdk-version': metadata.sdk.version,
@@ -141,7 +155,7 @@ export const createApolloClient = ({
     AccruPayEnvironmentUrls[environment || 'production'];
   if (!selectedEnvironmentUrl && !url) throw new Error('Invalid environment.');
 
-  const httpLink = createHttpLink({
+  const httpLink = new HttpLink({
     uri: url || selectedEnvironmentUrl,
   });
 

@@ -24,7 +24,7 @@ class PaymentPlans {
       variables,
     });
 
-    return parsePlainNodes(data.merchantApiPaymentPlans);
+    return parsePlainNodes(data!.merchantApiPaymentPlans);
   }
 
   public async getOne(variables: MerchantApiPaymentPlanQueryVariables) {
@@ -33,7 +33,7 @@ class PaymentPlans {
       variables,
     });
 
-    return data.merchantApiPaymentPlan;
+    return data!.merchantApiPaymentPlan;
   }
 
   public async createOne(

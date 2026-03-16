@@ -22,7 +22,7 @@ class PaymentMethods {
       variables,
     });
 
-    return parsePlainNodes(data.merchantApiCustomerPaymentMethods);
+    return parsePlainNodes(data!.merchantApiCustomerPaymentMethods);
   }
 
   public async getOne(
@@ -33,7 +33,7 @@ class PaymentMethods {
       variables,
     });
 
-    return data.merchantApiCustomerPaymentMethod;
+    return data!.merchantApiCustomerPaymentMethod;
   }
 
   public async syncOne(

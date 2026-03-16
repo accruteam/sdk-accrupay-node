@@ -1,22 +1,45 @@
 import type { GraphQLFormattedError } from 'graphql';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import type { NetworkError } from '@apollo/client/errors';
-import { gql } from '@apollo/client/core';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import { gql } from '@apollo/client';
 
 import { createApolloClient, IAccruPayParams } from './apolloClient';
 
+const readHeader = (
+  headers: HeadersInit | undefined,
+  name: string,
+): string | undefined => {
+  if (!headers) return undefined;
+
+  if (headers instanceof Headers) return headers.get(name) || undefined;
+
+  if (Array.isArray(headers)) {
+    const found = headers.find(
+      ([headerName]) => headerName.toLowerCase() === name.toLowerCase(),
+    );
+    return found?.[1];
+  }
+
+  const asRecord = headers as Record<string, string | undefined>;
+  return (
+    asRecord[name] ||
+    asRecord[name.toLowerCase()] ||
+    asRecord[name.toUpperCase()]
+  );
+};
+
 describe('ApolloClient', () => {
-  let mockOnGraphQLError: (
-    errors: ReadonlyArray<GraphQLFormattedError>,
-  ) => void;
-  let mockOnNetworkError: (error: NetworkError) => void;
-  let mockOnAuthError: () => void;
+  let mockOnGraphQLError: ReturnType<
+    typeof vi.fn<(errors: ReadonlyArray<GraphQLFormattedError>) => void>
+  >;
+  let mockOnNetworkError: ReturnType<typeof vi.fn<(error: Error) => void>>;
+  let mockOnAuthError: ReturnType<typeof vi.fn<() => void>>;
   let baseParams: IAccruPayParams;
 
   beforeEach(() => {
-    mockOnGraphQLError = vi.fn();
-    mockOnNetworkError = vi.fn();
-    mockOnAuthError = vi.fn();
+    mockOnGraphQLError =
+      vi.fn<(errors: ReadonlyArray<GraphQLFormattedError>) => void>();
+    mockOnNetworkError = vi.fn<(error: Error) => void>();
+    mockOnAuthError = vi.fn<() => void>();
 
     baseParams = {
       apiSecret: 'test-api-secret',
@@ -27,6 +50,10 @@ describe('ApolloClient', () => {
     };
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('Client Creation', () => {
     it('should create Apollo client with valid parameters', () => {
       const client = createApolloClient(baseParams);
@@ -35,22 +62,74 @@ describe('ApolloClient', () => {
       expect(client.link).toBeDefined();
     });
 
-    it('should create client with production environment by default', () => {
+    it('should use production environment URL by default', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            data: { merchantApi: { id: 'merchant-id' } },
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      );
+
       const client = createApolloClient({
         apiSecret: 'test-secret',
         onGraphQLError: mockOnGraphQLError,
         onNetworkError: mockOnNetworkError,
         onAuthError: mockOnAuthError,
       });
-      expect(client).toBeDefined();
+
+      await client.query({
+        query: gql`
+          query {
+            merchantApi {
+              id
+            }
+          }
+        `,
+      });
+
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+      expect((globalThis.fetch as any).mock.calls[0][0]).toBe(
+        'https://api.pay.accru.co/graphql',
+      );
     });
 
-    it('should create client with custom URL', () => {
+    it('should use custom URL when provided', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            data: { merchantApi: { id: 'merchant-id' } },
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      );
+
       const client = createApolloClient({
         ...baseParams,
         url: 'https://custom-api.example.com/graphql',
       });
-      expect(client).toBeDefined();
+
+      await client.query({
+        query: gql`
+          query {
+            merchantApi {
+              id
+            }
+          }
+        `,
+      });
+
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+      expect((globalThis.fetch as any).mock.calls[0][0]).toBe(
+        'https://custom-api.example.com/graphql',
+      );
     });
 
     it('should throw error for invalid environment without URL', () => {
@@ -65,53 +144,28 @@ describe('ApolloClient', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle GraphQL errors gracefully', async () => {
+    it('should call onGraphQLError and onAuthError for GraphQL errors', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            errors: [
+              {
+                message: 'Unauthorized',
+                extensions: { code: 'UNAUTHENTICATED' },
+              },
+            ],
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      );
+
       const client = createApolloClient(baseParams);
 
-      try {
-        await client.query({
-          query: gql`
-            query {
-              invalidField
-            }
-          `,
-        });
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-
-      expect(client).toBeDefined();
-    });
-
-    it('should handle network errors gracefully', async () => {
-      const client = createApolloClient({
-        ...baseParams,
-        url: 'http://nonexistent-url-that-will-fail.com/graphql',
-      });
-
-      try {
-        await client.query({
-          query: gql`
-            query {
-              test
-            }
-          `,
-        });
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
-
-      expect(client).toBeDefined();
-    });
-
-    it('should handle authentication errors gracefully', async () => {
-      const client = createApolloClient({
-        ...baseParams,
-        apiSecret: 'invalid-api-secret',
-      });
-
-      try {
-        await client.query({
+      await expect(
+        client.query({
           query: gql`
             query {
               merchantApi {
@@ -119,12 +173,100 @@ describe('ApolloClient', () => {
               }
             }
           `,
-        });
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
+        }),
+      ).rejects.toBeDefined();
 
-      expect(client).toBeDefined();
+      expect(mockOnGraphQLError).toHaveBeenCalledTimes(1);
+      const graphQLErrorArgs = mockOnGraphQLError.mock.calls[0][0];
+      expect(graphQLErrorArgs).toHaveLength(1);
+      expect(graphQLErrorArgs[0]?.extensions?.code).toBe('UNAUTHENTICATED');
+      expect(mockOnAuthError).toHaveBeenCalledTimes(1);
+      expect(mockOnNetworkError).not.toHaveBeenCalled();
+    });
+
+    it('should call onNetworkError for non-GraphQL errors', async () => {
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue(
+        new Error('Network request failed'),
+      );
+
+      const client = createApolloClient(baseParams);
+
+      await expect(
+        client.query({
+          query: gql`
+            query {
+              merchantApi {
+                id
+              }
+            }
+          `,
+        }),
+      ).rejects.toBeDefined();
+
+      expect(mockOnNetworkError).toHaveBeenCalledTimes(1);
+      expect(mockOnGraphQLError).not.toHaveBeenCalled();
+      expect(mockOnAuthError).not.toHaveBeenCalled();
+    });
+
+    it('should handle authentication errors gracefully', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            errors: [
+              {
+                message: 'Unauthorized',
+                extensions: { code: 'UNAUTHENTICATED' },
+              },
+            ],
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      );
+
+      const client = createApolloClient({
+        ...baseParams,
+        apiSecret: 'invalid-api-secret',
+      });
+
+      await expect(
+        client.query({
+          query: gql`
+            query {
+              merchantApi {
+                id
+              }
+            }
+          `,
+        }),
+      ).rejects.toBeDefined();
+
+      expect(mockOnAuthError).toHaveBeenCalledTimes(1);
+    });
+
+    it('should normalize non-Error thrown values for onNetworkError', async () => {
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue('boom');
+
+      const client = createApolloClient(baseParams);
+
+      await expect(
+        client.query({
+          query: gql`
+            query {
+              merchantApi {
+                id
+              }
+            }
+          `,
+        }),
+      ).rejects.toBeDefined();
+
+      expect(mockOnNetworkError).toHaveBeenCalledTimes(1);
+      const normalizedError = mockOnNetworkError.mock.calls[0][0];
+      expect(normalizedError).toBeInstanceOf(Error);
+      expect(normalizedError.message).toContain('boom');
     });
   });
 
@@ -139,22 +281,24 @@ describe('ApolloClient', () => {
     });
 
     it('should handle errors gracefully without error handlers', async () => {
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue(
+        new Error('Network request failed'),
+      );
+
       const client = createApolloClient({
         apiSecret: 'test-secret',
         environment: 'qa',
       });
 
-      try {
-        await client.query({
+      await expect(
+        client.query({
           query: gql`
             query {
               invalidField
             }
           `,
-        });
-      } catch (error) {}
-
-      expect(client).toBeDefined();
+        }),
+      ).rejects.toBeDefined();
     });
   });
 
@@ -169,13 +313,50 @@ describe('ApolloClient', () => {
   });
 
   describe('Authentication Headers', () => {
-    it('should include API secret in headers', () => {
+    it('should include API secret, app metadata and sdk version in headers', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            data: { merchantApi: { id: 'merchant-id' } },
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          },
+        ),
+      );
+
       const client = createApolloClient({
         ...baseParams,
         apiSecret: 'test-api-secret-123',
       });
 
-      expect(client).toBeDefined();
+      await client.query({
+        query: gql`
+          query {
+            merchantApi {
+              id
+            }
+          }
+        `,
+      });
+
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+
+      const requestInit = (globalThis.fetch as any).mock.calls[0][1] as
+        | RequestInit
+        | undefined;
+      const headers = requestInit?.headers;
+      const apiSecret = readHeader(headers, 'accrupay-api-secret');
+      const metadataRaw = readHeader(headers, 'accrupay-app-metadata');
+      const sdkVersion = readHeader(headers, 'accrupay-sdk-version');
+
+      expect(apiSecret).toBe('test-api-secret-123');
+      expect(sdkVersion).toBeTruthy();
+      expect(metadataRaw).toBeTruthy();
+
+      const metadata = JSON.parse(metadataRaw!);
+      expect(metadata?.sdk?.version).toBe(sdkVersion);
     });
   });
 

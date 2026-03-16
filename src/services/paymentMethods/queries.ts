@@ -78,11 +78,13 @@ export const MERCHANT_PAYMENT_METHODS_GET_ONE_QUERY = gql(`
 
 export const MERCHANT_PAYMENT_METHODS_SYNC_ONE_MUTATION = gql(`
   mutation MerchantApiCustomerPaymentMethodSyncOne(
-    $merchantInternalCustomerCode: String!,
+    $customer: MerchantCustomerSelector,
+    $merchantInternalCustomerCode: String,
     $merchantTransactionProviderId: String!,
     $providerCode: String!
   ) {
     merchantApiCustomerPaymentMethodSyncOne(
+      customer: $customer,
       merchantInternalCustomerCode: $merchantInternalCustomerCode,
       merchantTransactionProviderId: $merchantTransactionProviderId,
       providerCode: $providerCode

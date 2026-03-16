@@ -3,9 +3,6 @@ import { gql } from '@api/gql';
 export const MERCHANT_TRANSACTION_BASE_FRAGMENT = gql(`
   fragment MerchantTransactionBaseFragment on MerchantTransaction {
     id
-    code
-    token
-    tokenExpiresAt
     action
     status
     providerStatus

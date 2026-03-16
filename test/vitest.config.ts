@@ -1,11 +1,13 @@
 import { defineConfig } from 'vitest/config';
-import tsconfigPaths from 'vite-tsconfig-paths';
+import { config } from 'dotenv';
 
 export default defineConfig({
-  plugins: [tsconfigPaths()],
   test: {
     testTimeout: 15_000,
-    setupFiles: ['dotenv/config'],
+    env: {
+      NODE_ENV: 'test',
+      ...config({ path: '.env.test', quiet: true }).parsed,
+    },
     pool: 'forks',
     maxWorkers: 1,
     maxConcurrency: 4,
@@ -34,6 +36,7 @@ export default defineConfig({
   },
   // https://github.com/vitest-dev/vitest/issues/4605
   resolve: {
+    tsconfigPaths: true,
     alias: {
       'graphql/language/printer': 'graphql/language/printer.js',
       'graphql/language': 'graphql/language/index.js',
