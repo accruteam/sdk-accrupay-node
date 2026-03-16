@@ -20,7 +20,7 @@ class TransactionProviders {
       variables,
     });
 
-    return parsePlainNodes(data.merchantApiTransactionProviders);
+    return parsePlainNodes(data!.merchantApiTransactionProviders);
   }
 
   public async getOne(variables: MerchantApiTransactionProviderQueryVariables) {
@@ -29,7 +29,7 @@ class TransactionProviders {
       variables,
     });
 
-    return data.merchantApiTransactionProvider;
+    return data!.merchantApiTransactionProvider;
   }
 }
 

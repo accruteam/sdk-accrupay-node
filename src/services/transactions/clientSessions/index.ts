@@ -32,7 +32,7 @@ class TransactionClientSessions {
       variables,
     });
 
-    return data.merchantApiClientTransactionSessionBaseConfig;
+    return data!.merchantApiClientTransactionSessionBaseConfig;
   }
 
   public async getOne(
@@ -43,7 +43,7 @@ class TransactionClientSessions {
       variables,
     });
 
-    return data.merchantApiClientTransactionSession;
+    return data!.merchantApiClientTransactionSession;
   }
 
   public async getMany(
@@ -54,7 +54,7 @@ class TransactionClientSessions {
       variables,
     });
 
-    return parsePlainNodes(data.merchantApiClientTransactionSessions);
+    return parsePlainNodes(data!.merchantApiClientTransactionSessions);
   }
 }
 

@@ -12,10 +12,8 @@ export const MERCHANT_CLIENT_TRANSACTION_SESSION_GET_BASE_CONFIG_QUERY = gql(`
       provider
       data {
         ... on MerchantClientTransactionSessionNuveiBaseConfig {
-          provider
           merchantId
           merchantSiteId
-          environment
           env
         }
         ... on MerchantClientTransactionSessionGenericBaseConfig {

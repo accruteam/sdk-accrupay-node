@@ -11,7 +11,7 @@ class Merchants {
       variables,
     });
 
-    return data.merchantApi;
+    return data!.merchantApi;
   }
 }
 

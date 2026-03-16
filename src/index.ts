@@ -1,4 +1,4 @@
-import { ApolloClient } from '@apollo/client/core';
+import { ApolloClient } from '@apollo/client';
 
 import { IAccruPayParams, createApolloClient } from '@api/apolloClient';
 
@@ -12,7 +12,7 @@ import { PaymentPlans } from '@services/paymentPlans';
 import { AccruPayContext } from './types/context.types';
 
 class AccruPay {
-  public readonly apolloClient: ApolloClient<unknown>;
+  public readonly apolloClient: ApolloClient;
   private readonly context: AccruPayContext;
 
   public readonly merchants: Merchants;
