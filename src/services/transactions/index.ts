@@ -14,15 +14,25 @@ import {
   MERCHANT_TRANSACTIONS_REFUND_ONE_MUTATION,
   MERCHANT_TRANSACTIONS_SYNC_ONE_MUTATION,
 } from './queries';
+import { TransactionsAuthorizations } from './authorizations';
 import { TransactionClientSessions } from './clientSessions';
 import { TransactionsPayments } from './payments';
+import { TransactionServerSessions } from './serverSessions';
 
 class Transactions {
   public readonly clientSessions: TransactionClientSessions;
+  public readonly serverSessions: TransactionServerSessions;
+
+  public readonly authorizations: TransactionsAuthorizations;
+
   public readonly payments: TransactionsPayments;
 
   constructor(private context: AccruPayContext) {
     this.clientSessions = new TransactionClientSessions(this.context);
+    this.serverSessions = new TransactionServerSessions(this.context);
+
+    this.authorizations = new TransactionsAuthorizations(this.context);
+
     this.payments = new TransactionsPayments(this.context);
   }
 

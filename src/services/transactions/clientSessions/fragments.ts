@@ -4,8 +4,10 @@ export const MERCHANT_CLIENT_TRANSACTION_SESSION_BASE_FRAGMENT = gql(`
   fragment MerchantClientTransactionSessionBaseFragment on MerchantClientTransactionSession {
     id
     action
+    kind
     status
     providerCode
+    providerCustomerCode
     providerStatus
     providerError
     providerLastSyncedAt
@@ -19,6 +21,7 @@ export const MERCHANT_CLIENT_TRANSACTION_SESSION_BASE_FRAGMENT = gql(`
     amount
     currency
 
+    customerId
     merchantInternalCustomerCode
     merchantInternalTransactionCode
 
@@ -91,6 +94,10 @@ export const MERCHANT_CLIENT_TRANSACTION_SESSION_FRAGMENT = gql(`
 
     transactionProvider {
       ...MerchantTransactionProviderFragment
+    }
+
+    transactions {
+      ...MerchantTransactionBaseFragment
     }
   }
 `);

@@ -10,6 +10,9 @@ export const MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY = gql(`
     $providerCode: String,
     $methodType: PAYMENT_METHOD,
 
+    $initialTransactionId: String,
+
+    $customerId: String,
     $merchantInternalCustomerCode: String,
 
     $isDefault: Boolean,
@@ -35,6 +38,9 @@ export const MERCHANT_PAYMENT_METHODS_GET_MANY_QUERY = gql(`
       providerCode: $providerCode,
       methodType: $methodType,
 
+      initialTransactionId: $initialTransactionId,
+
+      customerId: $customerId,
       merchantInternalCustomerCode: $merchantInternalCustomerCode,
 
       isDefault: $isDefault,
@@ -79,13 +85,11 @@ export const MERCHANT_PAYMENT_METHODS_GET_ONE_QUERY = gql(`
 export const MERCHANT_PAYMENT_METHODS_SYNC_ONE_MUTATION = gql(`
   mutation MerchantApiCustomerPaymentMethodSyncOne(
     $customer: MerchantCustomerSelector,
-    $merchantInternalCustomerCode: String,
     $merchantTransactionProviderId: String!,
     $providerCode: String!
   ) {
     merchantApiCustomerPaymentMethodSyncOne(
       customer: $customer,
-      merchantInternalCustomerCode: $merchantInternalCustomerCode,
       merchantTransactionProviderId: $merchantTransactionProviderId,
       providerCode: $providerCode
     ) {

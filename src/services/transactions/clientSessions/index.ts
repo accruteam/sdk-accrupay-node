@@ -10,16 +10,21 @@ import {
   MERCHANT_CLIENT_TRANSACTION_SESSION_GET_ONE_QUERY,
   MERCHANT_CLIENT_TRANSACTION_SESSIONS_GET_MANY_QUERY,
 } from './queries';
+import { TransactionClientSessionsAuthorizations } from './authorizations';
 import { TransactionClientSessionsPayments } from './payments';
 import { TransactionClientSessionsPaymentMethod } from './paymentMethod';
 
 class TransactionClientSessions {
   public readonly payments: TransactionClientSessionsPayments;
   public readonly paymentMethod: TransactionClientSessionsPaymentMethod;
+  public readonly authorizations: TransactionClientSessionsAuthorizations;
 
   constructor(private context: AccruPayContext) {
     this.payments = new TransactionClientSessionsPayments(this.context);
     this.paymentMethod = new TransactionClientSessionsPaymentMethod(
+      this.context,
+    );
+    this.authorizations = new TransactionClientSessionsAuthorizations(
       this.context,
     );
   }

@@ -9,6 +9,7 @@ enum AUTHENTICATOR_STATUS {
 }
 
 enum AUTHENTICATOR_TYPE {
+  BACKUP_CODE
   TOTP
 }
 
@@ -112,6 +113,16 @@ type Authenticator {
   updatedAt: DateTimeISO!
 }
 
+type AuthenticatorBackupCodeResult {
+  authenticator: Authenticator!
+  codes: [String!]!
+}
+
+input AuthenticatorChallengeSchema {
+  payload: JSON!
+  type: AUTHENTICATOR_TYPE!
+}
+
 input AuthenticatorEnrollmentConfirmSchema {
   enrollmentId: String!
   label: String
@@ -173,6 +184,14 @@ type AuthenticatorSession {
   ip: String
   metadata: JSON
   sessionId: ID!
+}
+
+input BackupCodeGenerateSchema {
+  label: String
+}
+
+input BackupCodeRegenerateSchema {
+  label: String
 }
 
 """
@@ -661,6 +680,19 @@ input MerchantApiClientTransactionAddPaymentMethodSessionStartSchema {
   user: UserDataSchema
 }
 
+input MerchantApiClientTransactionAuthorizationSessionStartSchema {
+  amount: BigInt!
+  billing: BillingDataSchema!
+  currency: CURRENCY!
+  customer: MerchantCustomerSelector
+  device: DeviceDataSchema
+  merchantInternalCustomerCode: String
+  merchantInternalTransactionCode: String!
+  shipping: ShippingDataSchema
+  storePaymentMethod: Boolean!
+  user: UserDataSchema
+}
+
 input MerchantApiClientTransactionPaymentSessionStartSchema {
   amount: BigInt!
   billing: BillingDataSchema!
@@ -718,6 +750,17 @@ input MerchantApiServerAchPaymentTransactionCreateSchema {
   merchantInternalTransactionCode: String!
   shipping: ShippingDataSchema
   storePaymentMethod: Boolean!
+  user: UserDataSchema
+}
+
+input MerchantApiServerPaymentMethodTransactionAuthorizationSessionStartSchema {
+  amount: BigInt!
+  billing: BillingDataSchema!
+  currency: CURRENCY!
+  device: DeviceDataSchema
+  merchantCustomerPaymentMethodId: String!
+  merchantInternalTransactionCode: String!
+  shipping: ShippingDataSchema
   user: UserDataSchema
 }
 
@@ -834,6 +877,14 @@ type MerchantClientTransactionSessionBaseConfig {
 }
 
 union MerchantClientTransactionSessionBaseConfigData = MerchantClientTransactionSessionGenericBaseConfig | MerchantClientTransactionSessionNuveiBaseConfig
+
+type MerchantClientTransactionSessionContext {
+  customer: MerchantCustomer
+  paymentMethod: MerchantCustomerPaymentMethod
+  session: MerchantClientTransactionSession!
+  transactionProvider: MerchantTransactionProvider!
+  transactions: [MerchantTransaction!]!
+}
 
 type MerchantClientTransactionSessionGenericBaseConfig {
   provider: TRANSACTION_PROVIDER!
@@ -1208,10 +1259,10 @@ type MerchantTransaction {
   paymentMethod: MerchantCustomerPaymentMethod
   paymentMethodCode: String
   paymentMethodId: String
-  paymentMethodInitialTransaction: MerchantCustomerPaymentMethod
   paymentMethodType: PAYMENT_METHOD
   paymentPlan: MerchantPaymentPlan
   paymentPlanId: String
+  providerAuthorizationCode: String
   providerCode: String!
   providerCustomerCode: String
   providerError: String
@@ -1260,6 +1311,14 @@ type MerchantTransaction {
   userLocale: String
   userPhone: String
   voidedAt: DateTimeISO
+}
+
+type MerchantTransactionContext {
+  customer: MerchantCustomer
+  paymentMethod: MerchantCustomerPaymentMethod
+  session: MerchantClientTransactionSession
+  transaction: MerchantTransaction!
+  transactionProvider: MerchantTransactionProvider!
 }
 
 type MerchantTransactionPaginationConnection {
@@ -1458,6 +1517,23 @@ type Mutation {
     """Token for the session."""
     token: String
   ): MerchantTransaction!
+  merchantApiClientTransactionAuthorizationSessionStart(data: MerchantApiClientTransactionAuthorizationSessionStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantClientTransactionSessionContext!
+  merchantApiClientTransactionAuthorizationSessionVerify(
+    """Transaction code on AccruPay API."""
+    code: String @deprecated(reason: "Transaction `code` field is deprecated. Please use the other identifiers instead.")
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Client transaction session code on Transaction Provider."""
+    providerCode: String
+
+    """Token for the session."""
+    token: String
+  ): MerchantClientTransactionSessionContext!
   merchantApiClientTransactionPaymentSessionStart(data: MerchantApiClientTransactionPaymentStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantTransaction!
   merchantApiClientTransactionPaymentSessionStartV2(data: MerchantApiClientTransactionPaymentSessionStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantClientTransactionSession!
   merchantApiClientTransactionPaymentSessionVerify(
@@ -1488,7 +1564,52 @@ type Mutation {
   merchantApiPaymentPlanTemplateSyncOne(merchantTransactionProviderId: String!, providerCode: String!): MerchantPaymentPlanTemplate!
   merchantApiPaymentPlanTemplateUpdate(data: MerchantPaymentPlanTemplateUpdateSchema!, merchantPaymentPlanTemplateId: String!, merchantTransactionProviderId: String!): MerchantPaymentPlanTemplate!
   merchantApiServerAchPaymentTransactionCreate(data: MerchantApiServerAchPaymentTransactionCreateSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantTransaction!
+  merchantApiServerPaymentMethodTransactionAuthorizationSessionStart(data: MerchantApiServerPaymentMethodTransactionAuthorizationSessionStartSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantClientTransactionSessionContext!
+  merchantApiServerPaymentMethodTransactionAuthorizationSessionVerify(
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Server transaction session code on Transaction Provider."""
+    providerCode: String
+  ): MerchantClientTransactionSessionContext!
   merchantApiServerPaymentMethodTransactionCreate(data: MerchantApiServerPaymentMethodTransactionCreateSchema!, merchantTransactionProviderId: String, transactionProvider: TRANSACTION_PROVIDER): MerchantTransaction!
+  merchantApiTransactionAuthorizationSettle(
+    amount: BigInt!
+
+    """Transaction code on AccruPay API."""
+    code: String @deprecated(reason: "Transaction `code` field is deprecated. Please use the other identifiers instead.")
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Transaction code on Transaction Provider."""
+    providerCode: String
+
+    """Transaction token, only when the transaction is not finished/expired."""
+    token: String @deprecated(reason: "Use Transaction Session API.")
+  ): MerchantTransactionContext!
+  merchantApiTransactionAuthorizationVoid(
+    """Transaction code on AccruPay API."""
+    code: String @deprecated(reason: "Transaction `code` field is deprecated. Please use the other identifiers instead.")
+
+    """Transaction ID on AccruPay API."""
+    id: String
+
+    """Transaction code given by Merchant API."""
+    merchantInternalTransactionCode: String
+
+    """Transaction code on Transaction Provider."""
+    providerCode: String
+
+    """Transaction token, only when the transaction is not finished/expired."""
+    token: String @deprecated(reason: "Use Transaction Session API.")
+  ): MerchantTransactionContext!
   merchantApiTransactionRefund(
     amount: BigInt!
 
@@ -1540,17 +1661,19 @@ type Mutation {
     """Transaction token, only when the transaction is not finished/expired."""
     token: String @deprecated(reason: "Use Transaction Session API.")
   ): MerchantTransaction!
-  userAuthenticatorRevoke(authenticatorChallengePayload: JSON!, authenticatorId: String!): Authenticator!
+  userAuthenticatorBackupCodeGenerate(authenticatorChallenge: AuthenticatorChallengeSchema!, data: BackupCodeGenerateSchema!): AuthenticatorBackupCodeResult!
+  userAuthenticatorBackupCodeRegenerate(authenticatorChallenge: AuthenticatorChallengeSchema!, data: BackupCodeRegenerateSchema!): AuthenticatorBackupCodeResult!
+  userAuthenticatorRevoke(authenticatorChallenge: AuthenticatorChallengeSchema!, authenticatorId: String!): Authenticator!
   userAuthenticatorTotpEnrollmentConfirm(data: AuthenticatorEnrollmentConfirmSchema!, payload: TotpEnrollmentConfirmPayloadSchema!): Authenticator!
   userAuthenticatorTotpEnrollmentStart(data: AuthenticatorEnrollmentStartSchema!): AuthenticatorEnrollmentSession!
   userAuthenticatorTotpReplacementConfirm(data: AuthenticatorReplacementConfirmSchema!, payload: TotpReplacementConfirmPayloadSchema!): Authenticator!
-  userAuthenticatorTotpReplacementStart(authenticatorChallengePayload: JSON!, data: AuthenticatorReplacementStartSchema!): AuthenticatorReplacementSession!
+  userAuthenticatorTotpReplacementStart(authenticatorChallenge: AuthenticatorChallengeSchema!, data: AuthenticatorReplacementStartSchema!): AuthenticatorReplacementSession!
   userEmailVerifyOrChangeFinish(data: UserEmailVerifyOrChangeFinishSchema!): User!
   userEmailVerifyOrChangeStart(data: UserEmailVerifyOrChangeStartSchema!): DateTimeISO!
   userHandleLoginAttempt(email: String!): DateTimeISO!
-  userMerchantApiKeyCreate(authenticatorChallengePayload: JSON!, merchantId: String): MerchantApiKey!
-  userMerchantApiKeyDelete(authenticatorChallengePayload: JSON!, merchantApiKeyId: String!, merchantId: String): Boolean!
-  userMerchantApiKeyShowSecret(authenticatorChallengePayload: JSON!, merchantApiKeyId: String!, merchantId: String): String!
+  userMerchantApiKeyCreate(authenticatorChallenge: AuthenticatorChallengeSchema!, merchantId: String): MerchantApiKey!
+  userMerchantApiKeyDelete(authenticatorChallenge: AuthenticatorChallengeSchema!, merchantApiKeyId: String!, merchantId: String): Boolean!
+  userMerchantApiKeyShowSecret(authenticatorChallenge: AuthenticatorChallengeSchema!, merchantApiKeyId: String!, merchantId: String): String!
   userMerchantCreate(data: MerchantCreateSchema!): MerchantUser!
   userMerchantCustomerPaymentMethodSyncOne(customer: MerchantCustomerSelector, merchantId: String, merchantInternalCustomerCode: String @deprecated(reason: "Use customer selector instead."), merchantTransactionProviderId: String!, providerCode: String!): MerchantCustomerPaymentMethod!
   userMerchantEmailUpdateFinish(data: UserMerchantEmailVerifyFinishSchema!, merchantId: String): Merchant!
@@ -1563,7 +1686,7 @@ type Mutation {
   userMerchantSentInvitationCreate(data: MerchantUserInvitationCreateSchema!, merchantId: String): MerchantUserInvitation!
   userMerchantTransactionProviderApplicationApply(merchantId: String, provider: TRANSACTION_PROVIDER!): MerchantTransactionProviderApplication!
   userMerchantTransactionProviderCreate(data: UserMerchantTransactionProviderCreateSchema!, merchantId: String): MerchantTransactionProvider!
-  userMerchantTransactionProviderIntegrationLogAuthenticatorSessionCreate(authenticatorChallengePayload: JSON!, merchantId: String): AuthenticatorSession!
+  userMerchantTransactionProviderIntegrationLogAuthenticatorSessionCreate(authenticatorChallenge: AuthenticatorChallengeSchema!, merchantId: String): AuthenticatorSession!
   userMerchantTransactionSyncOne(
     """Transaction code on AccruPay API."""
     code: String @deprecated(reason: "Transaction `code` field is deprecated. Please use the other identifiers instead.")

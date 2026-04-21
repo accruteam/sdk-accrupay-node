@@ -50,6 +50,7 @@ export const MERCHANT_CLIENT_TRANSACTION_SESSIONS_GET_MANY_QUERY = gql(`
     $token: String
 
     $action: TRANSACTION_ACTION
+    $kind: CLIENT_TRANSACTION_SESSION_KIND
     $amount: BigInt
     $currency: CURRENCY
     $providerStatus: CLIENT_TRANSACTION_SESSION_STATUS
@@ -57,7 +58,10 @@ export const MERCHANT_CLIENT_TRANSACTION_SESSIONS_GET_MANY_QUERY = gql(`
     $paymentMethodId: String
     $paymentPlanId: String
     $transactionProviderId: String
-    
+
+    $customerId: String
+    $providerCustomerCode: String
+
     $merchantInternalCustomerCode: String
     $merchantInternalTransactionCode: String
 
@@ -83,6 +87,7 @@ export const MERCHANT_CLIENT_TRANSACTION_SESSIONS_GET_MANY_QUERY = gql(`
       token: $token
 
       action: $action
+      kind: $kind
       amount: $amount
       currency: $currency
       providerStatus: $providerStatus
@@ -90,6 +95,9 @@ export const MERCHANT_CLIENT_TRANSACTION_SESSIONS_GET_MANY_QUERY = gql(`
       paymentMethodId: $paymentMethodId
       paymentPlanId: $paymentPlanId
       transactionProviderId: $transactionProviderId
+
+      customerId: $customerId
+      providerCustomerCode: $providerCustomerCode
 
       merchantInternalCustomerCode: $merchantInternalCustomerCode
       merchantInternalTransactionCode: $merchantInternalTransactionCode
