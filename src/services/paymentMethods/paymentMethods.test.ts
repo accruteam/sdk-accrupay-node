@@ -33,14 +33,16 @@ getTransactionProviderList().forEach(provider => {
       it('should validate syncOne syntax and types', async () => {
         await expectSyntaxValidation(() =>
           client.paymentMethods.syncOne({
-            merchantInternalCustomerCode: 'safe-customer-code',
+            customer: { merchantInternalCustomerCode: 'safe-customer-code' },
             merchantTransactionProviderId: providerFixtures.safeUnusedId,
             providerCode: 'safe-provider-code',
           }),
         );
         await expectSyntaxValidation(() =>
           client.paymentMethods.syncOne({
-            merchantInternalCustomerCode: providerFixtures.safeUnusedId,
+            customer: {
+              merchantInternalCustomerCode: providerFixtures.safeUnusedId,
+            },
             merchantTransactionProviderId: providerFixtures.safeUnusedId,
             providerCode: 'safe-provider-code',
           }),
@@ -66,8 +68,10 @@ getTransactionProviderList().forEach(provider => {
 
       it('should be able to sync one payment method', async () => {
         const data = await client.paymentMethods.syncOne({
-          merchantInternalCustomerCode:
-            providerFixtures.merchantInternalCustomerCode,
+          customer: {
+            merchantInternalCustomerCode:
+              providerFixtures.merchantInternalCustomerCode,
+          },
           merchantTransactionProviderId: providerFixtures.transactionProviderId,
           providerCode: providerFixtures.providerCustomerPaymentMethodCode,
         });

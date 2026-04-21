@@ -24,6 +24,8 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
     $merchantInternalCustomerCode: String,
     $merchantInternalTransactionCode: String,
 
+    $customerId: String,
+
     $relatedTransactionId: String,
 
     $failed: Boolean,
@@ -69,6 +71,8 @@ export const MERCHANT_TRANSACTIONS_GET_MANY_QUERY = gql(`
 
       merchantInternalCustomerCode: $merchantInternalCustomerCode,
       merchantInternalTransactionCode: $merchantInternalTransactionCode,
+
+      customerId: $customerId,
 
       relatedTransactionId: $relatedTransactionId,
 

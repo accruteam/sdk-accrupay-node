@@ -10,6 +10,7 @@ export const MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY = gql(`
     $name: String,
     $currency: CURRENCY,
     $providerCode: String,
+    $providerParentTemplateCode: String,
     $providerStatus: PAYMENT_PLAN_TEMPLATE_STATUS,
 
     $skip: Int,
@@ -32,6 +33,7 @@ export const MERCHANT_PAYMENT_PLAN_TEMPLATES_GET_MANY_QUERY = gql(`
     name: $name,
     currency: $currency,
     providerCode: $providerCode,
+    providerParentTemplateCode: $providerParentTemplateCode,
     providerStatus: $providerStatus,
 
     skip: $skip,

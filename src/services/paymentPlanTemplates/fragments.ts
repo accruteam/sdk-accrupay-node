@@ -12,6 +12,7 @@ export const MERCHANT_PAYMENT_PLAN_TEMPLATE_FRAGMENT = gql(`
     providerError
     providerLastSyncedAt
     providerLastVerifiedAt
+    providerParentTemplateCode
     providerStatus
     transactionProviderId
 
