@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.17.0
+
+### Minor Changes
+
+- d3389d0: add auth settle modules
+
 ## 0.16.0
 
 ### Minor Changes
