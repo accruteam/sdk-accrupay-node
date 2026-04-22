@@ -3,12 +3,18 @@ import { gql } from '@api/gql';
 export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
   fragment MerchantCustomerPaymentMethodFragment on MerchantCustomerPaymentMethod {
     id
+
+    customerId
+    initialTransactionId
+    
     isDefault
     isEnabled
+    expiresAt
     status
     merchantInternalCustomerCode
     methodType
     providerCode
+    providerCustomerCode
     providerError
     providerLastSyncedAt
     providerLastVerifiedAt
@@ -31,6 +37,8 @@ export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
         methodType
         cardBrand
         cardNumberMasked
+        expirationMonth
+        expirationYear
       }
       ... on MerchantCustomerPaymentMethodGenericInfo {
         methodType
@@ -38,6 +46,7 @@ export const MERCHANT_CUSTOMER_PAYMENT_METHOD_FRAGMENT = gql(`
       ... on MerchantCustomerPaymentMethodAchInfo {
         methodType
         accountNumber
+        bankName
         routingNumber
         secCode
       }

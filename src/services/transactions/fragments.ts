@@ -7,7 +7,9 @@ export const MERCHANT_TRANSACTION_BASE_FRAGMENT = gql(`
     status
     providerStatus
     providerCode
+    providerCustomerCode
     providerRelatedCode
+    providerAuthorizationCode
     providerError
     providerLastSyncedAt
     providerLastVerifiedAt
@@ -79,11 +81,11 @@ export const MERCHANT_TRANSACTION_BASE_FRAGMENT = gql(`
     paymentMethodId
     paymentMethodCode
     paymentMethodType
-    
-    paymentPlanId
 
+    paymentPlanId
+    customerId
+    clientTransactionSessionId
     relatedTransactionId
-    
     transactionProviderId
 
     payload
@@ -92,6 +94,7 @@ export const MERCHANT_TRANSACTION_BASE_FRAGMENT = gql(`
     updatedAt
   }
 `);
+
 export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
   fragment MerchantTransactionFragment on MerchantTransaction {
     ...MerchantTransactionBaseFragment
@@ -106,6 +109,10 @@ export const MERCHANT_TRANSACTION_FRAGMENT = gql(`
 
     transactionProvider {
       ...MerchantTransactionProviderFragment
+    }
+
+    clientTransactionSession {
+      ...MerchantClientTransactionSessionBaseFragment
     }
   }
 `);
