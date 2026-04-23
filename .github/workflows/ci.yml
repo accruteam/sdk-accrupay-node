@@ -149,14 +149,10 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Parse secrets data dotenv syntax as .env file
-        id: parse-secrets
-        uses: luizfelipelaviola/parse-plain-dotenv@v1
-        with:
-          data: ${{ steps.secrets.outputs.data }}
-          parse-env: false
-          write-env-file: true
-          env-file-path: .env
+      - name: Parse secrets data dotenv syntax as .env.test file (and .env for backwards compatibility)
+        run: |
+          echo "${{ steps.secrets.outputs.data }}" > .env.test
+          echo "${{ steps.secrets.outputs.data }}" > .env
 
       - name: Run tests
         id: test
