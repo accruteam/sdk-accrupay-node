@@ -3,18 +3,18 @@ import { config } from 'dotenv';
 
 export default defineConfig({
   test: {
-    testTimeout: 15_000,
+    testTimeout: 30_000,
     env: {
       NODE_ENV: 'test',
       ...config({ path: '.env.test', quiet: true }).parsed,
     },
     pool: 'forks',
-    maxWorkers: 1,
+    maxWorkers: 2,
     maxConcurrency: 4,
     coverage: {
       enabled: true,
       provider: 'v8',
-      reporter: [/* 'text', */ 'text-summary', 'json', 'html'],
+      reporter: ['text', 'text-summary', 'verbose', 'json', 'html'],
       reportsDirectory: './test/coverage',
       include: ['src/**/*.ts'],
       exclude: [

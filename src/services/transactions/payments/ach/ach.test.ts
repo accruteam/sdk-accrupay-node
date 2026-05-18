@@ -84,6 +84,9 @@ getTransactionProviderList().forEach(provider => {
             ach: {
               accountNumber: providerFixtures.ach.success.accountNumber,
               routingNumber: providerFixtures.ach.success.routingNumber,
+              ...(providerFixtures.ach.success.entityType && {
+                entityType: providerFixtures.ach.success.entityType,
+              }),
             },
             storePaymentMethod: false,
           },
