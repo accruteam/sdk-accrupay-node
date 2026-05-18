@@ -1,4 +1,4 @@
-import { TRANSACTION_PROVIDER } from '@api/gql/graphql';
+import { TRANSACTION_PROVIDER, ENTITY_TYPE } from '@api/gql/graphql';
 
 interface IProviderFixtures {
   safeUnusedId: string;
@@ -25,6 +25,7 @@ interface IProviderFixtures {
       amount: bigint;
       accountNumber: string;
       routingNumber: string;
+      entityType?: ENTITY_TYPE;
     };
   };
 }
@@ -62,13 +63,18 @@ const getProviderFixtures = (provider: TRANSACTION_PROVIDER) => {
         process.env.TESTING_NUVEI_FIXTURE_PROVIDER_PAYMENT_PLAN_TEMPLATE_CODE!,
 
       ach: {
-        success: {
-          amount: BigInt(process.env.TESTING_NUVEI_FIXTURE_ACH_SUCCESS_AMOUNT!),
-          accountNumber:
-            process.env.TESTING_NUVEI_FIXTURE_ACH_SUCCESS_ACCOUNT_NUMBER!,
-          routingNumber:
-            process.env.TESTING_NUVEI_FIXTURE_ACH_SUCCESS_ROUTING_NUMBER!,
-        },
+        success: (() => {
+          const raw = process.env.TESTING_NUVEI_FIXTURE_ACH_SUCCESS_JSON
+            ? JSON.parse(process.env.TESTING_NUVEI_FIXTURE_ACH_SUCCESS_JSON)
+            : {
+                amount: process.env.TESTING_NUVEI_FIXTURE_ACH_SUCCESS_AMOUNT,
+                accountNumber:
+                  process.env.TESTING_NUVEI_FIXTURE_ACH_SUCCESS_ACCOUNT_NUMBER,
+                routingNumber:
+                  process.env.TESTING_NUVEI_FIXTURE_ACH_SUCCESS_ROUTING_NUMBER,
+              };
+          return { ...raw, amount: BigInt(raw.amount) };
+        })(),
       },
     },
 
@@ -103,15 +109,20 @@ const getProviderFixtures = (provider: TRANSACTION_PROVIDER) => {
         process.env.TESTING_STRIPE_FIXTURE_PROVIDER_PAYMENT_PLAN_TEMPLATE_CODE!,
 
       ach: {
-        success: {
-          amount: BigInt(
-            process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_AMOUNT!,
-          ),
-          accountNumber:
-            process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_ACCOUNT_NUMBER!,
-          routingNumber:
-            process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_ROUTING_NUMBER!,
-        },
+        success: (() => {
+          const raw = process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_JSON
+            ? JSON.parse(process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_JSON)
+            : {
+                amount: process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_AMOUNT,
+                accountNumber:
+                  process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_ACCOUNT_NUMBER,
+                routingNumber:
+                  process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_ROUTING_NUMBER,
+                entityType:
+                  process.env.TESTING_STRIPE_FIXTURE_ACH_SUCCESS_ENTITY_TYPE,
+              };
+          return { ...raw, amount: BigInt(raw.amount) };
+        })(),
       },
     },
   } satisfies Record<TRANSACTION_PROVIDER, IProviderFixtures>;

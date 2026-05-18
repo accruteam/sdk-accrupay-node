@@ -550,6 +550,11 @@ input DeviceDataSchema {
   deviceType: DEVICE_TYPE
 }
 
+enum ENTITY_TYPE {
+  COMPANY
+  INDIVIDUAL
+}
+
 type ErrorLog {
   code: String
   createdAt: DateTimeISO!
@@ -1010,6 +1015,7 @@ type MerchantCustomerPaymentMethod {
 type MerchantCustomerPaymentMethodAchInfo {
   accountNumber: String
   bankName: String
+  entityType: ENTITY_TYPE
   methodType: PAYMENT_METHOD!
   routingNumber: String
   secCode: TRANSACTION_ACH_SECCODE
@@ -1220,6 +1226,7 @@ input MerchantPaymentPlanTemplateUpdateSchema {
 
 input MerchantServerAchTransactionDataSchema {
   accountNumber: String!
+  entityType: ENTITY_TYPE
   routingNumber: String!
   secCode: TRANSACTION_ACH_SECCODE
 }

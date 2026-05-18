@@ -551,6 +551,11 @@ export type DeviceDataSchema = {
   deviceType?: InputMaybe<DEVICE_TYPE>;
 };
 
+export enum ENTITY_TYPE {
+  COMPANY = 'COMPANY',
+  INDIVIDUAL = 'INDIVIDUAL'
+}
+
 export type ErrorLog = {
   __typename?: 'ErrorLog';
   code?: Maybe<Scalars['String']['output']>;
@@ -1030,6 +1035,7 @@ export type MerchantCustomerPaymentMethodAchInfo = {
   __typename?: 'MerchantCustomerPaymentMethodAchInfo';
   accountNumber?: Maybe<Scalars['String']['output']>;
   bankName?: Maybe<Scalars['String']['output']>;
+  entityType?: Maybe<ENTITY_TYPE>;
   methodType: PAYMENT_METHOD;
   routingNumber?: Maybe<Scalars['String']['output']>;
   secCode?: Maybe<TRANSACTION_ACH_SECCODE>;
@@ -1250,6 +1256,7 @@ export type MerchantPaymentPlanTemplateUpdateSchema = {
 
 export type MerchantServerAchTransactionDataSchema = {
   accountNumber: Scalars['String']['input'];
+  entityType?: InputMaybe<ENTITY_TYPE>;
   routingNumber: Scalars['String']['input'];
   secCode?: InputMaybe<TRANSACTION_ACH_SECCODE>;
 };
