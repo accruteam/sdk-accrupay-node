@@ -1,5 +1,11 @@
 # @accrupay/node
 
+## 0.17.1
+
+### Patch Changes
+
+- 32de11c: update ach schema for stripe
+
 ## 0.17.0
 
 ### Minor Changes
